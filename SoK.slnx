@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="SoK.Application/SoK.Application.csproj" />
+  <Project Path="SoK.Domain/SoK.Domain.csproj" />
+  <Project Path="SoK.Infrastructure/SoK.Infrastructure.csproj" />
+  <Project Path="SoK.Web/SoK.Web.csproj" />
+</Solution>

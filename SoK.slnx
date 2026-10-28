@@ -2,5 +2,5 @@
   <Project Path="SoK.Application/SoK.Application.csproj" />
   <Project Path="SoK.Domain/SoK.Domain.csproj" />
   <Project Path="SoK.Infrastructure/SoK.Infrastructure.csproj" />
-  <Project Path="SoK.Web/SoK.Web.csproj" />
+  <Project Path="SoK.Webb/SoK.Webb.csproj" Id="2a03367a-261e-4a4e-85d6-09b4b457fad1" />
 </Solution>

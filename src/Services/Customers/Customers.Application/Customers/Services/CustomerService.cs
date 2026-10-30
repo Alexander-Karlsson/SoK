@@ -27,5 +27,8 @@ namespace Customers.Application.Customers.Services
 
             return await repo.AddAsync(customer);
         }
+
+        public async Task<Customer?> GetByIdAsync(Guid id)
+            => await repo.GetByIdAsync(id);
     }
 }

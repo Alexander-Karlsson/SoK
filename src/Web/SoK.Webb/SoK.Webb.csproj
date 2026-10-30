@@ -17,10 +17,4 @@
     <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.14" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\SoK.Application\SoK.Application.csproj" />
-    <ProjectReference Include="..\SoK.Domain\SoK.Domain.csproj" />
-    <ProjectReference Include="..\SoK.Infrastructure\SoK.Infrastructure.csproj" />
-  </ItemGroup>
-
 </Project>

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Employees.Infrastructure.Persistence;
 
-public class EmployeeDbContext(DbContextOptions<EmployeeDbContext> options) : DbContext(options)
+public class EmployeesDbContext(DbContextOptions<EmployeesDbContext> options) : DbContext(options)
 {
     public DbSet<Employee> Employees => Set<Employee>();
     public DbSet<EmployeePayroll> EmployeePayrolls => Set<EmployeePayroll>();

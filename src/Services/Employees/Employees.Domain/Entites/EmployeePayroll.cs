@@ -14,6 +14,6 @@ public class EmployeePayroll
     public string BankName { get; set; } = string.Empty;
     public string BankAccount { get; set; } = string.Empty;
     public decimal Deductions { get; set; }
-    public DateTime PayDate { get; set; }
+    public DateTime PayrollDate { get; set; }
 
 }

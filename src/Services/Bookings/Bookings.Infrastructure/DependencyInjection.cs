@@ -1,6 +1,17 @@
-﻿namespace Bookings.Infrastructure;
+﻿using Bookings.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
-public class DependencyInjection
+namespace Bookings.Infrastructure;
+
+public static class DependencyInjection
 {
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddDbContext<BookingDbContext>(options =>
+            options.UseSqlServer(configuration.GetConnectionString("BookingsDb")));
 
+        return services;
+    }
 }

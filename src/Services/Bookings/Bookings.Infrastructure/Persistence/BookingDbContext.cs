@@ -72,6 +72,9 @@ public class BookingDbContext(DbContextOptions<BookingDbContext> options) : DbCo
             entity.HasIndex(bs => new { bs.BookingId, bs.ServiceId })
                 .IsUnique();
 
+            entity.Property(bs => bs.PricePerHour)
+                .HasPrecision(18, 2);
+
             entity.Property(bs => bs.EstimatedHours)
                 .HasPrecision(10, 2);
         });

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace SoK.Domain.Entities
 {
-    internal class Project
+    public class Project
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;

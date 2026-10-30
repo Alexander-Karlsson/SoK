@@ -4,7 +4,7 @@ using System.Text;
 
 namespace SoK.Domain.Entities
 {
-    internal class Customer
+    public class Customer
     {
         public int Id { get; set; }
         public Guid CustomerNumber { get; set; }
@@ -22,5 +22,7 @@ namespace SoK.Domain.Entities
         public bool IsActive { get; set; }
 
         public ICollection<Project> Projects = new List<Project>();
+        public ICollection<Invoice> Invoices = new List<Invoice>();
+        public ICollection<CustomerAgreement> CustomerAgreements = new List<CustomerAgreement>();
     }
 }

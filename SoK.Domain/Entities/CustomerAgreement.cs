@@ -4,7 +4,7 @@ using System.Text;
 
 namespace SoK.Domain.Entities
 {
-    internal class CustomerAgreement
+    public class CustomerAgreement
     {
         public int Id { get; set; }
         public string Terms { get; set; } = string.Empty;

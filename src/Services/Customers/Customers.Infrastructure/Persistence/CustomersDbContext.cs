@@ -76,7 +76,8 @@ namespace Customers.Infrastructure.Persistance
             {
                 entity.HasOne<Customer>()
                     .WithMany()
-                    .HasForeignKey(c => c.CustomerId);
+                    .HasForeignKey(c => c.CustomerId)
+                    .OnDelete(DeleteBehavior.NoAction);
 
                 entity.Property(c => c.Terms)
                     .HasMaxLength(4000)
@@ -94,8 +95,9 @@ namespace Customers.Infrastructure.Persistance
             {
                 entity.HasOne<Customer>()
                     .WithMany()
-                    .HasForeignKey(p => p.CustomerId);
-                
+                    .HasForeignKey(p => p.CustomerId)
+                    .OnDelete(DeleteBehavior.NoAction);
+
                 entity.Property(p => p.ProjectName)
                     .HasMaxLength(200)
                     .IsRequired();

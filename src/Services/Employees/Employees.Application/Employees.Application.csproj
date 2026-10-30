@@ -12,9 +12,6 @@
 
   <ItemGroup>
     <Folder Include="Employees\DTOs\" />
-    <Folder Include="Employees\Interfaces\" />
-    <Folder Include="Employees\" />
-    <Folder Include="Employees\Services\" />
   </ItemGroup>
 
 </Project>

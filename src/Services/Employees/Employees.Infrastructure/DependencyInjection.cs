@@ -1,9 +1,25 @@
-﻿using System;
+﻿using Employees.Infrastructure.Persistence;
+using Employees.Infrastructure.Repositories;
+using Employees.Application.Employees.Services;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Employees.Infrastructure;
 
-internal class DependencyInjection
+public static class DependencyInjection
 {
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddDbContext<EmployeesDbContext>(options =>
+        options.UseSqlServer(
+            configuration.GetConnectionString("DefaultConnection")));
+        
+        services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+        services.AddScoped<EmployeeService>();
+        return services;
+    }
 }

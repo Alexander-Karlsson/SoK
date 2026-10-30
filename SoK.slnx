@@ -1,4 +1,20 @@
 <Solution>
+  <Project Path="Bookings.Api/Bookings.Api.csproj" />
+  <Project Path="Bookings.Application/Bookings.Application.csproj" />
+  <Project Path="Bookings.Domain/Bookings.Domain.csproj" />
+  <Project Path="Bookings.Infrastructure/Bookings.Infrastructure.csproj" />
+  <Project Path="Customers.Api/Customers.Api.csproj" />
+  <Project Path="Customers.Application/Customers.Application.csproj" />
+  <Project Path="Customers.Domain/Customers.Domain.csproj" />
+  <Project Path="Customers.Infrastructure/Customers.Infrastructure.csproj" />
+  <Project Path="Employees.Api/Employees.Api.csproj" />
+  <Project Path="Employees.Application/Employees.Application.csproj" />
+  <Project Path="Employees.Domain/Employees.Domain.csproj" />
+  <Project Path="Employees.Infrastructure/Employees.Infrastructure.csproj" />
+  <Project Path="Invoices.Api/Invoices.Api.csproj" />
+  <Project Path="Invoices.Application/Invoices.Application.csproj" />
+  <Project Path="Invoices.Domain/Invoices.Domain.csproj" />
+  <Project Path="Invoices.Infrastructure/Invoices.Infrastructure.csproj" />
   <Project Path="SoK.Application/SoK.Application.csproj" />
   <Project Path="SoK.Domain/SoK.Domain.csproj" />
   <Project Path="SoK.Infrastructure/SoK.Infrastructure.csproj" />

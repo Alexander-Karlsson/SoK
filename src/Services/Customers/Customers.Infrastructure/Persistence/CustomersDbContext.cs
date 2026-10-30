@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Customers.Infrastructure.Persistance
+namespace Customers.Infrastructure.Persistence
 {
     public class CustomersDbContext(DbContextOptions<CustomersDbContext> options) : DbContext(options)
     {

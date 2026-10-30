@@ -1,4 +1,7 @@
-﻿using Customers.Infrastructure.Persistance;
+﻿using Customers.Application.Customers.Interfaces;
+using Customers.Application.Customers.Services;
+using Customers.Infrastructure.Persistence;
+using Customers.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,6 +16,9 @@ namespace Customers.Infrastructure
             services.AddDbContext<CustomersDbContext>(options =>
             options.UseSqlServer(
                 configuration.GetConnectionString("CustomersDb")));
+
+            services.AddScoped<ICustomerRepository, CustomerRepository>();
+            services.AddScoped<CustomerService>();
 
             return services;
         }

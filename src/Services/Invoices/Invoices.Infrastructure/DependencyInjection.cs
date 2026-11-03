@@ -1,4 +1,7 @@
-﻿using Invoices.Infrastructure.Persistence;
+﻿using Invoices.Application.Interfaces;
+using Invoices.Application.Services;
+using Invoices.Infrastructure.Persistence;
+using Invoices.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +15,9 @@ public static class DependencyInjection
         services.AddDbContext<InvoiceDbContext>(options =>
         options.UseSqlServer(
             configuration.GetConnectionString("InvoicesDb")));
+
+        services.AddScoped<IInvoiceRepository, InvoiceRepository>();
+        services.AddScoped<InvoiceService>();
 
         return services;
     }

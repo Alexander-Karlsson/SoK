@@ -19,6 +19,9 @@ public static class DependencyInjection
         services.AddScoped<IInvoiceRepository, InvoiceRepository>();
         services.AddScoped<InvoiceService>();
 
+        services.AddScoped<ITemplateRepository, TemplateRepository>();
+        services.AddScoped<TemplateService>();
+
         return services;
     }
 }

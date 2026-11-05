@@ -6,7 +6,7 @@ namespace Invoices.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class InvoiceController (InvoiceService service) : ControllerBase
+public class InvoicesController (InvoiceService service) : ControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> CreateInvoice([FromBody] CreateInvoiceRequest request)
@@ -18,9 +18,9 @@ public class InvoiceController (InvoiceService service) : ControllerBase
 
     [HttpGet]
     [Route("{id:guid}")]
-    public async Task<IActionResult> GetInvoice(Guid id)
+    public async Task<IActionResult> GetById(Guid id)
     {
-        var invoice = await service.GetInvoiceAsync(id);
+        var invoice = await service.GetByIdAsync(id);
 
         if (invoice == null)
         {

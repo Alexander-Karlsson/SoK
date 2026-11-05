@@ -20,7 +20,7 @@ public class InvoiceRepository(InvoiceDbContext context) : IInvoiceRepository
         return invoice;
     }
 
-    public async Task<Invoice?> GetAsync(Guid id)
+    public async Task<Invoice?> GetByIdAsync(Guid id)
         => await context.Invoices.FindAsync(id);
 
     public async Task<List<InvoiceLine>> GetLinesAsync(Guid invoiceId)

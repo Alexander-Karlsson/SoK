@@ -18,6 +18,7 @@ public class InvoiceService(IInvoiceRepository repo)
             CustomerId = request.CustomerId,
             TemplateId = request.TemplateId,
             InvoiceNumber = invoiceNumber,
+            OcrReference = invoiceNumber,
             InvoiceDate = today,
             DueDate = today.AddDays(30),
             Status = InvoiceStatus.Draft
@@ -52,6 +53,6 @@ public class InvoiceService(IInvoiceRepository repo)
         return await repo.AddAsync(invoice, lines);
     }
 
-    public async Task<Invoice?> GetInvoiceAsync(Guid id)
-        => await repo.GetAsync(id);
+    public async Task<Invoice?> GetByIdAsync(Guid id)
+        => await repo.GetByIdAsync(id);
 }

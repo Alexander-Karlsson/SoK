@@ -8,5 +8,5 @@ public class CreateInvoiceLineRequest
     public decimal Quantity { get; set; }
     public InvoiceUnit Unit { get; set; }
     public decimal UnitPrice { get; set; }
-    public decimal VatRate { get; set; }
+    public decimal VatRate { get; set; } = 0.25m;
 }

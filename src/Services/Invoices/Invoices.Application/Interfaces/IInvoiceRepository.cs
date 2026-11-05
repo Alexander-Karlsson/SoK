@@ -5,6 +5,6 @@ namespace Invoices.Application.Interfaces;
 public interface IInvoiceRepository
 {
     Task<Invoice> AddAsync(Invoice invoice, List<InvoiceLine> lines);
-    Task<Invoice?> GetAsync(Guid id);
+    Task<Invoice?> GetByIdAsync(Guid id);
     Task<List<InvoiceLine>> GetLinesAsync(Guid invoiceId);
 }

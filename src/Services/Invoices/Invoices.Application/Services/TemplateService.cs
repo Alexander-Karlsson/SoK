@@ -31,6 +31,6 @@ public class TemplateService(ITemplateRepository repo)
     public async Task<List<InvoiceTemplate>> GetAllAsync()
         => await repo.GetAllAsync();
 
-    public async Task<InvoiceTemplate> GetByIdAsync(Guid id)
+    public async Task<InvoiceTemplate?> GetByIdAsync(Guid id)
         => await repo.GetByIdAsync(id);
 }

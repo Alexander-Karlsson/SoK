@@ -6,5 +6,5 @@ public interface ITemplateRepository
 {
     Task<InvoiceTemplate> AddAsync(InvoiceTemplate template);
     Task<List<InvoiceTemplate>> GetAllAsync();
-    Task<InvoiceTemplate> GetByIdAsync(Guid id);
+    Task<InvoiceTemplate?> GetByIdAsync(Guid id);
 }

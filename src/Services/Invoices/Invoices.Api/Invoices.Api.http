@@ -1,6 +1,36 @@
 @Invoices.Api_HostAddress = http://localhost:5202
 
-GET {{Invoices.Api_HostAddress}}/weatherforecast/
-Accept: application/json
+###
+POST {{Invoices.Api_HostAddress}}/api/templates
+Content-Type: application/json
+
+{
+  "companyName": "Skrot & Korn AB",
+  "companyNumber": "112233-4455",
+  "vatNumber": "SE112233445501",
+  "companyAddress": "Storgatan 1",
+  "companyPostalCode": "111 22",
+  "companyCity": "Örebro",
+  "companyPhone": "070-123 12 33",
+  "companyEmail": "faktura@sok.se",
+  "companyBankgiro": "123-4567",
+  "logo": "",
+  "primaryColor": "",
+  "standardText": "Tack för att du anlitar Skrot & Korn!"
+}
 
 ###
+POST {{Invoices.Api_HostAddress}}/api/invoices
+Content-Type: application/json
+
+{
+  "customerId": "22222222-2222-2222-2222-222222222222",
+  "templateId": "484a2379-c380-43e7-94c5-46e8e30803ff",
+  "lines": [
+    { "description": "Grävning", "quantity": 3, "unit": "Hours", "unitPrice": 500 },
+    { "description": "Rivning", "quantity": 4, "unit": "Hours", "unitPrice": 700 }
+  ]
+}
+
+###
+GET {{Invoices.Api_HostAddress}}/api/invoices/c11f2193-f3e6-4480-a687-b753a70a6a9e

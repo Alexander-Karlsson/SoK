@@ -6,7 +6,7 @@ namespace Invoices.Application.Services;
 
 public class InvoiceService(IInvoiceRepository repo)
 {
-    public async Task<Invoice> CreateInvoiceAsync(CreateInvoiceRequest request)
+    public async Task<InvoiceResponse> CreateInvoiceAsync(CreateInvoiceRequest request)
     {
         var today = DateOnly.FromDateTime(DateTime.Now);
 
@@ -50,9 +50,48 @@ public class InvoiceService(IInvoiceRepository repo)
 
         invoice.TotalAmount = invoice.AmountExclVat + invoice.VatAmount;
 
-        return await repo.AddAsync(invoice, lines);
+        return ToResponse(invoice, lines);
     }
 
-    public async Task<Invoice?> GetByIdAsync(Guid id)
-        => await repo.GetByIdAsync(id);
+    public async Task<InvoiceResponse?> GetByIdAsync(Guid id)
+    {
+        var invoice = await repo.GetByIdAsync(id);
+
+        if (invoice == null)
+        {
+            return null;
+        }
+
+        var lines = await repo.GetLinesAsync(id);
+        return ToResponse(invoice, lines);
+    }
+
+    private static InvoiceResponse ToResponse(Invoice invoice, List<InvoiceLine> lines)
+    {
+        return new InvoiceResponse
+        {
+            Id = invoice.Id,
+            CustomerId = invoice.CustomerId,
+            TemplateId = invoice.TemplateId,
+            InvoiceNumber = invoice.InvoiceNumber,
+            OcrReference = invoice.OcrReference,
+            InvoiceDate = invoice.InvoiceDate,
+            DueDate = invoice.DueDate,
+            AmountExclVat = invoice.AmountExclVat,
+            VatAmount = invoice.VatAmount,
+            TotalAmount = invoice.TotalAmount,
+            Status = invoice.Status,
+
+            Lines = lines.Select(l => new InvoiceLineResponse
+            {
+                Id = l.Id,
+                Description = l.Description,
+                Quantity = l.Quantity,
+                Unit = l.Unit,
+                UnitPrice = l.UnitPrice,
+                VatRate = l.VatRate,
+                Amount = l.Amount
+            }).ToList()
+        };
+    }
 }

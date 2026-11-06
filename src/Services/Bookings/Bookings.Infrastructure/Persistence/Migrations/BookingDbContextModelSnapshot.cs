@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Bookings.Infrastructure.Migrations
+namespace Bookings.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(BookingDbContext))]
     partial class BookingDbContextModelSnapshot : ModelSnapshot
@@ -31,13 +31,16 @@ namespace Bookings.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime?>("EndsAt")
                         .HasColumnType("datetime2");
 
                     b.Property<Guid?>("InvoiceId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("ProjectId")
+                    b.Property<Guid?>("ProjectId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("StartsAt")
@@ -49,6 +52,8 @@ namespace Bookings.Infrastructure.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
 
                     b.HasIndex("InvoiceId");
 

@@ -9,6 +9,7 @@ public class Booking
     public required DateTime StartsAt { get; set; }
     public DateTime? EndsAt { get; set; }
     public BookingStatus Status { get; set; } = BookingStatus.Pending;
-    public Guid ProjectId { get; set; }
+    public required Guid CustomerId { get; set; }
+    public Guid? ProjectId { get; set; }
     public Guid? InvoiceId { get; set; }
 }

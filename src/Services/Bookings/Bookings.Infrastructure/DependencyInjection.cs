@@ -1,4 +1,6 @@
-﻿using Bookings.Infrastructure.Persistence;
+﻿using Bookings.Application.Bookings.Interfaces;
+using Bookings.Infrastructure.Persistence;
+using Bookings.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,6 +13,8 @@ public static class DependencyInjection
     {
         services.AddDbContext<BookingDbContext>(options =>
             options.UseSqlServer(configuration.GetConnectionString("BookingsDb")));
+
+        services.AddScoped<IBookingRepository, BookingRepository>();
 
         return services;
     }

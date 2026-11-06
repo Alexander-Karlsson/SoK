@@ -22,6 +22,7 @@ public class BookingDbContext(DbContextOptions<BookingDbContext> options) : DbCo
 
             entity.HasIndex(b => b.InvoiceId);
                 
+            entity.HasIndex(b => b.CustomerId);
 
             entity.Property(b => b.CreatedAt)
                 .IsRequired();

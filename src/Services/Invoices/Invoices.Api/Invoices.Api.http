@@ -2,7 +2,7 @@
 
 # Testid
 @templateId = 484a2379-c380-43e7-94c5-46e8e30803ff
-@invoiceId = afb7c0af-632c-48de-9b52-faae3ab20c2c
+@invoiceId = f28cc479-e813-496f-a566-543af1870526
 
 ### Skapa mall
 POST {{Invoices.Api_HostAddress}}/api/templates
@@ -30,15 +30,15 @@ GET {{Invoices.Api_HostAddress}}/api/templates
 GET {{Invoices.Api_HostAddress}}/api/templates/{{templateId}}
 
 
-### Skapa faktura, testat med rätt {{templateId}} och fel
+### Skapa faktura, testat med rätt {{templateId}} och fel 00000000-0000-0000-0000-000000000000
 POST {{Invoices.Api_HostAddress}}/api/invoices
 Content-Type: application/json
 
 {
   "customerId": "22222222-2222-2222-2222-222222222222",
-  "templateId": "00000000-0000-0000-0000-000000000000",
+  "templateId": "{{templateId}}",
   "lines": [
-    { "description": "Grävning", "quantity": 3, "unit": "Hours", "unitPrice": 500 },
+    { "description": "Grävning", "quantity": 2, "unit": "Hours", "unitPrice": 500 },
     { "description": "Rivning", "quantity": 4, "unit": "Hours", "unitPrice": 700 }
   ]
 }

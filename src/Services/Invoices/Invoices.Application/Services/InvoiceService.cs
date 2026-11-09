@@ -33,12 +33,15 @@ public class InvoiceService(IInvoiceRepository repo, ITemplateRepository templat
 
         var lines = new List<InvoiceLine>();
 
+        var lineNumber = 1;
+
         foreach (var lineRequest in request.Lines)
         {
             var line = new InvoiceLine
             {
                 Id = Guid.NewGuid(),
                 InvoiceId = invoice.Id,
+                LineNumber = lineNumber,
                 Description = lineRequest.Description,
                 Quantity = lineRequest.Quantity,
                 Unit = lineRequest.Unit,
@@ -49,6 +52,8 @@ public class InvoiceService(IInvoiceRepository repo, ITemplateRepository templat
             };
 
             lines.Add(line);
+
+            lineNumber++;
         }
 
         invoice.AmountExclVat = lines.Sum(l => l.Amount);
@@ -100,6 +105,7 @@ public class InvoiceService(IInvoiceRepository repo, ITemplateRepository templat
             Lines = lines.Select(l => new InvoiceLineResponse
             {
                 Id = l.Id,
+                LineNumber = l.LineNumber,
                 Description = l.Description,
                 Quantity = l.Quantity,
                 Unit = l.Unit,

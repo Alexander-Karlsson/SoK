@@ -5,6 +5,7 @@ namespace Invoices.Application.Dtos;
 public class InvoiceLineResponse
 {
     public Guid Id { get; set; }
+    public int LineNumber { get; set; }
     public string Description { get; set; } = string.Empty;
     public decimal Quantity { get; set; }
     public InvoiceUnit Unit { get; set; }

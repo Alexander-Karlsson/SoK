@@ -1,6 +1,10 @@
 @Invoices.Api_HostAddress = http://localhost:5202
 
-###
+# Testid
+@templateId = 484a2379-c380-43e7-94c5-46e8e30803ff
+@invoiceId = c11f2193-f3e6-4480-a687-b753a70a6a9e
+
+### Skapa mall
 POST {{Invoices.Api_HostAddress}}/api/templates
 Content-Type: application/json
 
@@ -19,18 +23,28 @@ Content-Type: application/json
   "standardText": "Tack för att du anlitar Skrot & Korn!"
 }
 
-###
+### Hämta alla mallar
+GET {{Invoices.Api_HostAddress}}/api/templates
+
+### Hämta en mall
+GET {{Invoices.Api_HostAddress}}/api/templates/{{templateId}}
+
+
+### Skapa faktura
 POST {{Invoices.Api_HostAddress}}/api/invoices
 Content-Type: application/json
 
 {
   "customerId": "22222222-2222-2222-2222-222222222222",
-  "templateId": "484a2379-c380-43e7-94c5-46e8e30803ff",
+  "templateId": "{{templateId}}",
   "lines": [
     { "description": "Grävning", "quantity": 3, "unit": "Hours", "unitPrice": 500 },
     { "description": "Rivning", "quantity": 4, "unit": "Hours", "unitPrice": 700 }
   ]
 }
 
-###
-GET {{Invoices.Api_HostAddress}}/api/invoices/c11f2193-f3e6-4480-a687-b753a70a6a9e
+### Hämta alla fakturor
+GET {{Invoices.Api_HostAddress}}/api/invoices
+
+### Hämta en faktura
+GET {{Invoices.Api_HostAddress}}/api/invoices/{{invoiceId}}

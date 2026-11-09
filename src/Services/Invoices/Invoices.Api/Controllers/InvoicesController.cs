@@ -17,6 +17,14 @@ public class InvoicesController (InvoiceService service) : ControllerBase
     }
 
     [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        var invoices = await service.GetAllAsync();
+
+        return Ok(invoices);
+    }
+
+    [HttpGet]
     [Route("{id:guid}")]
     public async Task<IActionResult> GetById(Guid id)
     {

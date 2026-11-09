@@ -27,4 +27,9 @@ public class InvoiceRepository(InvoiceDbContext context) : IInvoiceRepository
         => await context.InvoicesLines
         .Where(l => l.InvoiceId == invoiceId)
         .ToListAsync();
+
+    public async Task<List<Invoice>> GetAllAsync()
+        => await context.Invoices
+        .OrderByDescending(i => i.InvoiceNumber)
+        .ToListAsync();
 }

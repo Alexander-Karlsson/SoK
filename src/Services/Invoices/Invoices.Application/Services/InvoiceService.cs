@@ -66,6 +66,13 @@ public class InvoiceService(IInvoiceRepository repo)
         return ToResponse(invoice, lines);
     }
 
+    public async Task<List<InvoiceResponse>> GetAllAsync()
+    {
+        var invoices = await repo.GetAllAsync();
+
+        return invoices.Select(i => ToResponse(i, [])).ToList();
+    }
+
     private static InvoiceResponse ToResponse(Invoice invoice, List<InvoiceLine> lines)
     {
         return new InvoiceResponse

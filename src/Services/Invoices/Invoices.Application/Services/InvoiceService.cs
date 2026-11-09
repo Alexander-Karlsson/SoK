@@ -4,10 +4,17 @@ using Invoices.Domain.Entities;
 
 namespace Invoices.Application.Services;
 
-public class InvoiceService(IInvoiceRepository repo)
+public class InvoiceService(IInvoiceRepository repo, ITemplateRepository templateRepo)
 {
-    public async Task<InvoiceResponse> CreateInvoiceAsync(CreateInvoiceRequest request)
+    public async Task<InvoiceResponse?> CreateInvoiceAsync(CreateInvoiceRequest request) 
     {
+        var template = await templateRepo.GetByIdAsync(request.TemplateId);
+
+        if (template == null)
+        {
+            return null;
+        }
+
         var today = DateOnly.FromDateTime(DateTime.Now);
 
         var invoiceNumber = DateTime.Now.ToString("yyyyMMddHHmmss");
@@ -50,9 +57,10 @@ public class InvoiceService(IInvoiceRepository repo)
 
         invoice.TotalAmount = invoice.AmountExclVat + invoice.VatAmount;
 
+        await repo.AddAsync(invoice, lines);
+
         return ToResponse(invoice, lines);
     }
-
     public async Task<InvoiceResponse?> GetByIdAsync(Guid id)
     {
         var invoice = await repo.GetByIdAsync(id);

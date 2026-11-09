@@ -13,7 +13,12 @@ public class InvoicesController (InvoiceService service) : ControllerBase
     {
         var invoice = await service.CreateInvoiceAsync(request);
 
-        return Ok(invoice);
+        if (invoice == null)
+        {
+            return BadRequest("Mallen finns ej");
+        }
+
+        return CreatedAtAction(nameof(GetById), new { id = invoice.Id }, invoice);
     }
 
     [HttpGet]

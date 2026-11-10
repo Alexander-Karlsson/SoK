@@ -295,4 +295,143 @@ public class CustomerServiceTests
             exception.Message);
     }
     
+    [Fact]
+    public async Task GetAll_WhenCustomersExist_ReturnsAllCustomers()
+    {
+        // Arrange
+        var mockRepo = new MockCustomerRepository();
+        var sut = new CustomerService(mockRepo);
+
+        mockRepo.Customers.Add(new Customer
+        {
+            CustomerNumber = "CUST-001",
+            FirstName = "Anna",
+            LastName = "Andersson",
+            Address = "Storgatan 1",
+            PostalCode = "46230",
+            City = "Vänersborg",
+            Phone = "0701234567",
+            Email = "anna@example.com"
+        });
+
+        mockRepo.Customers.Add(new Customer
+        {
+            CustomerNumber = "CUST-002",
+            FirstName = "Erik",
+            LastName = "Eriksson",
+            Address = "Kungsgatan 2",
+            PostalCode = "46130",
+            City = "Trollhättan",
+            Phone = "0709876543",
+            Email = "erik@example.com"
+        });
+
+        // Act
+        var result = await sut.GetAllAsync();
+
+        // Assert
+        Assert.Equal(2, result.Count);
+        Assert.Contains(result, c => c.CustomerNumber == "CUST-001");
+        Assert.Contains(result, c => c.CustomerNumber == "CUST-002");
+    }
+    
+    [Fact]
+    public async Task GetAll_WhenNoCustomersExist_ReturnsEmptyCollection()
+    {
+        // Arrange
+        var mockRepo = new MockCustomerRepository();
+        var sut = new CustomerService(mockRepo);
+
+        // Act
+        var result = await sut.GetAllAsync();
+
+        // Assert
+        Assert.Empty(result);
+    }
+    
+    [Fact]
+    public async Task SearchByName_WhenCustomersMatch_ReturnsMatchingCustomers()
+    {
+        // Arrange
+        var mockRepo = new MockCustomerRepository();
+        var sut = new CustomerService(mockRepo);
+
+        mockRepo.SearchResults.Add(new Customer
+        {
+            CustomerNumber = "CUST-001",
+            FirstName = "Anna",
+            LastName = "Andersson",
+            Address = "Storgatan 1",
+            PostalCode = "46230",
+            City = "Vänersborg",
+            Phone = "0701234567",
+            Email = "anna@example.com"
+        });
+
+        // Act
+        var result = await sut.SearchByNameAsync("Anna");
+
+        // Assert
+        Assert.Single(result);
+        Assert.Equal("CUST-001", result.First().CustomerNumber);
+        Assert.Equal("Anna", result.First().FirstName);
+    }
+    
+    [Fact]
+    public async Task SearchByName_WhenNoCustomersMatch_ReturnsEmptyCollection()
+    {
+        // Arrange
+        var mockRepo = new MockCustomerRepository();
+        var sut = new CustomerService(mockRepo);
+
+        // Act
+        var result = await sut.SearchByNameAsync("Korvgöran");
+
+        // Assert
+        Assert.Empty(result);
+    }
+    
+    [Fact]
+    public async Task Delete_WhenCustomerExists_ReturnsTrue()
+    {
+        // Arrange
+        var mockRepo = new MockCustomerRepository();
+        var sut = new CustomerService(mockRepo);
+
+        var customer = new Customer
+        {
+            CustomerNumber = "CUST-001",
+            FirstName = "Anna",
+            LastName = "Andersson",
+            Address = "Storgatan 1",
+            PostalCode = "46230",
+            City = "Vänersborg",
+            Phone = "0701234567",
+            Email = "anna@example.com"
+        };
+
+        mockRepo.Customers.Add(customer);
+
+        // Act
+        var result = await sut.DeleteAsync(customer.Id);
+
+        // Assert
+        Assert.True(result);
+    }
+    
+    [Fact]
+    public async Task Delete_WhenCustomerDoesNotExist_ReturnsFalse()
+    {
+        // Arrange
+        var mockRepo = new MockCustomerRepository();
+        var sut = new CustomerService(mockRepo);
+
+        var nonExistingId = Guid.NewGuid();
+
+        // Act
+        var result = await sut.DeleteAsync(nonExistingId);
+
+        // Assert
+        Assert.False(result);
+    }
 }

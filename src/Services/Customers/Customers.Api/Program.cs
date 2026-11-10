@@ -1,5 +1,6 @@
 using Customers.Infrastructure;
 using System.Text.Json.Serialization;
+using Customers.Api.Exceptions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,7 +18,8 @@ builder.Services.AddControllers()
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-
+builder.Services.AddExceptionHandler<CustomerExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 var app = builder.Build();
 

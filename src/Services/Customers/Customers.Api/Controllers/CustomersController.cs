@@ -13,11 +13,11 @@ namespace Customers.Api.Controllers
         {
             var customer = await service.CreateCustomerAsync(request);
 
-            return CreatedAtAction("GetCustomerById",new { id = customer.Id }, customer);
+            return CreatedAtRoute("GetById",new { id = customer.Id }, customer);
         }
 
         
-        [HttpGet("{id:guid}", Name = "GetCustomerById")]
+        [HttpGet("{id:guid}", Name = "GetById")]
         public async Task<IActionResult> GetByIdAsync(Guid id)
         {
             var customer = await service.GetByIdAsync(id);

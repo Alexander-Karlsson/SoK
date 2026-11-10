@@ -7,12 +7,18 @@ public class CustomerExceptionHandler : IExceptionHandler
 {
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
     {
-        if (exception is not CustomerAlreadyExistsException)
+        var statusCode = exception switch
+        {
+            CustomerAlreadyExistsException => StatusCodes.Status409Conflict,
+            ArgumentException => StatusCodes.Status400BadRequest,
+            _ => 0
+        };
+
+        if (statusCode == 0)
             return false;
-
-        httpContext.Response.StatusCode =
-            StatusCodes.Status409Conflict;
-
+        
+        httpContext.Response.StatusCode = statusCode;
+        
         await httpContext.Response.WriteAsJsonAsync(
             new { error = exception.Message },
             cancellationToken);

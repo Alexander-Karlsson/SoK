@@ -50,7 +50,7 @@ namespace Customers.Infrastructure.Repositories
 
         public async Task<Customer> UpdateAsync(Customer customer)
         {
-            await context.Customers.AddAsync(customer);
+            await context.SaveChangesAsync();
 
             return customer;
         }

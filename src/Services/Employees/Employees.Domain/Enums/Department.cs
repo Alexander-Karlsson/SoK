@@ -6,11 +6,12 @@ namespace Employees.Domain.Enums;
 
 public enum Department
 {
-    HR = 1,
-    IT = 2,
-    Finance = 3,
-    Marketing = 4,
-    Sales = 5,
-    Operations = 6,
-    CustomerService = 7
+    Operations = 1,
+    Logistics = 2,
+    CustomerService = 3,
+    Sales = 4,
+    Finance = 5,
+    Marketing = 6,
+    HumanResources = 7,
+    IT = 8
 }

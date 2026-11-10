@@ -11,5 +11,4 @@ public class Schedule
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
     public decimal BreakMinutes { get; set; }
-
 }

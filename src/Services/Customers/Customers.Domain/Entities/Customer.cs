@@ -1,7 +1,4 @@
 ﻿using Customers.Domain.Enums;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Customers.Domain.Entities
 {
@@ -10,7 +7,6 @@ namespace Customers.Domain.Entities
         public Guid Id { get; set; } = Guid.NewGuid();
 
         public required string CustomerNumber { get; set; }
-
         public CustomerType CustomerType { get; set; }
 
         // Privatperson

@@ -1,11 +1,14 @@
-﻿using Customers.Domain.Enums;
+﻿using System.ComponentModel.DataAnnotations;
+using Customers.Domain.Enums;
 
 namespace Customers.Application.Customers.DTOs
 {
     public class CreateCustomerRequest
     {
         public required string CustomerNumber { get; set; }
-        public CustomerType CustomerType { get; set; }
+        
+        [Required]
+        public CustomerType? CustomerType { get; set; }
 
         public string? FirstName { get; set; }
         public string? LastName { get; set; }

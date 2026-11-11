@@ -11,14 +11,20 @@ public class InvoicesController (InvoiceService service) : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateInvoice([FromBody] CreateInvoiceRequest request)
     {
-        var invoice = await service.CreateInvoiceAsync(request);
-
-        if (invoice == null)
+        try
         {
-            return BadRequest("Mallen finns ej");
-        }
+            var invoice = await service.CreateInvoiceAsync(request);
 
-        return CreatedAtAction(nameof(GetById), new { id = invoice.Id }, invoice);
+            return CreatedAtAction(nameof(GetById), new { id = invoice.Id }, invoice);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (HttpRequestException)
+        {
+            return StatusCode(503, "Kunde inte nå customer");
+        }
     }
 
     [HttpGet]

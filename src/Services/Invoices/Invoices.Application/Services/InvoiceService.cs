@@ -4,16 +4,37 @@ using Invoices.Domain.Entities;
 
 namespace Invoices.Application.Services;
 
-public class InvoiceService(IInvoiceRepository repo, ITemplateRepository templateRepo)
+public class InvoiceService(IInvoiceRepository repo, ITemplateRepository templateRepo, ICustomerClient customerClient)
 {
-    public async Task<InvoiceResponse?> CreateInvoiceAsync(CreateInvoiceRequest request) 
+    private const decimal CompanyVatRate = 0m;
+    private const decimal DefaultVatRate = 0.25m;
+    public async Task<InvoiceResponse> CreateInvoiceAsync(CreateInvoiceRequest request) 
     {
+        if (request.CustomerId == Guid.Empty)
+        {
+            throw new ArgumentException("En kund måste väljas");
+        }
+
+        if (request.TemplateId == Guid.Empty)
+        {
+            throw new ArgumentException("En fakturamall måste väljas");
+        }
+
         var template = await templateRepo.GetByIdAsync(request.TemplateId);
 
         if (template == null)
         {
-            return null;
+            throw new ArgumentException("Fakturamallen finns inte");
         }
+
+        var customer = await customerClient.GetByIdAsync(request.CustomerId);
+        if (customer == null)
+        {
+            throw new ArgumentException("Kunden finns ej");
+        }
+
+        var isCompany = !string.IsNullOrWhiteSpace(customer.OrganisationNumber);
+        var vatRate = isCompany ? CompanyVatRate : DefaultVatRate;
 
         var today = DateOnly.FromDateTime(DateTime.Now);
 
@@ -46,7 +67,7 @@ public class InvoiceService(IInvoiceRepository repo, ITemplateRepository templat
                 Quantity = lineRequest.Quantity,
                 Unit = lineRequest.Unit,
                 UnitPrice = lineRequest.UnitPrice,
-                VatRate = lineRequest.VatRate,
+                VatRate = vatRate,
 
                 Amount = Math.Round(lineRequest.Quantity * lineRequest.UnitPrice, 2)
             };

@@ -5,14 +5,16 @@ namespace Customers.Application.Tests.Mock;
 
 public class MockCustomerRepository : ICustomerRepository
 {
+    public List<Customer> Customers { get; } = new();
     public Customer? ExistingCustomer { get; set; }
-    
+    public List<Customer> SearchResults { get; } = new();
+
     public Task<Customer> AddAsync(Customer customer) 
         => Task.FromResult(customer);
 
     public Task<IReadOnlyCollection<Customer>> GetAllAsync()
     {
-        throw new NotImplementedException();
+        return Task.FromResult<IReadOnlyCollection<Customer>>(Customers);
     }
 
     public Task<Customer?> GetByIdAsync(Guid id)
@@ -24,7 +26,7 @@ public class MockCustomerRepository : ICustomerRepository
 
     public Task<IReadOnlyCollection<Customer>> SearchByNameAsync(string query)
     {
-        throw new NotImplementedException();
+        return Task.FromResult<IReadOnlyCollection<Customer>>(SearchResults);
     }
     
     public Task<Customer?> GetByCustomerNumberAsync(string customerNumber)
@@ -41,6 +43,13 @@ public class MockCustomerRepository : ICustomerRepository
 
     public Task<bool> DeleteAsync(Guid id)
     {
-        throw new NotImplementedException();
+        var customer = Customers.FirstOrDefault(c => c.Id == id);
+
+        if (customer is null)
+            return Task.FromResult(false);
+
+        Customers.Remove(customer);
+
+        return Task.FromResult(true);
     }
 }

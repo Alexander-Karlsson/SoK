@@ -49,4 +49,25 @@ public class InvoicesController (InvoiceService service) : ControllerBase
         return Ok(invoice);
     }
 
+    [HttpPut]
+    [Route("{id:guid}/status")]
+    public async Task<IActionResult> UpdateStatus(Guid id, [FromBody] UpdateInvoiceStatusRequest request)
+    {
+        try
+        {
+            var invoice = await service.UpdateStatusAsync(id, request);
+
+            if (invoice == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(invoice);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
 }

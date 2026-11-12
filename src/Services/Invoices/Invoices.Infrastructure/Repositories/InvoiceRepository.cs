@@ -33,4 +33,10 @@ public class InvoiceRepository(InvoiceDbContext context) : IInvoiceRepository
         => await context.Invoices
         .OrderByDescending(i => i.InvoiceNumber)
         .ToListAsync();
+
+    public async Task UpdateAsync(Invoice invoice)
+    {
+        context.Invoices.Update(invoice);
+        await context.SaveChangesAsync();
+    }
 }

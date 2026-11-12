@@ -1,3 +1,4 @@
+# Ai har hjälpt mig med testerna
 @Invoices.Api_HostAddress = http://localhost:5202
 
 # Adressen till Customers.Api (bara för att skapa testkunder)
@@ -5,7 +6,7 @@
 
 # Testid
 @templateId = 484a2379-c380-43e7-94c5-46e8e30803ff
-@invoiceId = f28cc479-e813-496f-a566-543af1870526
+@invoiceId = 456159ee-3693-444c-a313-88e020eb4a7b
 
 # Testkunder (skapade i Customers.Api)
 @companyCustomerId = 49b5fd7f-5194-4a54-bb7a-5d9a5eeadb9a
@@ -133,3 +134,32 @@ GET {{Invoices.Api_HostAddress}}/api/invoices
 
 ### Hämta en faktura
 GET {{Invoices.Api_HostAddress}}/api/invoices/{{invoiceId}}
+
+
+############################################
+# STATUS
+############################################
+
+### Skicka fakturan (Draft → Sent)
+PUT {{Invoices.Api_HostAddress}}/api/invoices/{{invoiceId}}/status
+Content-Type: application/json
+
+{
+  "status": "Sent"
+}
+
+### Markera som betald (Sent → Paid)
+PUT {{Invoices.Api_HostAddress}}/api/invoices/{{invoiceId}}/status
+Content-Type: application/json
+
+{
+  "status": "Paid"
+}
+
+### Försök backa till utkast (Paid → Draft, ska ge 400)
+PUT {{Invoices.Api_HostAddress}}/api/invoices/{{invoiceId}}/status
+Content-Type: application/json
+
+{
+  "status": "Draft"
+}

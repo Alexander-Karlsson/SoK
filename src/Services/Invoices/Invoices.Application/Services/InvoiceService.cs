@@ -87,6 +87,29 @@ public class InvoiceService(IInvoiceRepository repo, ITemplateRepository templat
 
         return ToResponse(invoice, lines);
     }
+
+    public async Task<InvoiceResponse?> UpdateStatusAsync(Guid id, UpdateInvoiceStatusRequest request)
+    {
+        var invoice = await repo.GetByIdAsync(id);
+
+        if (invoice == null)
+        {
+            return null;
+        }
+
+        if (!IsAllowedStatusChange(invoice.Status, request.Status))
+        {
+            throw new ArgumentException(
+                $"Går ej att ändra från {invoice.Status} till {request.Status}");
+        }
+
+        invoice.Status = request.Status;
+
+        await repo.UpdateAsync(invoice);
+
+        var lines = await repo.GetLinesAsync(id);
+        return ToResponse(invoice, lines);
+    }
     public async Task<InvoiceResponse?> GetByIdAsync(Guid id)
     {
         var invoice = await repo.GetByIdAsync(id);
@@ -105,6 +128,29 @@ public class InvoiceService(IInvoiceRepository repo, ITemplateRepository templat
         var invoices = await repo.GetAllAsync();
 
         return invoices.Select(i => ToResponse(i, [])).ToList();
+    }
+
+    private static bool IsAllowedStatusChange(InvoiceStatus current, InvoiceStatus next)
+    {
+        // Utkast till skickad
+        if (current == InvoiceStatus.Draft && next == InvoiceStatus.Sent)
+        {
+            return true;
+        }
+
+        // Skickad till betald eller förfallen
+        if (current == InvoiceStatus.Sent && (next == InvoiceStatus.Paid || next == InvoiceStatus.Overdue))
+        {
+            return true;
+        }
+
+        // Förfallen till betald
+        if (current == InvoiceStatus.Overdue && next == InvoiceStatus.Paid)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private static InvoiceResponse ToResponse(Invoice invoice, List<InvoiceLine> lines)

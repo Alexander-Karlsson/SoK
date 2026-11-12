@@ -8,4 +8,5 @@ public interface IInvoiceRepository
     Task<Invoice?> GetByIdAsync(Guid id);
     Task<List<InvoiceLine>> GetLinesAsync(Guid invoiceId);
     Task<List<Invoice>> GetAllAsync();
+    Task UpdateAsync(Invoice invoice);
 }

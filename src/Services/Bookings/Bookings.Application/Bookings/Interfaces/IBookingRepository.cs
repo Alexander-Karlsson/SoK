@@ -5,6 +5,7 @@ namespace Bookings.Application.Bookings.Interfaces;
 
 public interface IBookingRepository
 {
+    
     Task<Booking?> GetByIdAsync(Guid id);
     Task<Booking> AddAsync(BookingDetails details);
     Task UpdateAsync(Booking booking);

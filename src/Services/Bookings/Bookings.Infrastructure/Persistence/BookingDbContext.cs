@@ -11,8 +11,7 @@ public class BookingDbContext(DbContextOptions<BookingDbContext> options) : DbCo
     public DbSet<BookingMachine> BookingMachines => Set<BookingMachine>();
     public DbSet<BookingService> BookingServices => Set<BookingService>();
     public DbSet<Machine> Machines => Set<Machine>();
-    public DbSet<Service> Services => Set<Service>();
-
+    public DbSet<BusinessService> BusinessServices => Set<BusinessService>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -86,7 +85,7 @@ public class BookingDbContext(DbContextOptions<BookingDbContext> options) : DbCo
             entity.Property(bs => bs.EstimatedHours)
                 .HasPrecision(10, 2);
 
-            entity.HasOne<Service>()
+            entity.HasOne<BusinessService>()
                 .WithMany()
                 .HasForeignKey(bs => bs.ServiceId)
                 .OnDelete(DeleteBehavior.Restrict);
@@ -103,7 +102,7 @@ public class BookingDbContext(DbContextOptions<BookingDbContext> options) : DbCo
         });
 
         //Service
-        modelBuilder.Entity<Service>(entity =>
+        modelBuilder.Entity<BusinessService>(entity =>
         {
             entity.Property(s => s.Name).HasMaxLength(200).IsRequired();
             entity.Property(s => s.Description).HasMaxLength(1000);

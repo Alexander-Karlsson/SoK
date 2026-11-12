@@ -10,6 +10,8 @@ public class BookingDbContext(DbContextOptions<BookingDbContext> options) : DbCo
     public DbSet<BookingEmployee> BookingEmployees => Set<BookingEmployee>();
     public DbSet<BookingMachine> BookingMachines => Set<BookingMachine>();
     public DbSet<BookingService> BookingServices => Set<BookingService>();
+    public DbSet<Machine> Machines => Set<Machine>();
+    public DbSet<Service> Services => Set<Service>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -60,6 +62,11 @@ public class BookingDbContext(DbContextOptions<BookingDbContext> options) : DbCo
 
             entity.Property(bm => bm.PricePerDay)
                 .HasPrecision(18, 2);
+
+            entity.HasOne<Machine>()
+                .WithMany()
+                .HasForeignKey(bm => bm.MachineId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         //BookingService
@@ -78,6 +85,29 @@ public class BookingDbContext(DbContextOptions<BookingDbContext> options) : DbCo
 
             entity.Property(bs => bs.EstimatedHours)
                 .HasPrecision(10, 2);
+
+            entity.HasOne<Service>()
+                .WithMany()
+                .HasForeignKey(bs => bs.ServiceId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        //Machine
+        modelBuilder.Entity<Machine>(entity =>
+        {
+            entity.Property(m => m.Name).HasMaxLength(200).IsRequired();
+            entity.Property(m => m.Type).HasMaxLength(100).IsRequired();
+            entity.Property(m => m.RegistrationNumber).HasMaxLength(20).IsRequired();
+            entity.HasIndex(m => m.RegistrationNumber).IsUnique();
+            entity.Property(m => m.PricePerDay).HasPrecision(18, 2);
+        });
+
+        //Service
+        modelBuilder.Entity<Service>(entity =>
+        {
+            entity.Property(s => s.Name).HasMaxLength(200).IsRequired();
+            entity.Property(s => s.Description).HasMaxLength(1000);
+            entity.Property(s => s.PricePerHour).HasPrecision(18, 2);
         });
     }
 

@@ -1,4 +1,4 @@
-﻿namespace Bookings.Application.Bookings.DTOs;
+﻿namespace Bookings.Application.Bookings.DTOs.Request;
 
 public class UpdateBookingRequest
 {

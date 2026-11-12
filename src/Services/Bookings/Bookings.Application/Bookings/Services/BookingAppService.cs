@@ -1,4 +1,5 @@
 ﻿using Bookings.Application.Bookings.DTOs;
+using Bookings.Application.Bookings.DTOs.Request;
 using Bookings.Application.Bookings.Interfaces;
 using Bookings.Application.Bookings.Validation;
 using Bookings.Domain.Entities;

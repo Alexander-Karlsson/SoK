@@ -1,4 +1,4 @@
-﻿using Bookings.Application.Bookings.DTOs;
+﻿using Bookings.Application.Bookings.DTOs.Request;
 
 namespace Bookings.Application.Bookings.Validation;
 

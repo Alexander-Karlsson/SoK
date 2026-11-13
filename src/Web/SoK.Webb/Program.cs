@@ -17,6 +17,11 @@ public class Program
         builder.Services.AddRazorComponents()
             .AddInteractiveServerComponents();
 
+        builder.Services.AddHttpClient("InvoicesApi", client =>
+        {
+            client.BaseAddress = new Uri(builder.Configuration["ApiUrls:Invoices"]!);
+        });
+
         builder.Services.AddCascadingAuthenticationState();
         builder.Services.AddScoped<IdentityRedirectManager>();
         builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();

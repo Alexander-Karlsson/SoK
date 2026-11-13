@@ -1,6 +1,165 @@
+# Ai har hjälpt mig med testerna
 @Invoices.Api_HostAddress = http://localhost:5202
 
-GET {{Invoices.Api_HostAddress}}/weatherforecast/
-Accept: application/json
+# Adressen till Customers.Api (bara för att skapa testkunder)
+@Customers.Api_HostAddress = http://localhost:5119
 
-###
+# Testid
+@templateId = 484a2379-c380-43e7-94c5-46e8e30803ff
+@invoiceId = 456159ee-3693-444c-a313-88e020eb4a7b
+
+# Testkunder (skapade i Customers.Api)
+@companyCustomerId = 49b5fd7f-5194-4a54-bb7a-5d9a5eeadb9a
+@privateCustomerId = 0db93e65-426e-44d6-8f43-586d72258742
+
+
+############################################
+# KUNDER (anropar Customers.Api på port 5119)
+############################################
+
+### Skapa testkund: FÖRETAG (ska få 0 % moms)
+POST {{Customers.Api_HostAddress}}/api/customers
+Content-Type: application/json
+
+{
+  "customerNumber": "K001",
+  "customerType": "Company",
+  "companyName": "Bygg & Bo AB",
+  "organisationNumber": "556677-8899",
+  "contactPerson": "Anna Andersson",
+  "address": "Industrigatan 5",
+  "postalCode": "702 10",
+  "city": "Örebro",
+  "phone": "+46701112233",
+  "email": "anna@byggobo.se"
+}
+
+### Skapa testkund: PRIVATPERSON (ska få 25 % moms)
+POST {{Customers.Api_HostAddress}}/api/customers
+Content-Type: application/json
+
+{
+  "customerNumber": "K002",
+  "customerType": "PrivatePerson",
+  "firstName": "Erik",
+  "lastName": "Svensson",
+  "address": "Villavägen 3",
+  "postalCode": "703 50",
+  "city": "Örebro",
+  "phone": "+46709998877",
+  "email": "erik@mail.se"
+}
+
+### Hämta företagskunden
+GET {{Customers.Api_HostAddress}}/api/customers/{{companyCustomerId}}
+
+### Hämta privatpersonen
+GET {{Customers.Api_HostAddress}}/api/customers/{{privateCustomerId}}
+
+
+############################################
+# MALLAR
+############################################
+
+### Skapa mall
+POST {{Invoices.Api_HostAddress}}/api/templates
+Content-Type: application/json
+
+{
+  "companyName": "Skrot & Korn AB",
+  "companyNumber": "112233-4455",
+  "vatNumber": "SE112233445501",
+  "companyAddress": "Storgatan 1",
+  "companyPostalCode": "111 22",
+  "companyCity": "Örebro",
+  "companyPhone": "070-123 12 33",
+  "companyEmail": "faktura@sok.se",
+  "companyBankgiro": "123-4567",
+  "logo": "",
+  "primaryColor": "",
+  "standardText": "Tack för att du anlitar Skrot & Korn!"
+}
+
+### Hämta alla mallar
+GET {{Invoices.Api_HostAddress}}/api/templates
+
+### Hämta en mall
+GET {{Invoices.Api_HostAddress}}/api/templates/{{templateId}}
+
+
+############################################
+# FAKTUROR
+############################################
+
+### Skapa faktura till FÖRETAG (ska få 0 % moms)
+POST {{Invoices.Api_HostAddress}}/api/invoices
+Content-Type: application/json
+
+{
+  "customerId": "{{companyCustomerId}}",
+  "templateId": "{{templateId}}",
+  "lines": [
+    { "description": "Grävning", "quantity": 2, "unit": "Hours", "unitPrice": 500 },
+    { "description": "Rivning", "quantity": 4, "unit": "Hours", "unitPrice": 700 }
+  ]
+}
+
+### Skapa faktura till PRIVATPERSON (ska få 25 % moms)
+POST {{Invoices.Api_HostAddress}}/api/invoices
+Content-Type: application/json
+
+{
+  "customerId": "{{privateCustomerId}}",
+  "templateId": "{{templateId}}",
+  "lines": [
+    { "description": "Grävning", "quantity": 2, "unit": "Hours", "unitPrice": 500 },
+    { "description": "Rivning", "quantity": 4, "unit": "Hours", "unitPrice": 700 }
+  ]
+}
+
+### Skapa faktura till kund som INTE finns (ska ge 400 "Kunden finns ej")
+POST {{Invoices.Api_HostAddress}}/api/invoices
+Content-Type: application/json
+
+{
+  "customerId": "22222222-2222-2222-2222-222222222222",
+  "templateId": "{{templateId}}",
+  "lines": [
+    { "description": "Grävning", "quantity": 2, "unit": "Hours", "unitPrice": 500 }
+  ]
+}
+
+### Hämta alla fakturor
+GET {{Invoices.Api_HostAddress}}/api/invoices
+
+### Hämta en faktura
+GET {{Invoices.Api_HostAddress}}/api/invoices/{{invoiceId}}
+
+
+############################################
+# STATUS
+############################################
+
+### Skicka fakturan (Draft → Sent)
+PUT {{Invoices.Api_HostAddress}}/api/invoices/{{invoiceId}}/status
+Content-Type: application/json
+
+{
+  "status": "Sent"
+}
+
+### Markera som betald (Sent → Paid)
+PUT {{Invoices.Api_HostAddress}}/api/invoices/{{invoiceId}}/status
+Content-Type: application/json
+
+{
+  "status": "Paid"
+}
+
+### Försök backa till utkast (Paid → Draft, ska ge 400)
+PUT {{Invoices.Api_HostAddress}}/api/invoices/{{invoiceId}}/status
+Content-Type: application/json
+
+{
+  "status": "Draft"
+}

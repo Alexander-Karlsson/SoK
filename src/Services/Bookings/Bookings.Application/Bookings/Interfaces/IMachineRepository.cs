@@ -12,4 +12,5 @@ public interface IMachineRepository
     Task UpdateAsync(Machine machine);
     Task<IReadOnlyList<Machine>> GetAllAsync();
     Task<bool> IsInUseAsync(Guid id);
+    Task<bool> RegistrationNumberExistsAsync(string registrationNumber, Guid? excludeId = null);
 }

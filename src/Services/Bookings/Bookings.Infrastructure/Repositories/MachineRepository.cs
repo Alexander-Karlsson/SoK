@@ -41,7 +41,8 @@ public class MachineRepository(BookingDbContext context) : IMachineRepository
 
     public async Task<bool> IsInUseAsync(Guid id) => await context.BookingMachines.AnyAsync(bm => bm.MachineId == id);
 
-
     public async Task UpdateAsync(Machine machine) => await context.SaveChangesAsync();
-
+    public async Task<bool> RegistrationNumberExistsAsync(string registrationNumber, Guid? excludeId = null)
+    => await context.Machines.AnyAsync(m =>
+        m.RegistrationNumber == registrationNumber && m.Id != excludeId);
 }

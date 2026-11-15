@@ -15,6 +15,8 @@ public static class DependencyInjection
             options.UseSqlServer(configuration.GetConnectionString("BookingsDb")));
 
         services.AddScoped<IBookingRepository, BookingRepository>();
+        services.AddScoped<IBusinessServiceRepository, BusinessServiceRepository>();
+        services.AddScoped<IMachineRepository, MachineRepository>();
 
         return services;
     }

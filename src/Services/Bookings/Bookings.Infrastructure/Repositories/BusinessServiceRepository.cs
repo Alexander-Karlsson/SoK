@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Bookings.Infrastructure.Repositories;
 
-public class BusinessServieRepository(BookingDbContext context) : IBusinessServiceRepository
+public class BusinessServiceRepository(BookingDbContext context) : IBusinessServiceRepository
 {
     public async Task<BusinessService> AddAsync(BusinessService service)
     {
@@ -36,7 +36,7 @@ public class BusinessServieRepository(BookingDbContext context) : IBusinessServi
             .ToListAsync(); 
     }
 
-    public Task<bool> IsInUseAsync(Guid id) => context.BookingServices.AnyAsync(bm => bm.ServiceId == id);
+    public async Task<bool> IsInUseAsync(Guid id) => await context.BookingServices.AnyAsync(bs => bs.ServiceId == id);
 
     public async Task UpdateAsync(BusinessService service) => await context.SaveChangesAsync();
 

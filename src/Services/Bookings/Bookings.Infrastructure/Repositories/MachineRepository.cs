@@ -39,7 +39,7 @@ public class MachineRepository(BookingDbContext context) : IMachineRepository
             .ToListAsync();
     }
 
-    public Task<bool> IsInUseAsync(Guid id) => context.BookingMachines.AnyAsync(bm => bm.MachineId == id);
+    public async Task<bool> IsInUseAsync(Guid id) => await context.BookingMachines.AnyAsync(bm => bm.MachineId == id);
 
 
     public async Task UpdateAsync(Machine machine) => await context.SaveChangesAsync();

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Employees.Domain.Entites;
+namespace Employees.Domain.Entities;
 
 public class Schedule
 {
@@ -10,5 +10,5 @@ public class Schedule
     public Guid EmployeeId { get; set; }
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
-    public decimal BreakMinutes { get; set; }
+    public int BreakMinutes { get; set; }
 }

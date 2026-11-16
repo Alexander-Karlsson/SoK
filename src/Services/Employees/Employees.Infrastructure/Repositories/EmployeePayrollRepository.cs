@@ -1,6 +1,7 @@
 ﻿using Employees.Application.Employees.Interfaces;
-using Employees.Domain.Entites;
+using Employees.Domain.Entities;
 using Employees.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -30,6 +31,15 @@ public class EmployeePayrollRepository(EmployeesDbContext context) : IEmployeePa
     {
         var employeePayroll = await context.EmployeePayrolls.FindAsync(id);
         return employeePayroll ?? throw new InvalidOperationException("Employee payroll not found");
+    }
+
+    public async Task<List<EmployeePayroll>> GetByEmployeeIdAsync(Guid employeeId)
+    {
+        return await context.EmployeePayrolls
+            .AsNoTracking()
+            .Where(p => p.EmployeeId == employeeId)
+            .OrderByDescending(p => p.PayrollDate)
+            .ToListAsync();
     }
 
     public async Task<EmployeePayroll> UpdateAsync(EmployeePayroll employeePayroll)

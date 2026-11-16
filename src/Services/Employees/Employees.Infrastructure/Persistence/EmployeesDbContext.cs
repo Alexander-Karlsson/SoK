@@ -1,4 +1,4 @@
-﻿using Employees.Domain.Entites;
+﻿using Employees.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Employees.Infrastructure.Persistence;
@@ -12,11 +12,16 @@ public class EmployeesDbContext(DbContextOptions<EmployeesDbContext> options) : 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // Configure the Employee entity
         base.OnModelCreating(modelBuilder);
+
+        // Gör det möjligt att använda en sekvens för att generera unika anställningsnummer
+        modelBuilder.HasSequence<int>("EmployeeNumber")
+            .StartsAt(1)
+            .IncrementsBy(1);
+
         modelBuilder.Entity<Employee>(entity =>
         {
-            // Has unique properties
+            // Dessa har unika index för att säkerställa att det inte finns några dubbletter i databasen för dessa fält.
             entity.HasKey(e => e.Id);
 
             entity.HasIndex(e => e.EmployeeNumber)
@@ -31,7 +36,7 @@ public class EmployeesDbContext(DbContextOptions<EmployeesDbContext> options) : 
             entity.HasIndex(e => e.Email)
                 .IsUnique();
 
-            // Shows the enum as a string in the database instead of an int number
+            // Vissar enum värden som strämgar i databasen istället för nummer.
             entity.Property(entity => entity.EmployeeType)
             .HasConversion<string>()
             .IsRequired();
@@ -40,7 +45,7 @@ public class EmployeesDbContext(DbContextOptions<EmployeesDbContext> options) : 
             .HasConversion<string>()
             .IsRequired();
 
-            // Configure other properties as needed
+            // Konfigurerar övriga egenskaper vid behov
             entity.Property(e => e.FirstName)
             .IsRequired()
             .HasMaxLength(50);
@@ -63,54 +68,52 @@ public class EmployeesDbContext(DbContextOptions<EmployeesDbContext> options) : 
 
             entity.Property(e => e.Title)
             .HasMaxLength(100);
+            
+            // Genererar automatiskt ett unikt anställningsnummer via SQL-sekvens vid skapande av ny post
+            entity.Property(entity => entity.EmployeeNumber)
+            .HasDefaultValueSql("NEXT VALUE FOR EmployeeNumber");
+
         });
 
-        // Configure the Employee Absence
+        // Konfigurerar den anställdas frånvaro
         modelBuilder.Entity<Absence>(entity =>
         {
             entity.HasKey(a => a.Id);
 
-            // Shows the enum as a string in the database instead of an int number
             entity.Property(a => a.AbsenceType)
             .HasConversion<string>();
 
-            // configurate Property 
             entity.Property(a => a.Reason)
             .IsRequired()
             .HasMaxLength(500);
 
-            // Configure the relationship with Employee
+            // Konfigurerar relationen mellan Absence och Employee
             entity.HasOne<Employee>()
                 .WithMany()
                 .HasForeignKey(a => a.EmployeeId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
-        // Configure the Employee Schedule
+        // Konfigurerar den anställdas schema
         modelBuilder.Entity<Schedule>(entity =>
         {
             entity.HasKey(s => s.Id);
 
-            entity.Property(s => s.BreakMinutes)
-            .HasPrecision(5, 2);
-
-            // Configure the relationship with Employee
+            // Konfigurerar relationen mellan Schedule och Employee
             entity.HasOne<Employee>()
                 .WithMany()
                 .HasForeignKey(s => s.EmployeeId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
-        // Configure the Employee Payroll
+        // Konfigurerar lönehanteringen för den anställda
         modelBuilder.Entity<EmployeePayroll>(entity =>
         {
             entity.HasKey(p => p.Id);
 
-            // Has unique properties
             entity.HasIndex(p => p.EmployeeId)
                 .IsUnique();
 
-            // Money properties
             entity.Property(p => p.Salary)
             .HasPrecision(18, 2)
             .IsRequired();
@@ -121,7 +124,6 @@ public class EmployeesDbContext(DbContextOptions<EmployeesDbContext> options) : 
             entity.Property(p => p.Deductions)
             .HasPrecision(18, 2);
 
-            // Bank information properties
             entity.Property(p => p.BankName)
             .IsRequired()
             .HasMaxLength(100);
@@ -130,7 +132,7 @@ public class EmployeesDbContext(DbContextOptions<EmployeesDbContext> options) : 
             .IsRequired()
             .HasMaxLength(50);
 
-            // Configure the relationship with Employee
+            // Konfigurerar relationen mellan EmployeePayroll och Employee
             entity.HasOne<Employee>()
                 .WithOne()
                 .HasForeignKey<EmployeePayroll>(p => p.EmployeeId)

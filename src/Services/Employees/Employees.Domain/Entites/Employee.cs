@@ -1,6 +1,6 @@
 ﻿using Employees.Domain.Enums;
 
-namespace Employees.Domain.Entites;
+namespace Employees.Domain.Entities;
 
 public class Employee
 {
@@ -15,13 +15,16 @@ public class Employee
     public string PersonalNumber { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string PhoneNumber { get; set; } = string.Empty;
+    public string Address { get; set; } = string.Empty;
 
     public string EmergencyContactName { get; set; } = string.Empty;
     public string EmergencyContactNumber { get; set; } = string.Empty;
     public string Relationship { get; set; } = string.Empty;
     
     public DateTime EmploymentDate { get; set; }
+    public DateTime EmploymentEndDate { get; set; }
     public string Title { get; set; } = string.Empty;
+    public decimal EmployeeRate { get; set; } = 100;
     public int VacationDaysPerYear { get; set; }
     public bool IsActive { get; set; }
 }

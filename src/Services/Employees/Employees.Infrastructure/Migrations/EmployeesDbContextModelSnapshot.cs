@@ -22,7 +22,9 @@ namespace Employees.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Employees.Domain.Entites.Absence", b =>
+            modelBuilder.HasSequence<int>("EmployeeNumber");
+
+            modelBuilder.Entity("Employees.Domain.Entities.Absence", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -53,11 +55,15 @@ namespace Employees.Infrastructure.Migrations
                     b.ToTable("Absences");
                 });
 
-            modelBuilder.Entity("Employees.Domain.Entites.Employee", b =>
+            modelBuilder.Entity("Employees.Domain.Entities.Employee", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Department")
                         .IsRequired()
@@ -77,13 +83,21 @@ namespace Employees.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("EmployeeNumber")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValueSql("NEXT VALUE FOR EmployeeNumber");
+
+                    b.Property<decimal>("EmployeeRate")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("EmployeeType")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("EmploymentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("EmploymentEndDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("FirstName")
@@ -141,7 +155,7 @@ namespace Employees.Infrastructure.Migrations
                     b.ToTable("Employees");
                 });
 
-            modelBuilder.Entity("Employees.Domain.Entites.EmployeePayroll", b =>
+            modelBuilder.Entity("Employees.Domain.Entities.EmployeePayroll", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -186,15 +200,14 @@ namespace Employees.Infrastructure.Migrations
                     b.ToTable("EmployeePayrolls");
                 });
 
-            modelBuilder.Entity("Employees.Domain.Entites.Schedule", b =>
+            modelBuilder.Entity("Employees.Domain.Entities.Schedule", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<decimal>("BreakMinutes")
-                        .HasPrecision(5, 2)
-                        .HasColumnType("decimal(5,2)");
+                    b.Property<int>("BreakMinutes")
+                        .HasColumnType("int");
 
                     b.Property<Guid>("EmployeeId")
                         .HasColumnType("uniqueidentifier");
@@ -212,27 +225,27 @@ namespace Employees.Infrastructure.Migrations
                     b.ToTable("Schedules");
                 });
 
-            modelBuilder.Entity("Employees.Domain.Entites.Absence", b =>
+            modelBuilder.Entity("Employees.Domain.Entities.Absence", b =>
                 {
-                    b.HasOne("Employees.Domain.Entites.Employee", null)
+                    b.HasOne("Employees.Domain.Entities.Employee", null)
                         .WithMany()
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Employees.Domain.Entites.EmployeePayroll", b =>
+            modelBuilder.Entity("Employees.Domain.Entities.EmployeePayroll", b =>
                 {
-                    b.HasOne("Employees.Domain.Entites.Employee", null)
+                    b.HasOne("Employees.Domain.Entities.Employee", null)
                         .WithOne()
-                        .HasForeignKey("Employees.Domain.Entites.EmployeePayroll", "EmployeeId")
+                        .HasForeignKey("Employees.Domain.Entities.EmployeePayroll", "EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Employees.Domain.Entites.Schedule", b =>
+            modelBuilder.Entity("Employees.Domain.Entities.Schedule", b =>
                 {
-                    b.HasOne("Employees.Domain.Entites.Employee", null)
+                    b.HasOne("Employees.Domain.Entities.Employee", null)
                         .WithMany()
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)

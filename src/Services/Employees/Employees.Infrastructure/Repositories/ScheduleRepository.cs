@@ -1,6 +1,7 @@
 ﻿using Employees.Application.Employees.Interfaces;
-using Employees.Domain.Entites;
+using Employees.Domain.Entities;
 using Employees.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -30,6 +31,15 @@ public class ScheduleRepository(EmployeesDbContext context) : IScheduleRepositor
     {
         var schedule = await context.Schedules.FindAsync(id);
         return schedule ?? throw new InvalidOperationException("Schedule not found");
+    }
+
+    public async Task<List<Schedule>> GetByEmployeeIdAsync(Guid employeeId)
+    {
+        return await context.Schedules
+            .AsNoTracking()
+            .Where(s => s.EmployeeId == employeeId)
+            .OrderByDescending(s => s.StartTime)
+            .ToListAsync();
     }
 
     public async Task<Schedule> UpdateAsync(Schedule schedule)

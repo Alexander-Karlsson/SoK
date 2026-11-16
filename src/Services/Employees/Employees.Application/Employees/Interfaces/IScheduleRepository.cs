@@ -1,4 +1,4 @@
-﻿using Employees.Domain.Entites;
+﻿using Employees.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,6 +9,7 @@ public interface IScheduleRepository
 {
     Task<Schedule> AddAsync(Schedule schedule);
     Task<Schedule> GetByIdAsync(Guid id);
+    Task<List<Schedule>> GetByEmployeeIdAsync(Guid employeeId);
     Task<Schedule> UpdateAsync(Schedule schedule);
     Task<Schedule> DeleteAsync(Guid id);
 }

@@ -1,6 +1,7 @@
 ﻿using Employees.Application.Employees.Interfaces;
-using Employees.Domain.Entites;
+using Employees.Domain.Entities;
 using Employees.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace Employees.Infrastructure.Repositories;
 
@@ -27,6 +28,15 @@ public class AbsenceRepository(EmployeesDbContext Context) : IAbsenceRepository
     {
         var absence = await Context.Absences.FindAsync(id);
         return absence ?? throw new InvalidOperationException("Absence not found");
+    }
+
+    public async Task<List<Absence>> GetByEmployeeIdAsync(Guid employeeId)
+    {
+        return await Context.Absences
+            .AsNoTracking()
+            .Where(a => a.EmployeeId == employeeId)
+            .OrderByDescending(a => a.StartDate)
+            .ToListAsync();
     }
 
     public async Task<Absence> UpdateAsync(Absence absence)

@@ -1,6 +1,94 @@
-@Employees.Api_HostAddress = http://localhost:5250
+@host = https://localhost:7020
 
-GET {{Employees.Api_HostAddress}}/weatherforecast/
-Accept: application/json
+### 1. Skapa en anställd
+POST {{host}}/api/employees
+Content-Type: application/json
 
-###
+{
+  "firstName": "Anna",
+  "lastName": "Andersson",
+  "personalNumber": "19900101-1234",
+  "email": "anna@test.se",
+  "phoneNumber": "0701234567",
+  "emergencyContactName": "Erik Andersson",
+  "emergencyContactNumber": "0709876543",
+  "relationship": "Partner",
+  "title": "Utvecklare",
+  "department": 8,
+  "employeeType": 1,
+  "employmentStartDate": "2026-01-01",
+  "vacationDaysPerYear": 25
+}
+
+### 2. Hämta alla anställda
+GET {{host}}/api/employees
+
+### 3. Skapa frånvaro (klistra in id från steg 1)
+POST {{host}}/api/absences
+Content-Type: application/json
+
+{
+  "employeeId": "34474b77-e55c-4bdb-a5ea-4c83f48cf6bc",
+  "type": 1,
+  "startDate": "2026-11-16T08:00:00",
+  "endDate": "2026-11-16T17:00:00",
+  "reason": "Förkyld"
+}
+
+### 4. Hämta frånvaro för den anställda
+GET {{host}}/api/absences?employeeId=34474b77-e55c-4bdb-a5ea-4c83f48cf6bc
+
+### 5. Skapa ett schemapass
+POST {{host}}/api/schedules
+Content-Type: application/json
+
+{
+  "employeeId": "34474b77-e55c-4bdb-a5ea-4c83f48cf6bc",
+  "startTime": "2026-11-17T08:00:00",
+  "endTime": "2026-11-17T16:30:00",
+  "breakMinutes": 30
+}
+
+### 6. Hämta schema för en vecka
+GET {{host}}/api/schedules?employeeId=34474b77-e55c-4bdb-a5ea-4c83f48cf6bc&from=2026-11-16&to=2026-11-23
+
+### 7. Hämta en anställd via id
+GET {{host}}/api/employees/34474b77-e55c-4bdb-a5ea-4c83f48cf6bc
+
+### 8. Uppdatera frånvaron (id för frånvaron, inte för den anställda)
+PUT {{host}}/api/absences/759c000e-2a96-4201-a205-c81fae3dd06f
+Content-Type: application/json
+
+{
+  "type": 4,
+  "startDate": "2026-11-16T08:00:00",
+  "endDate": "2026-11-16T12:00:00",
+  "reason": "VAB"
+}
+
+### 9. Skapa lön
+POST {{host}}/api/employeepayrolls
+Content-Type: application/json
+
+{
+  "employeeId": "34474b77-e55c-4bdb-a5ea-4c83f48cf6bc",
+  "salary": 35000,
+  "taxTable": 32,
+  "bonus": 0,
+  "bankName": "Swedbank",
+  "bankAccount": "8327-9 123 456 789-0",
+  "deductions": 0,
+  "payrollDate": "2026-11-25"
+}
+
+### 10. Hämta lön
+GET {{host}}/api/employeepayrolls?employeeId=34474b77-e55c-4bdb-a5ea-4c83f48cf6bc
+
+### 11. Ta bort frånvaron (id för frånvaron, inte för den anställda)
+DELETE {{host}}/api/absences/759c000e-2a96-4201-a205-c81fae3dd06f
+
+### 12. Ta bort schemapasset (id för schemapasset, inte för den anställda)
+DELETE {{host}}/api/schedules/1e2f3d4c-5b6a-7e8f-9a0b-1c2d3e4f5g6h
+
+### 13. Ta bort den anställda (id för den anställda)
+DELETE {{host}}/api/employees/34474b77-e55c-4bdb-a5ea-4c83f48cf6bc

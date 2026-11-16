@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Employees.Domain.Enums;
+﻿namespace Employees.Domain.Enums;
 
 public enum Department
 {

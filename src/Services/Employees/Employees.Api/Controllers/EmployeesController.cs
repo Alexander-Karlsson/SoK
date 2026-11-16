@@ -28,8 +28,15 @@ public class EmployeesController(EmployeeService service) : ControllerBase
         return Ok(employee);
     }
 
+    [HttpGet]
+    public async Task<IActionResult> GetAllEmployees()
+    {
+        var employees = await service.GetAllEmployeesAsync();
+        return Ok(employees);
+    }
+
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> UpdateEmployee(Guid id, [FromBody] CreateEmployeeRequest request)
+    public async Task<IActionResult> UpdateEmployee(Guid id, [FromBody] UpdateEmployeeRequest request)
     {
         var employee = await service.UpdateEmployeeAsync(id, request);
         if (employee == null)

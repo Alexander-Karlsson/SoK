@@ -4,6 +4,7 @@ using Employees.Application.Employees.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Employees.Application.Employees.Interfaces;
 
 namespace Employees.Infrastructure;
 
@@ -16,7 +17,13 @@ public static class DependencyInjection
             configuration.GetConnectionString("DefaultConnection")));
         
         services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+        services.AddScoped<IAbsenceRepository, AbsenceRepository>();
+        services.AddScoped<IScheduleRepository, ScheduleRepository>();
+        services.AddScoped<IEmployeePayrollRepository, EmployeePayrollRepository>();
         services.AddScoped<EmployeeService>();
+        services.AddScoped<AbsenceService>();
+        services.AddScoped<ScheduleService>();
+        services.AddScoped<EmployeePayrollService>();
         return services;
     }
 }

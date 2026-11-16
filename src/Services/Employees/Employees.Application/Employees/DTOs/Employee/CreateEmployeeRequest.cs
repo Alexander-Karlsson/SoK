@@ -19,10 +19,9 @@ public class CreateEmployeeRequest
     // Anställningsuppgifter
     public string Title { get; set; } = string.Empty;
     public Department Department { get; set; } 
-    public EmployeeType EmployeeType { get; set; } 
-    public DateTime EmploymentDate { get; set; }
+    public EmployeeType EmployeeType { get; set; }
+    public DateOnly EmploymentStartDate { get; set; }
+    public DateOnly EmploymentEndDate { get; set; } 
+    public decimal EmployeeRate { get; set; } = 100;
     public int VacationDaysPerYear { get; set; } = 25;
-
-    // Ta endast med denna om administratören manuellt ska bestämma numret
-    // public int EmployeeNumber { get; set; }
 }

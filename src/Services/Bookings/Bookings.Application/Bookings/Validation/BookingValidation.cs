@@ -4,6 +4,9 @@ namespace Bookings.Application.Bookings.Validation;
 
 public static class BookingValidation
 {
+    public const int MinRentalDays = 1;
+    public const int MaxRentalDays = 30;
+
     public static void ValidateCreate(CreateBookingRequest request)
     {
         if (request.CustomerId == Guid.Empty)
@@ -14,7 +17,7 @@ public static class BookingValidation
 
         if (request.EmployeeIds.Count == 0 && request.Services.Count == 0 && request.Machines.Count == 0)
             throw new ArgumentException("Bokningen måste innehålla minst en anställd, tjänst eller maskin.");
-
+       
         ValidateDates(request.StartsAt, request.EndsAt);
         ValidateEmployees(request.EmployeeIds);
         ValidateServices(request.Services);
@@ -31,8 +34,16 @@ public static class BookingValidation
 
     public static void ValidateDates(DateTime startsAt, DateTime? endsAt)
     {
-        if (endsAt is not null && endsAt <= startsAt)
-            throw new ArgumentException("EndsAt måste vara efter StartsAt.");
+        if (endsAt is null)
+            return;
+
+        var length = endsAt.Value - startsAt;
+
+        if (length < TimeSpan.FromDays(MinRentalDays))
+            throw new ArgumentException($"En bokning måste vara minst {MinRentalDays} dag.");
+
+        if (length > TimeSpan.FromDays(MaxRentalDays))
+            throw new ArgumentException($"En bokning får vara högst {MaxRentalDays} dagar.");
     }
 
     private static void ValidateEmployees(List<Guid> employeeIds)

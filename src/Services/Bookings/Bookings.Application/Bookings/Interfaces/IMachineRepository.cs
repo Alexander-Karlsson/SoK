@@ -13,4 +13,5 @@ public interface IMachineRepository
     Task<IReadOnlyList<Machine>> GetAllAsync();
     Task<bool> IsInUseAsync(Guid id);
     Task<bool> RegistrationNumberExistsAsync(string registrationNumber, Guid? excludeId = null);
+    Task<bool> IsAnyBookedAsync(List<Guid> machineIds, DateTime startsAt, DateTime endsAt, Guid? excludeBookingId = null);
 }

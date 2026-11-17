@@ -13,23 +13,29 @@ public class BookingAppService(IBookingRepository repo, IMachineRepository machi
     {
         BookingValidation.ValidateCreate(request);
 
+        var endsAt = request.EndsAt ?? request.StartsAt.AddDays(BookingValidation.MaxRentalDays);
+
         var booking = new Booking
-        { 
+        {
             CreatedAt = DateTime.UtcNow,
             StartsAt = request.StartsAt,
-            EndsAt = request.EndsAt,
+            EndsAt = endsAt,
             CustomerId = request.CustomerId,
             ProjectId = request.ProjectId
         };
 
         var employees = request.EmployeeIds
             .Distinct()
-            .Select(id => new BookingEmployee {BookingId = booking.Id, EmployeeId = id })
+            .Select(id => new BookingEmployee { BookingId = booking.Id, EmployeeId = id })
             .ToList();
 
         var services = await BuildServicesAsync(booking.Id, request.Services);
 
         var machines = await BuildMachinesAsync(booking.Id, request.Machines);
+
+        if (request.Machines.Count > 0 &&
+    await machineRepo.IsAnyBookedAsync(request.Machines.Select(m => m.MachineId).ToList(), request.StartsAt, endsAt))
+            throw new InvalidOperationException("En eller flera maskiner är redan bokade under perioden.");
 
         var details = new BookingDetails(booking, employees, services, machines);
         await repo.AddAsync(details);
@@ -49,9 +55,17 @@ public class BookingAppService(IBookingRepository repo, IMachineRepository machi
         if (booking.Status is BookingStatus.Cancelled or BookingStatus.Completed)
             throw new InvalidOperationException("En avbokad eller avslutad bokning kan inte ändras.");
 
+        var endsAt = request.EndsAt ?? request.StartsAt.AddDays(BookingValidation.MaxRentalDays);
+
+        var details = await repo.GetBookingDetailsAsync(id);
+
+        if (details!.Machines.Count > 0 &&
+            await machineRepo.IsAnyBookedAsync(details.Machines.Select(m => m.MachineId).ToList(), request.StartsAt, endsAt, id))
+            throw new InvalidOperationException("En eller flera maskiner är redan bokade under perioden.");
+
         booking.ProjectId = request.ProjectId;
         booking.StartsAt = request.StartsAt;
-        booking.EndsAt = request.EndsAt;
+        booking.EndsAt = endsAt;
 
         await repo.UpdateAsync(booking);
 

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using SoK.Webb.Components;
 using SoK.Webb.Components.Account;
 using SoK.Webb.Data;
+using SoK.Webb.Clients;
 
 namespace SoK.Webb;
 
@@ -17,7 +18,7 @@ public class Program
         builder.Services.AddRazorComponents()
             .AddInteractiveServerComponents();
 
-        builder.Services.AddHttpClient("InvoicesApi", client =>
+        builder.Services.AddHttpClient<InvoiceApiClient>(client =>
         {
             client.BaseAddress = new Uri(builder.Configuration["ApiUrls:Invoices"]!);
         });

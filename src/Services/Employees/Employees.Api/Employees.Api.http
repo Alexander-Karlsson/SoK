@@ -1,6 +1,8 @@
 @host = https://localhost:7020
+@employeeId = a1e5107b-fc26-4e0f-adfe-19a65fd575f7
 
 ### 1. Skapa en anställd
+# @name createEmployee
 POST {{host}}/api/employees
 Content-Type: application/json
 
@@ -23,12 +25,13 @@ Content-Type: application/json
 ### 2. Hämta alla anställda
 GET {{host}}/api/employees
 
-### 3. Skapa frånvaro (klistra in id från steg 1)
+### 3. Skapa frånvaro
+# @name createAbsence
 POST {{host}}/api/absences
 Content-Type: application/json
 
 {
-  "employeeId": "34474b77-e55c-4bdb-a5ea-4c83f48cf6bc",
+  "employeeId": "{{employeeId}}",
   "type": 1,
   "startDate": "2026-11-16T08:00:00",
   "endDate": "2026-11-16T17:00:00",
@@ -36,27 +39,28 @@ Content-Type: application/json
 }
 
 ### 4. Hämta frånvaro för den anställda
-GET {{host}}/api/absences?employeeId=34474b77-e55c-4bdb-a5ea-4c83f48cf6bc
+GET {{host}}/api/absences?employeeId={{employeeId}}
 
 ### 5. Skapa ett schemapass
+# @name createSchedule
 POST {{host}}/api/schedules
 Content-Type: application/json
 
 {
-  "employeeId": "34474b77-e55c-4bdb-a5ea-4c83f48cf6bc",
+  "employeeId": "{{employeeId}}",
   "startTime": "2026-11-17T08:00:00",
   "endTime": "2026-11-17T16:30:00",
   "breakMinutes": 30
 }
 
 ### 6. Hämta schema för en vecka
-GET {{host}}/api/schedules?employeeId=34474b77-e55c-4bdb-a5ea-4c83f48cf6bc&from=2026-11-16&to=2026-11-23
+GET {{host}}/api/schedules?employeeId={{employeeId}}&from=2026-11-16&to=2026-11-23
 
 ### 7. Hämta en anställd via id
-GET {{host}}/api/employees/34474b77-e55c-4bdb-a5ea-4c83f48cf6bc
+GET {{host}}/api/employees/{{employeeId}}
 
-### 8. Uppdatera frånvaron (id för frånvaron, inte för den anställda)
-PUT {{host}}/api/absences/759c000e-2a96-4201-a205-c81fae3dd06f
+### 8. Uppdatera frånvaron (kör #3 först)
+PUT {{host}}/api/absences/{{createAbsence.response.body.$.id}}
 Content-Type: application/json
 
 {
@@ -71,7 +75,7 @@ POST {{host}}/api/employeepayrolls
 Content-Type: application/json
 
 {
-  "employeeId": "34474b77-e55c-4bdb-a5ea-4c83f48cf6bc",
+  "employeeId": "{{employeeId}}",
   "salary": 35000,
   "taxTable": 32,
   "bonus": 0,
@@ -82,13 +86,13 @@ Content-Type: application/json
 }
 
 ### 10. Hämta lön
-GET {{host}}/api/employeepayrolls?employeeId=34474b77-e55c-4bdb-a5ea-4c83f48cf6bc
+GET {{host}}/api/employeepayrolls?employeeId={{employeeId}}
 
-### 11. Ta bort frånvaron (id för frånvaron, inte för den anställda)
-DELETE {{host}}/api/absences/759c000e-2a96-4201-a205-c81fae3dd06f
+### 11. Ta bort frånvaron (kör #3 först)
+DELETE {{host}}/api/absences/{{createAbsence.response.body.$.id}}
 
-### 12. Ta bort schemapasset (id för schemapasset, inte för den anställda)
-DELETE {{host}}/api/schedules/1e2f3d4c-5b6a-7e8f-9a0b-1c2d3e4f5g6h
+### 12. Ta bort schemapasset (kör #5 först)
+DELETE {{host}}/api/schedules/{{createSchedule.response.body.$.id}}
 
-### 13. Ta bort den anställda (id för den anställda)
-DELETE {{host}}/api/employees/34474b77-e55c-4bdb-a5ea-4c83f48cf6bc
+### 13. Ta bort den anställda (kör sist)
+DELETE {{host}}/api/employees/{{employeeId}}

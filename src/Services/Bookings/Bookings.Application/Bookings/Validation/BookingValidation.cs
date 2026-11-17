@@ -43,7 +43,7 @@ public static class BookingValidation
 
     private static void ValidateServices(List<CreateBookingServiceRequest> services)
     {
-        if (services.Any(s => s.ServiceId == Guid.Empty || s.EstimatedHours < 0 || s.PricePerHour < 0))
+        if (services.Any(s => s.ServiceId == Guid.Empty || s.EstimatedHours < 0))
             throw new ArgumentException("Services innehåller ogiltiga värden.");
 
         if (services.DistinctBy(s => s.ServiceId).Count() != services.Count)
@@ -52,7 +52,7 @@ public static class BookingValidation
 
     private static void ValidateMachines(List<CreateBookingMachineRequest> machines)
     {
-        if (machines.Any(m => m.MachineId == Guid.Empty || m.PricePerDay < 0))
+        if (machines.Any(m => m.MachineId == Guid.Empty))
             throw new ArgumentException("Machines innehåller ogiltiga värden.");
 
         if (machines.DistinctBy(m => m.MachineId).Count() != machines.Count)

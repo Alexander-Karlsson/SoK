@@ -21,6 +21,10 @@ public class BookingsController(BookingAppService service) : ControllerBase
         {
             return BadRequest(ex.Message);
         }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(ex.Message);
+        }
     }
 
     [HttpGet("{id:guid}")]
@@ -56,7 +60,7 @@ public class BookingsController(BookingAppService service) : ControllerBase
         }
         catch (InvalidOperationException ex)
         {
-            return BadRequest(ex.Message);
+            return Conflict(ex.Message);
         }
     }
 

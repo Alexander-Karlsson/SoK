@@ -9,6 +9,7 @@ public static class DependencyInjection
     {
         services.AddScoped<BookingAppService>();
         services.AddScoped<MachineAppService>();
+        services.AddScoped<BusinessAppService>();
 
         return services;
     }

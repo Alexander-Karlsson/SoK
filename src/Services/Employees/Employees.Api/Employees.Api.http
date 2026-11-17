@@ -1,6 +1,98 @@
-@Employees.Api_HostAddress = http://localhost:5250
+@host = https://localhost:7020
+@employeeId = a1e5107b-fc26-4e0f-adfe-19a65fd575f7
 
-GET {{Employees.Api_HostAddress}}/weatherforecast/
-Accept: application/json
+### 1. Skapa en anställd
+# @name createEmployee
+POST {{host}}/api/employees
+Content-Type: application/json
 
-###
+{
+  "firstName": "Anna",
+  "lastName": "Andersson",
+  "personalNumber": "19900101-1234",
+  "email": "anna@test.se",
+  "phoneNumber": "0701234567",
+  "emergencyContactName": "Erik Andersson",
+  "emergencyContactNumber": "0709876543",
+  "relationship": "Partner",
+  "title": "Utvecklare",
+  "department": 8,
+  "employeeType": 1,
+  "employmentStartDate": "2026-01-01",
+  "vacationDaysPerYear": 25
+}
+
+### 2. Hämta alla anställda
+GET {{host}}/api/employees
+
+### 3. Skapa frånvaro
+# @name createAbsence
+POST {{host}}/api/absences
+Content-Type: application/json
+
+{
+  "employeeId": "{{employeeId}}",
+  "type": 1,
+  "startDate": "2026-11-16T08:00:00",
+  "endDate": "2026-11-16T17:00:00",
+  "reason": "Förkyld"
+}
+
+### 4. Hämta frånvaro för den anställda
+GET {{host}}/api/absences?employeeId={{employeeId}}
+
+### 5. Skapa ett schemapass
+# @name createSchedule
+POST {{host}}/api/schedules
+Content-Type: application/json
+
+{
+  "employeeId": "{{employeeId}}",
+  "startTime": "2026-11-17T08:00:00",
+  "endTime": "2026-11-17T16:30:00",
+  "breakMinutes": 30
+}
+
+### 6. Hämta schema för en vecka
+GET {{host}}/api/schedules?employeeId={{employeeId}}&from=2026-11-16&to=2026-11-23
+
+### 7. Hämta en anställd via id
+GET {{host}}/api/employees/{{employeeId}}
+
+### 8. Uppdatera frånvaron (kör #3 först)
+PUT {{host}}/api/absences/{{createAbsence.response.body.$.id}}
+Content-Type: application/json
+
+{
+  "type": 4,
+  "startDate": "2026-11-16T08:00:00",
+  "endDate": "2026-11-16T12:00:00",
+  "reason": "VAB"
+}
+
+### 9. Skapa lön
+POST {{host}}/api/employeepayrolls
+Content-Type: application/json
+
+{
+  "employeeId": "{{employeeId}}",
+  "salary": 35000,
+  "taxTable": 32,
+  "bonus": 0,
+  "bankName": "Swedbank",
+  "bankAccount": "8327-9 123 456 789-0",
+  "deductions": 0,
+  "payrollDate": "2026-11-25"
+}
+
+### 10. Hämta lön
+GET {{host}}/api/employeepayrolls?employeeId={{employeeId}}
+
+### 11. Ta bort frånvaron (kör #3 först)
+DELETE {{host}}/api/absences/{{createAbsence.response.body.$.id}}
+
+### 12. Ta bort schemapasset (kör #5 först)
+DELETE {{host}}/api/schedules/{{createSchedule.response.body.$.id}}
+
+### 13. Ta bort den anställda (kör sist)
+DELETE {{host}}/api/employees/{{employeeId}}

@@ -47,6 +47,31 @@ public class EmployeesController(EmployeeService service) : ControllerBase
         return Ok(employee);
     }
 
+    [HttpPut("{id:guid}/deactive")]
+    public async Task<IActionResult> DeactivateEmployee(Guid id, [FromBody] DeactivateEmployeeRequest request)
+    {
+        var employee = await service.DeactiveEmployeeAsync(id, request);
+
+        if (employee == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(employee);
+    }
+    [HttpPut("{id:guid}/reactive")]
+    public async Task<IActionResult> ReactivateEmployee(Guid id, [FromBody] ReactivateEmployeeRequest request)
+    {
+        var employee = await service.GetEmployeeByIdAsync(id);
+
+        if (employee == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(employee);
+    }
+
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteEmployee(Guid id)
     {

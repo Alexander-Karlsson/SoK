@@ -16,15 +16,17 @@ public class Employee
     public string Email { get; set; } = string.Empty;
     public string PhoneNumber { get; set; } = string.Empty;
     public string Address { get; set; } = string.Empty;
+    public string Zipcode { get; set; } = string.Empty;
+    public string City { get; set; } = string.Empty;
 
     public string EmergencyContactName { get; set; } = string.Empty;
     public string EmergencyContactNumber { get; set; } = string.Empty;
     public string Relationship { get; set; } = string.Empty;
     
     public DateTime EmploymentDate { get; set; }
-    public DateTime EmploymentEndDate { get; set; }
+    public DateTime? EmploymentEndDate { get; set; }
     public string Title { get; set; } = string.Empty;
     public decimal EmployeeRate { get; set; } = 100;
-    public int VacationDaysPerYear { get; set; }
+    public int VacationDaysPerYear { get; set; } = 25;
     public bool IsActive { get; set; }
 }

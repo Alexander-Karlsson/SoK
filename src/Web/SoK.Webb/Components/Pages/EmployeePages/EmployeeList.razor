@@ -1,0 +1,51 @@
+@page "/employeelist"
+@rendermode InteractiveServer
+@using Employees.Application.Employees.DTOs.Employee
+@using SoK.Webb.Clients
+@inject EmployeeApiClient EmployeeClient
+@inject NavigationManager Navigation
+
+<PageTitle>Anställda</PageTitle>
+
+<h3>EmployeeList</h3>
+
+<table>
+    <thead>
+        <tr>
+            <th>Anställnings nummer</th>
+            <th>Förnamn</th>
+            <th>Efternamn</th>
+            <th>Titel</th>
+            <th>Avdelning</th>
+            <th>Aktiv</th>
+        </tr>
+    </thead>
+    <tbody>
+
+    @foreach (var i in Employee)
+    {
+        <tr @onclick="() => ViweDetails(i.Id)">
+            <td>@i.EmployeeNumber</td>
+            <td>@i.FirstName</td>
+            <td>@i.LastName</td>
+            <td>@i.Title</td>
+            <td>@i.Department</td>
+            <td>@i.IsActive</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+@code {
+    private List<EmployeeResponse> Employee { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Employee = await EmployeeClient.GetAllAsync();
+    }
+
+    private void ViweDetails(Guid id)
+    {
+        Navigation.NavigateTo($"employeedetails/{id}");
+    }
+}

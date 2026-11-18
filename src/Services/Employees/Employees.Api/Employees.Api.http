@@ -1,6 +1,6 @@
 @host = https://localhost:7020
-@employeeId = a1e5107b-fc26-4e0f-adfe-19a65fd575f7
-
+@employeeId = 9a7ff8e3-14f1-4976-bc32-f55ce0f97933
+@employee2 = 315472f9-41e5-4942-aeb9-7fc27998bd79
 ### 1. Skapa en anställd
 # @name createEmployee
 POST {{host}}/api/employees
@@ -12,14 +12,17 @@ Content-Type: application/json
   "personalNumber": "19900101-1234",
   "email": "anna@test.se",
   "phoneNumber": "0701234567",
+  "address": "Storgatan 1",
+  "zipcode": "123 45",
+  "city": "Stockholm",
   "emergencyContactName": "Erik Andersson",
   "emergencyContactNumber": "0709876543",
   "relationship": "Partner",
   "title": "Utvecklare",
-  "department": 8,
-  "employeeType": 1,
+  "department": "IT",
+  "employeeType": "Permanent",
   "employmentStartDate": "2026-01-01",
-  "vacationDaysPerYear": 25
+  "employeeRate": 100
 }
 
 ### 2. Hämta alla anställda
@@ -96,3 +99,19 @@ DELETE {{host}}/api/schedules/{{createSchedule.response.body.$.id}}
 
 ### 13. Ta bort den anställda (kör sist)
 DELETE {{host}}/api/employees/{{employeeId}}
+
+### 14. Avsluta anställning
+PUT {{host}}/api/employees/{{employeeId}}/deactivate
+Content-Type: application/json
+
+{
+  "employmentEndDate": "2026-08-31"
+}
+
+### 15. Återanställ
+PUT {{host}}/api/employees/{{employeeId}}/reactivate
+Content-Type: application/json
+
+{
+  "employmentStartDate": "2027-06-01"
+}

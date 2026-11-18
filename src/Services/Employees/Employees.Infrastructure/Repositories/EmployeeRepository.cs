@@ -35,6 +35,7 @@ public class EmployeeRepository(EmployeesDbContext context) : IEmployeeRepositor
         await context.SaveChangesAsync();
         return employee;
     }
+
     public async Task<Employee> DeleteAsync(Guid id)
     {
         var employee = await context.Employees.FindAsync(id);

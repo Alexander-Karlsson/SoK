@@ -1,0 +1,91 @@
+﻿.invoice-page {
+    background: var(--color-beige);
+    min-height: 100vh;
+}
+
+.invoice-page h1 {
+    text-align: center;
+    font-family: var(--font-heading);
+    text-transform: uppercase;
+    font-size: 2.25rem;
+}
+
+.invoice-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+}
+
+.invoice-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.invoice-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.invoice-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--color-dark);
+    padding: 14px 16px;
+}
+
+.invoice-link {
+    color: var(--color-text-menu);
+    font-family: var(--font-heading);
+    font-size: 1.3rem;
+    text-decoration: none;
+}
+
+.invoice-card:hover .invoice-link {
+    color: var(--color-yellow);
+}
+
+.invoice-status {
+    font-size: 0.8rem;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: var(--color-yellow);
+    color: var(--color-text-menu);
+}
+
+.invoice-card-body {
+    flex: 1;
+    padding: 12px 16px;
+}
+
+.invoice-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+}
+
+.invoice-label {
+    font-family: var(--font-heading);
+    text-transform: uppercase;
+    color: #6c757d;
+}
+
+.invoice-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--color-beige);
+    padding: 14px 16px;
+}
+
+.invoice-amount {
+    font-size: 1.2rem;
+    font-weight: bold;
+    font-variant-numeric: tabular-nums;
+}

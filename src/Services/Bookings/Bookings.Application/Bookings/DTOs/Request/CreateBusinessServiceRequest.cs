@@ -1,0 +1,8 @@
+﻿namespace Bookings.Application.Bookings.DTOs.Request;
+
+public class CreateBusinessServiceRequest
+{
+    public required string Name { get; set; }
+    public string? Description { get; set; }
+    public required decimal PricePerHour { get; set; }
+}

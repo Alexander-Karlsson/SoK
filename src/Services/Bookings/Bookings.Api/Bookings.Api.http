@@ -1,6 +1,209 @@
 @Bookings.Api_HostAddress = http://localhost:5150
+@machineId = c6441d1c-e21b-4024-b785-d3837d2129a3
+@bookingId = 899b0629-e653-4323-a6da-94bf6ecf2b75
+@serviceId = 311ee1a4-5683-4d17-b225-8c7cce5d198d
+@customerId = 0c3acd15-08da-4a0d-bab7-3d12eccb7231
+@templateId = da7fb875-019b-4af6-ae9c-d45b64f2a7e6
 
-GET {{Bookings.Api_HostAddress}}/weatherforecast/
-Accept: application/json
+### Skapa maskin
+POST {{Bookings.Api_HostAddress}}/api/machines
+Content-Type: application/json
 
-###
+{
+  "name": "Grävmaskin 5 ton",
+  "type": "Grävmaskin",
+  "registrationNumber": "abc123",
+  "pricePerDay": 1200.00
+}
+
+### Hämta alla maskiner
+GET {{Bookings.Api_HostAddress}}/api/machines
+
+### Skapa bokning med maskin
+POST {{Bookings.Api_HostAddress}}/api/bookings
+Content-Type: application/json
+
+{
+  "customerId": "{{customerId}}",
+  "startsAt": "2026-11-20T07:00:00Z",
+  "endsAt": "2026-11-22T16:00:00Z",
+  "machines": [
+    { "machineId": "{{machineId}}" }
+  ]
+}
+
+### Skapa tjänst
+POST {{Bookings.Api_HostAddress}}/api/businessservices
+Content-Type: application/json
+
+{
+  "name": "Schaktning",
+  "description": "Schaktning med maskinförare",
+  "pricePerHour": 650.00
+}
+
+### Hämta alla tjänster
+GET {{Bookings.Api_HostAddress}}/api/businessservices
+
+### Hämta en tjänst
+GET {{Bookings.Api_HostAddress}}/api/businessservices/{{serviceId}}
+
+### Skapa bokning med maskin och tjänst (priser hämtas från katalogen)
+POST {{Bookings.Api_HostAddress}}/api/bookings
+Content-Type: application/json
+
+{
+  "customerId": "{{customerId}}",
+  "startsAt": "2026-11-24T07:00:00Z",
+  "endsAt": "2026-11-26T16:00:00Z",
+  "machines": [
+    { "machineId": "{{machineId}}" }
+  ],
+  "services": [
+    { "serviceId": "{{serviceId}}", "estimatedHours": 16 }
+  ]
+}
+
+### Hämta alla bokningar
+GET {{Bookings.Api_HostAddress}}/api/bookings
+
+### Hämta en bokning
+GET {{Bookings.Api_HostAddress}}/api/bookings/{{bookingId}}
+
+### Uppdatera bokning
+PUT {{Bookings.Api_HostAddress}}/api/bookings/{{bookingId}}
+Content-Type: application/json
+
+{
+  "startsAt": "2026-11-21T07:00:00Z",
+  "endsAt": "2026-11-23T16:00:00Z"
+}
+
+### Avboka bokning
+POST {{Bookings.Api_HostAddress}}/api/bookings/{{bookingId}}/cancel
+
+### Ta bort bokning
+DELETE {{Bookings.Api_HostAddress}}/api/bookings/{{bookingId}}
+
+### Ska ge 400: kortare än 1 dag
+POST {{Bookings.Api_HostAddress}}/api/bookings
+Content-Type: application/json
+
+{
+  "customerId": "{{customerId}}",
+  "startsAt": "2026-11-22T07:00:00Z",
+  "endsAt": "2026-11-20T16:00:00Z",
+  "machines": [
+    { "machineId": "{{machineId}}" }
+  ]
+}
+
+### Ska ge 400: maskinen finns inte
+POST {{Bookings.Api_HostAddress}}/api/bookings
+Content-Type: application/json
+
+{
+  "customerId": "{{customerId}}",
+  "startsAt": "2026-11-24T07:00:00Z",
+  "endsAt": "2026-11-26T16:00:00Z",
+  "machines": [
+    { "machineId": "00000000-0000-0000-0000-000000000001" }
+  ]
+}
+
+### 409-test steg 1: inaktivera tjänsten
+PUT {{Bookings.Api_HostAddress}}/api/businessservices/{{serviceId}}
+Content-Type: application/json
+
+{
+  "name": "Schaktning",
+  "description": "Schaktning med maskinförare",
+  "pricePerHour": 650.00,
+  "isActive": false
+}
+
+### 409-test steg 2: ska ge 409, tjänsten är inte aktiv
+POST {{Bookings.Api_HostAddress}}/api/bookings
+Content-Type: application/json
+
+{
+  "customerId": "{{customerId}}",
+  "startsAt": "2026-11-24T07:00:00Z",
+  "endsAt": "2026-11-26T16:00:00Z",
+  "services": [
+    { "serviceId": "{{serviceId}}", "estimatedHours": 8 }
+  ]
+}
+
+### 409-test steg 3: aktivera tjänsten igen
+PUT {{Bookings.Api_HostAddress}}/api/businessservices/{{serviceId}}
+Content-Type: application/json
+
+{
+  "name": "Schaktning",
+  "description": "Schaktning med maskinförare",
+  "pricePerHour": 650.00,
+  "isActive": true
+}
+
+### Ska ge 400: längre än 30 dagar
+POST {{Bookings.Api_HostAddress}}/api/bookings
+Content-Type: application/json
+
+{
+  "customerId": "{{customerId}}",
+  "startsAt": "2027-01-01T07:00:00Z",
+  "endsAt": "2027-02-15T16:00:00Z",
+  "services": [
+    { "serviceId": "{{serviceId}}", "estimatedHours": 8 }
+  ]
+}
+
+### Utan endsAt: ska få endsAt = startsAt + 30 dagar
+POST {{Bookings.Api_HostAddress}}/api/bookings
+Content-Type: application/json
+
+{
+  "customerId": "{{customerId}}",
+  "startsAt": "2027-03-01T07:00:00Z",
+  "services": [
+    { "serviceId": "{{serviceId}}", "estimatedHours": 8 }
+  ]
+}
+
+### Ska ge 409: maskinen är redan bokad (kör två gånger)
+POST {{Bookings.Api_HostAddress}}/api/bookings
+Content-Type: application/json
+
+{
+  "customerId": "{{customerId}}",
+  "startsAt": "2026-11-21T07:00:00Z",
+  "endsAt": "2026-11-23T16:00:00Z",
+  "machines": [
+    { "machineId": "{{machineId}}" }
+  ]
+}
+
+### Avsluta bokning och skicka till Invoices (kräver att Invoices och Customers körs, annars 503)
+POST {{Bookings.Api_HostAddress}}/api/bookings/{{bookingId}}/complete
+Content-Type: application/json
+
+{
+  "templateId": "{{templateId}}"
+}
+
+### Ska ge 409: bokningen är redan avslutad (kör complete en gång till)
+POST {{Bookings.Api_HostAddress}}/api/bookings/{{bookingId}}/complete
+Content-Type: application/json
+
+{
+  "templateId": "{{templateId}}"
+}
+
+### Ska ge 400: templateId saknas
+POST {{Bookings.Api_HostAddress}}/api/bookings/{{bookingId}}/complete
+Content-Type: application/json
+
+{
+  "templateId": "00000000-0000-0000-0000-000000000000"
+}

@@ -14,10 +14,9 @@ public class EmployeeRepository(EmployeesDbContext context) : IEmployeeRepositor
         return employee;
     }
 
-    public async Task<Employee> GetByIdAsync(Guid id)
+    public async Task<Employee?> GetByIdAsync(Guid id)
     {
-        var employee = await context.Employees.FindAsync(id);
-        return employee ?? throw new InvalidOperationException("Employee not found");
+        return await context.Employees.FindAsync(id);
     }
 
     public async Task<List<Employee>> GetAllAsync()

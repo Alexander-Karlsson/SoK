@@ -1,5 +1,6 @@
 @host = https://localhost:7020
-@employeeId = 9a7ff8e3-14f1-4976-bc32-f55ce0f97933
+@employeeId = 20f3772f-44b8-4a96-ac66-b6d4c37f2b94
+@employeeId2 = 9a7ff8e3-14f1-4976-bc32-f55ce0f97933
 @employee2 = 315472f9-41e5-4942-aeb9-7fc27998bd79
 ### 1. Skapa en anställd
 # @name createEmployee

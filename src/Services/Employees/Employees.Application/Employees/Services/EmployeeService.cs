@@ -1,7 +1,6 @@
 ﻿using Employees.Application.Employees.DTOs.Employee;
 using Employees.Domain.Entities;
 using Employees.Infrastructure;
-using System.Reflection.Emit;
 
 namespace Employees.Application.Employees.Services;
 
@@ -37,9 +36,13 @@ public class EmployeeService(IEmployeeRepository repository)
         return ToResponse(created);
     }
 
-    public async Task<EmployeeResponse> GetEmployeeByIdAsync(Guid id)
+    public async Task<EmployeeResponse?> GetEmployeeByIdAsync(Guid id)
     {
         var employee = await repository.GetByIdAsync(id);
+        if (employee == null)
+        {
+            return null;
+        }
         return ToResponse(employee);
     }
 
@@ -49,9 +52,13 @@ public class EmployeeService(IEmployeeRepository repository)
         return employees.Select(ToResponse).ToList();
     }
 
-    public async Task<EmployeeResponse> UpdateEmployeeAsync(Guid id, UpdateEmployeeRequest request)
+    public async Task<EmployeeResponse?> UpdateEmployeeAsync(Guid id, UpdateEmployeeRequest request)
     {
         var employee = await repository.GetByIdAsync(id);
+        if (employee == null)
+        {
+            return null;
+        }
 
         employee.FirstName = request.FirstName.Trim();
         employee.LastName = request.LastName.Trim();
@@ -78,7 +85,7 @@ public class EmployeeService(IEmployeeRepository repository)
         return ToResponse(updated);
     }
 
-    public async Task<EmployeeResponse?> DeactiveEmployeeAsync(Guid id, DeactivateEmployeeRequest request)
+    public async Task<EmployeeResponse?> DeactivateEmployeeAsync(Guid id, DeactivateEmployeeRequest request)
     {
         var employee = await repository.GetByIdAsync(id);
         if (employee == null)

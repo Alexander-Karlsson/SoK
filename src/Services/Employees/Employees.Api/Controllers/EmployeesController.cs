@@ -47,10 +47,10 @@ public class EmployeesController(EmployeeService service) : ControllerBase
         return Ok(employee);
     }
 
-    [HttpPut("{id:guid}/deactive")]
+    [HttpPut("{id:guid}/deactivate")]
     public async Task<IActionResult> DeactivateEmployee(Guid id, [FromBody] DeactivateEmployeeRequest request)
     {
-        var employee = await service.DeactiveEmployeeAsync(id, request);
+        var employee = await service.DeactivateEmployeeAsync(id, request);
 
         if (employee == null)
         {
@@ -59,10 +59,10 @@ public class EmployeesController(EmployeeService service) : ControllerBase
 
         return Ok(employee);
     }
-    [HttpPut("{id:guid}/reactive")]
+    [HttpPut("{id:guid}/reactivate")]
     public async Task<IActionResult> ReactivateEmployee(Guid id, [FromBody] ReactivateEmployeeRequest request)
     {
-        var employee = await service.GetEmployeeByIdAsync(id);
+        var employee = await service.ReactivateEmployeeAsync(id, request);
 
         if (employee == null)
         {

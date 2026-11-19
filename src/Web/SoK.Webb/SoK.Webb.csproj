@@ -22,4 +22,8 @@
 	  <ProjectReference Include="..\..\Services\Employees\Employees.Application\Employees.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Components\Pages\EmployeePages\" />
+  </ItemGroup>
+
 </Project>

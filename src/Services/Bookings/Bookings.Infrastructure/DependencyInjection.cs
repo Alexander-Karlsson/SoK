@@ -1,4 +1,5 @@
 ﻿using Bookings.Application.Bookings.Interfaces;
+using Bookings.Infrastructure.Clients;
 using Bookings.Infrastructure.Persistence;
 using Bookings.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +18,11 @@ public static class DependencyInjection
         services.AddScoped<IBookingRepository, BookingRepository>();
         services.AddScoped<IBusinessServiceRepository, BusinessServiceRepository>();
         services.AddScoped<IMachineRepository, MachineRepository>();
+
+        services.AddHttpClient<IInvoiceClient, InvoiceClient>(client =>
+        {
+            client.BaseAddress = new Uri(configuration["ApiUrls:Invoices"]!);
+        });
 
         return services;
     }

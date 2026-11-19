@@ -1,7 +1,8 @@
 @Bookings.Api_HostAddress = http://localhost:5150
 @machineId = 811c2cbf-9820-43db-9ff3-58efedaa7614
-@bookingId = 9bf2a3d3-b490-40b2-a89a-4ef37e2eafb7
+@bookingId = 7b67379e-39b6-4d40-8e15-fddcaf6f205e
 @serviceId = 14e4906a-def4-4a91-a125-493af59b1c43
+@templateId = 00000000-0000-0000-0000-000000000000
 
 ### Skapa maskin
 POST {{Bookings.Api_HostAddress}}/api/machines
@@ -83,7 +84,7 @@ POST {{Bookings.Api_HostAddress}}/api/bookings/{{bookingId}}/cancel
 ### Ta bort bokning
 DELETE {{Bookings.Api_HostAddress}}/api/bookings/{{bookingId}}
 
-### Ska ge 400: EndsAt före StartsAt
+### Ska ge 400: kortare än 1 dag
 POST {{Bookings.Api_HostAddress}}/api/bookings
 Content-Type: application/json
 
@@ -142,4 +143,66 @@ Content-Type: application/json
   "description": "Schaktning med maskinförare",
   "pricePerHour": 650.00,
   "isActive": true
+}
+
+### Ska ge 400: längre än 30 dagar
+POST {{Bookings.Api_HostAddress}}/api/bookings
+Content-Type: application/json
+
+{
+  "customerId": "3f2b8c1e-7a4d-4e9b-9c11-2d5e6f708192",
+  "startsAt": "2027-01-01T07:00:00Z",
+  "endsAt": "2027-02-15T16:00:00Z",
+  "services": [
+    { "serviceId": "{{serviceId}}", "estimatedHours": 8 }
+  ]
+}
+
+### Utan endsAt: ska få endsAt = startsAt + 30 dagar
+POST {{Bookings.Api_HostAddress}}/api/bookings
+Content-Type: application/json
+
+{
+  "customerId": "3f2b8c1e-7a4d-4e9b-9c11-2d5e6f708192",
+  "startsAt": "2027-03-01T07:00:00Z",
+  "services": [
+    { "serviceId": "{{serviceId}}", "estimatedHours": 8 }
+  ]
+}
+
+### Ska ge 409: maskinen är redan bokad (kör två gånger)
+POST {{Bookings.Api_HostAddress}}/api/bookings
+Content-Type: application/json
+
+{
+  "customerId": "3f2b8c1e-7a4d-4e9b-9c11-2d5e6f708192",
+  "startsAt": "2026-11-21T07:00:00Z",
+  "endsAt": "2026-11-23T16:00:00Z",
+  "machines": [
+    { "machineId": "{{machineId}}" }
+  ]
+}
+
+### Avsluta bokning och skicka till Invoices (kräver att Invoices och Customers körs, annars 503)
+POST {{Bookings.Api_HostAddress}}/api/bookings/{{bookingId}}/complete
+Content-Type: application/json
+
+{
+  "templateId": "{{templateId}}"
+}
+
+### Ska ge 409: bokningen är redan avslutad (kör complete en gång till)
+POST {{Bookings.Api_HostAddress}}/api/bookings/{{bookingId}}/complete
+Content-Type: application/json
+
+{
+  "templateId": "{{templateId}}"
+}
+
+### Ska ge 400: templateId saknas
+POST {{Bookings.Api_HostAddress}}/api/bookings/{{bookingId}}/complete
+Content-Type: application/json
+
+{
+  "templateId": "00000000-0000-0000-0000-000000000000"
 }

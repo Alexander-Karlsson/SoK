@@ -1,4 +1,5 @@
 ﻿using Bookings.Application.Bookings.DTOs;
+using Bookings.Application.Bookings.DTOs.Invoices;
 using Bookings.Application.Bookings.DTOs.Request;
 using Bookings.Application.Bookings.Interfaces;
 using Bookings.Application.Bookings.Validation;
@@ -7,7 +8,7 @@ using Bookings.Domain.Enums;
 
 namespace Bookings.Application.Bookings.Services;
 
-public class BookingAppService(IBookingRepository repo, IMachineRepository machineRepo, IBusinessServiceRepository serviceRepo)
+public class BookingAppService(IBookingRepository repo, IMachineRepository machineRepo, IBusinessServiceRepository serviceRepo, IInvoiceClient invoiceClient)
 {
     public async Task<BookingDetails> CreateBookingAsync(CreateBookingRequest request)
     {
@@ -164,5 +165,58 @@ public class BookingAppService(IBookingRepository repo, IMachineRepository machi
 
         return result;
     }
+
+    public async Task<bool> CompleteBookingAsync(Guid id, CompleteBookingRequest request)
+    {
+        if (request.TemplateId == Guid.Empty)
+            throw new ArgumentException("En fakturamall måste väljas.");
+
+        var booking = await repo.GetByIdAsync(id);
+
+        if (booking is null)
+            return false;
+
+        if (booking.Status is BookingStatus.Cancelled or BookingStatus.Completed || booking.InvoiceId is not null)
+            throw new InvalidOperationException("Bokningen är redan avslutad, avbokad eller fakturerad.");
+
+        var endsAt = request.EndsAt ?? booking.EndsAt!.Value;
+        BookingValidation.ValidateDates(booking.StartsAt, endsAt);
+
+        var details = await repo.GetBookingDetailsAsync(id);
+        var lines = await BuildInvoiceLinesAsync(details!, booking.StartsAt, endsAt);
+
+        if (lines.Count > 0)
+        {
+            booking.InvoiceId = await invoiceClient.CreateInvoiceAsync(
+                new InvoiceRequest(booking.CustomerId, request.TemplateId, lines));
+        }
+
+        booking.EndsAt = endsAt;
+        booking.Status = BookingStatus.Completed;
+        await repo.UpdateAsync(booking);
+
+        return true;
+    }
+
+    private async Task<List<InvoiceLineRequest>> BuildInvoiceLinesAsync(BookingDetails details, DateTime startsAt, DateTime endsAt)
+    {
+        var days = (decimal)Math.Ceiling((endsAt - startsAt).TotalDays);
+
+        var machineNames = (await machineRepo.GetByIdsAsync(details.Machines.Select(m => m.MachineId)))
+            .ToDictionary(m => m.Id, m => m.Name);
+
+        var serviceNames = (await serviceRepo.GetByIdsAsync(details.Services.Select(s => s.ServiceId)))
+            .ToDictionary(s => s.Id, s => s.Name);
+
+        var machineLines = details.Machines.Select(m =>
+            new InvoiceLineRequest(machineNames[m.MachineId], days, "Days", m.PricePerDay));
+
+        var serviceLines = details.Services
+            .Where(s => s.EstimatedHours > 0)
+            .Select(s => new InvoiceLineRequest(serviceNames[s.ServiceId], s.EstimatedHours, "Hours", s.PricePerHour));
+
+        return machineLines.Concat(serviceLines).ToList();
+    }
+
 
 }

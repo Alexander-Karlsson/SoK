@@ -91,4 +91,25 @@ public class BookingsController(BookingAppService service) : ControllerBase
             return Conflict(ex.Message);
         }
     }
+
+    [HttpPost("{id:guid}/complete")]
+    public async Task<IActionResult> Complete(Guid id, [FromBody] CompleteBookingRequest request)
+    {
+        try
+        {
+            return await service.CompleteBookingAsync(id, request) ? NoContent() : NotFound();
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(ex.Message);
+        }
+        catch (HttpRequestException)
+        {
+            return StatusCode(503, "Kunde inte nå Invoices.");
+        }
+    }
 }

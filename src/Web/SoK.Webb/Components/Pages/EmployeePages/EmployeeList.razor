@@ -7,7 +7,17 @@
 
 <PageTitle>Anställda</PageTitle>
 
-<h3>Anställda</h3>
+<h3>Lista på Anställda</h3>
+
+<input type="text"
+       placeholder="Sök på namn, nummer, titel, avdelning eller mobilnummer"
+       @bind="search"
+       @bind:event="oninput" />
+
+@if (!FilteredEmployees.Any())
+{
+    <p>Inga anställda matchar sökningen.</p>
+}
 
 <table>
     <thead>
@@ -24,7 +34,7 @@
     </thead>
     <tbody>
 
-    @foreach (var i in Employee)
+        @foreach (var i in FilteredEmployees)
     {
         <tr @onclick="() => ViweDetails(i.Id)">
             <td>@i.EmployeeNumber</td>
@@ -42,6 +52,7 @@
 
 @code {
     private List<EmployeeResponse> Employee { get; set; } = new();
+    private string search = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -52,4 +63,15 @@
     {
         Navigation.NavigateTo($"employeedetails/{id}");
     }
+
+    private IEnumerable<EmployeeResponse> FilteredEmployees =>
+        string.IsNullOrWhiteSpace(search)
+            ? Employee
+            : Employee.Where(
+                e =>$"{e.FirstName} {e.LastName}".Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                e.EmployeeNumber.ToString().Contains(search) ||
+                e.Title.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                e.Department.ToString().Contains(search, StringComparison.OrdinalIgnoreCase) || 
+                e.PhoneNumber.ToString().Contains(search));
+
 }

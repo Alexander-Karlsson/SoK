@@ -21,58 +21,74 @@ else
 
         <dt>Namn</dt>
         <dd>@employee.FirstName @employee.LastName</dd>
-        
+
         <dt>Telefonnummer</dt>
         <dd>@employee.PhoneNumber</dd>
-        
+
         <dt>Mail</dt>
         <dd>@employee.Email</dd>
-        
+
         <dt>Address</dt>
         <dd>@employee.Address</dd>
         <dd>@employee.Zipcode @employee.City</dd>
-        
 
+        
         <dt>Nödkontakt</dt>
         <dd>@employee.EmergencyContactName</dd>
         <dd>@employee.EmergencyContactNumber</dd>
 
         <dt>Relation</dt>
         <dd>@employee.Relationship</dd>
-        
 
+        
         <dt>Titel</dt>
         <dd>@employee.Title</dd>
-        
+
         <dt>Avdelning</dt>
         <dd>@employee.Department</dd>
-        
+
         <dt>Sysselsättningsgrad (%)</dt>
         <dd>@employee.EmployeeRate</dd>
-        
+
         <dt>Anställningsform</dt>
         <dd>@employee.EmployeeType</dd>
-        
+
         <dt>Anställdes</dt>
         <dd>@employee.EmploymentStartDate</dd>
-        
+
         <dt>Avslutar anställning</dt>
         <dd>@employee.EmploymentEndDate</dd>
 
         <dt>Semester dagar</dt>
         <dd>@employee.VacationDaysPerYear</dd>
-        
+
         <dt>Aktiv</dt>
         <dd>@employee.IsActive</dd>
     </dl>
 
     <button @onclick="EditEmployee">Redigera</button>
+
+    <h4>@(employee.IsActive ? "Avsluta anställning" : "Återanställ")</h4>
+    <label>
+        @(employee.IsActive ? "Sista anställningsdag" : "Nytt startdatum") <br />
+        <input type="date" @bind="selectedDate" />
+    </label>
+    <button @onclick="ToggleEmployment">
+        @(employee.IsActive ? "Avsluta anställning" : "Återanställ")
+    </button>
+
+    @if (message is not null)
+    {
+        <p>@message</p>
+    }
 }
 
 @code {
     [Parameter] public Guid Id { get; set; }
 
+    private DateOnly selectedDate = DateOnly.FromDateTime(DateTime.Today);
     private EmployeeResponse? employee;
+    private string? message;
 
     protected override async Task OnInitializedAsync()
     {
@@ -82,5 +98,35 @@ else
     private void EditEmployee()
     {
         Navigation.NavigateTo($"employeeedit/{Id}");
+    }
+
+    private async Task ToggleEmployment()
+    {
+        message = null;
+        EmployeeResponse? updated;
+
+        if (employee!.IsActive)
+        {
+            if (selectedDate < employee.EmploymentStartDate)
+            {
+                message = "Slutdatum kan inte vara före startdatum.";
+                return;
+            }
+
+            updated = await EmployeeClient.DeactivateAsync(Id, selectedDate);
+        }
+        else
+        {
+            updated = await EmployeeClient.ReactivateAsync(Id, selectedDate);
+        }
+
+        if (updated is null)
+        {
+            message = "Något gick fel, försök igen.";
+            return;
+        }
+
+        employee = updated;
+        selectedDate = DateOnly.FromDateTime(DateTime.Today);
     }
 }

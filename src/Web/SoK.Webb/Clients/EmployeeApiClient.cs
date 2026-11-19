@@ -28,4 +28,30 @@ public class EmployeeApiClient(HttpClient httpClient)
         var response = await httpClient.PutAsJsonAsync($"api/employees/{id}", request, jsonOptions);
         return response.IsSuccessStatusCode;
     }
+
+    public async Task<EmployeeResponse?> DeactivateAsync(Guid id, DateOnly endDate)
+    {
+        var request = new DeactivateEmployeeRequest { EmploymentEndDate = endDate };
+        var response = await httpClient.PutAsJsonAsync($"api/employees/{id}/deactivate", request, jsonOptions);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return null;
+        }
+
+        return await response.Content.ReadFromJsonAsync<EmployeeResponse>(jsonOptions);
+    }
+
+    public async Task<EmployeeResponse?> ReactivateAsync(Guid id, DateOnly startDate)
+    {
+        var request = new ReactivateEmployeeRequest { EmploymentStartDate = startDate };
+        var response = await httpClient.PutAsJsonAsync($"api/employees/{id}/reactivate", request, jsonOptions);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return null;
+        }
+
+        return await response.Content.ReadFromJsonAsync<EmployeeResponse>(jsonOptions);
+    }
 }

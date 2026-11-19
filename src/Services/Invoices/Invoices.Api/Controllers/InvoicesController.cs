@@ -39,14 +39,21 @@ public class InvoicesController (InvoiceService service) : ControllerBase
     [Route("{id:guid}")]
     public async Task<IActionResult> GetById(Guid id)
     {
-        var invoice = await service.GetByIdAsync(id);
-
-        if (invoice == null)
+        try
         {
-            return NotFound();
-        }
+            var invoice = await service.GetByIdAsync(id);
 
-        return Ok(invoice);
+            if (invoice == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(invoice);
+        }
+        catch (HttpRequestException)
+        {
+            return StatusCode(503, "Kunde ej nå customer");
+        }
     }
 
     [HttpPut]

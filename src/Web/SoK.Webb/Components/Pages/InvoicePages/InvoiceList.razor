@@ -1,0 +1,53 @@
+﻿@page "/invoices"
+@using Invoices.Application.Dtos
+@using SoK.Webb.Clients
+@inject InvoiceApiClient InvoiceClient
+
+<PageTitle>Fakturor</PageTitle>
+
+<div class="invoice-page py-5">
+    <div class="container">
+        <h1 class="mb-4">Fakturor</h1>
+
+        <div class="invoice-grid">
+            @foreach (var i in Invoice)
+            {
+                <div class="invoice-card">
+
+                    <div class="invoice-card-header">
+                        <a class="invoice-link stretched-link" href="invoices/@i.Id">
+                            @i.InvoiceNumber
+                        </a>
+                        <span class="invoice-status">@i.Status</span>
+                    </div>
+
+                    <div class="invoice-card-body">
+                        <div class="invoice-row">
+                            <span class="invoice-label">Fakturadatum</span>
+                            <span>@i.InvoiceDate.ToString("yyyy-MM-dd")</span>
+                        </div>
+                        <div class="invoice-row">
+                            <span class="invoice-label">Förfallodatum</span>
+                            <span>@i.DueDate.ToString("yyyy-MM-dd")</span>
+                        </div>
+                    </div>
+
+                    <div class="invoice-card-footer">
+                        <span class="invoice-label">Att betala</span>
+                        <span class="invoice-amount">@i.TotalAmount.ToString("N2") kr</span>
+                    </div>
+
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<InvoiceResponse> Invoice { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Invoice = await InvoiceClient.GetAllAsync();
+    }
+}

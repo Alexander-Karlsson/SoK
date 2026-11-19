@@ -22,4 +22,10 @@ public class EmployeeApiClient(HttpClient httpClient)
         var response = await httpClient.PostAsJsonAsync("api/employees", request, jsonOptions);
         return response.IsSuccessStatusCode;
     }
+
+    public async Task<bool> UpdateAsync(Guid id, UpdateEmployeeRequest request)
+    {
+        var response = await httpClient.PutAsJsonAsync($"api/employees/{id}", request, jsonOptions);
+        return response.IsSuccessStatusCode;
+    }
 }

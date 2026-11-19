@@ -7,7 +7,7 @@
 
 <PageTitle>Info om anställd</PageTitle>
 
-<h3>EmployeeDetails</h3>
+<h3>Info om anställd</h3>
 
 @if (employee is null)
 {
@@ -65,37 +65,10 @@ else
         <dt>Aktiv</dt>
         <dd>@employee.IsActive</dd>
     </dl>
+
+    <button @onclick="EditEmployee">Redigera</button>
 }
 
-@* <table>
-    <thead>
-        <tr>
-            <th>Anställnings nummer</th>
-            <th>Förnamn</th>
-            <th>Efternamn</th>
-            <th>Titel</th>
-            <th>Avdelning</th>
-            <th>Anställningsform</th>
-            <th>Syselsättningsgrad</th>
-            <th>Aktiv</th>
-        </tr>
-    </thead>
-    <tbody> *@
-
-        @* @foreach (var i in Employee)
-        {
-            <tr>
-                <td>@i.EmployeeNumber</td>
-                <td>@i.FirstName</td>
-                <td>@i.LastName</td>
-                <td>@i.Title</td>
-                <td>@i.Department</td>
-                <td>@i.EmployeeType</td>
-                <td>@i.IsActive</td>
-            </tr>
-        } *@
-    @* </tbody>
-</table> *@
 @code {
     [Parameter] public Guid Id { get; set; }
 
@@ -104,5 +77,10 @@ else
     protected override async Task OnInitializedAsync()
     {
         employee = await EmployeeClient.GetByIdAsync(Id);
+    }
+
+    private void EditEmployee()
+    {
+        Navigation.NavigateTo($"employeeedit/{Id}");
     }
 }

@@ -29,6 +29,8 @@ public class BookingDbContext(DbContextOptions<BookingDbContext> options) : DbCo
                 .IsRequired();
             entity.Property(b => b.StartsAt)
                 .IsRequired();
+            entity.Property(b => b.EndsAt)
+                .IsRequired();
 
             entity.Property(b => b.Status)
                 .HasConversion<string>()
@@ -59,6 +61,10 @@ public class BookingDbContext(DbContextOptions<BookingDbContext> options) : DbCo
             entity.HasIndex(bm => new { bm.BookingId, bm.MachineId })
                 .IsUnique();
 
+            entity.Property(x => x.Name)
+                .HasMaxLength(200)
+                .IsRequired();
+
             entity.Property(bm => bm.PricePerDay)
                 .HasPrecision(18, 2);
 
@@ -78,6 +84,10 @@ public class BookingDbContext(DbContextOptions<BookingDbContext> options) : DbCo
 
             entity.HasIndex(bs => new { bs.BookingId, bs.ServiceId })
                 .IsUnique();
+
+            entity.Property(x => x.Name)
+                .HasMaxLength(200)
+                .IsRequired();
 
             entity.Property(bs => bs.PricePerHour)
                 .HasPrecision(18, 2);

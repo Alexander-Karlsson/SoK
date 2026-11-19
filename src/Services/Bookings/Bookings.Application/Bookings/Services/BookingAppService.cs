@@ -129,6 +129,7 @@ public class BookingAppService(IBookingRepository repo, IMachineRepository machi
             {
                 BookingId = bookingId,
                 MachineId = machine.Id,
+                Name = machine.Name,
                 PricePerDay = machine.PricePerDay
             });
         }
@@ -158,6 +159,7 @@ public class BookingAppService(IBookingRepository repo, IMachineRepository machi
             {
                 BookingId = bookingId,
                 ServiceId = service.Id,
+                Name = service.Name,
                 EstimatedHours = s.EstimatedHours,
                 PricePerHour = service.PricePerHour
             });
@@ -179,11 +181,11 @@ public class BookingAppService(IBookingRepository repo, IMachineRepository machi
         if (booking.Status is BookingStatus.Cancelled or BookingStatus.Completed || booking.InvoiceId is not null)
             throw new InvalidOperationException("Bokningen är redan avslutad, avbokad eller fakturerad.");
 
-        var endsAt = request.EndsAt ?? booking.EndsAt!.Value;
+        var endsAt = request.EndsAt ?? booking.EndsAt;
         BookingValidation.ValidateDates(booking.StartsAt, endsAt);
 
         var details = await repo.GetBookingDetailsAsync(id);
-        var lines = await BuildInvoiceLinesAsync(details!, booking.StartsAt, endsAt);
+        var lines = BuildInvoiceLines(details!, booking.StartsAt, endsAt);
 
         if (lines.Count > 0)
         {
@@ -198,22 +200,16 @@ public class BookingAppService(IBookingRepository repo, IMachineRepository machi
         return true;
     }
 
-    private async Task<List<InvoiceLineRequest>> BuildInvoiceLinesAsync(BookingDetails details, DateTime startsAt, DateTime endsAt)
+    private static List<InvoiceLineRequest> BuildInvoiceLines(BookingDetails details, DateTime startsAt, DateTime endsAt)
     {
         var days = (decimal)Math.Ceiling((endsAt - startsAt).TotalDays);
 
-        var machineNames = (await machineRepo.GetByIdsAsync(details.Machines.Select(m => m.MachineId)))
-            .ToDictionary(m => m.Id, m => m.Name);
-
-        var serviceNames = (await serviceRepo.GetByIdsAsync(details.Services.Select(s => s.ServiceId)))
-            .ToDictionary(s => s.Id, s => s.Name);
-
         var machineLines = details.Machines.Select(m =>
-            new InvoiceLineRequest(machineNames[m.MachineId], days, "Days", m.PricePerDay));
+            new InvoiceLineRequest(m.Name, days, "Days", m.PricePerDay));
 
         var serviceLines = details.Services
             .Where(s => s.EstimatedHours > 0)
-            .Select(s => new InvoiceLineRequest(serviceNames[s.ServiceId], s.EstimatedHours, "Hours", s.PricePerHour));
+            .Select(s => new InvoiceLineRequest(s.Name, s.EstimatedHours, "Hours", s.PricePerHour));
 
         return machineLines.Concat(serviceLines).ToList();
     }

@@ -34,7 +34,7 @@ namespace Bookings.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("CustomerId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("EndsAt")
+                    b.Property<DateTime>("EndsAt")
                         .HasColumnType("datetime2");
 
                     b.Property<Guid?>("InvoiceId")
@@ -94,6 +94,11 @@ namespace Bookings.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("MachineId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<decimal>("PricePerDay")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
@@ -120,6 +125,11 @@ namespace Bookings.Infrastructure.Persistence.Migrations
                     b.Property<decimal>("EstimatedHours")
                         .HasPrecision(10, 2)
                         .HasColumnType("decimal(10,2)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<decimal>("PricePerHour")
                         .HasPrecision(18, 2)

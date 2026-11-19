@@ -16,8 +16,8 @@ public static class BookingMappings
         details.Booking.ProjectId,
         details.Booking.InvoiceId,
         details.Employees.Select(e => e.EmployeeId).ToList(),
-        details.Services.Select(s => new BookingServiceResponse(s.ServiceId, s.EstimatedHours, s.PricePerHour)).ToList(),
-        details.Machines.Select(m => new BookingMachineResponse(m.MachineId, m.PricePerDay)).ToList()
+        details.Services.Select(s => new BookingServiceResponse(s.ServiceId, s.Name, s.EstimatedHours, s.PricePerHour)).ToList(),
+        details.Machines.Select(m => new BookingMachineResponse(m.MachineId, m.Name, m.PricePerDay)).ToList()
         );
 
     public static BookingSummaryResponse ToSummary(this Booking booking) => new(

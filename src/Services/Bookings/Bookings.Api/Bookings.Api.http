@@ -1,8 +1,9 @@
 @Bookings.Api_HostAddress = http://localhost:5150
-@machineId = 811c2cbf-9820-43db-9ff3-58efedaa7614
-@bookingId = 7b67379e-39b6-4d40-8e15-fddcaf6f205e
-@serviceId = 14e4906a-def4-4a91-a125-493af59b1c43
-@templateId = 00000000-0000-0000-0000-000000000000
+@machineId = c6441d1c-e21b-4024-b785-d3837d2129a3
+@bookingId = 899b0629-e653-4323-a6da-94bf6ecf2b75
+@serviceId = 311ee1a4-5683-4d17-b225-8c7cce5d198d
+@customerId = 0c3acd15-08da-4a0d-bab7-3d12eccb7231
+@templateId = da7fb875-019b-4af6-ae9c-d45b64f2a7e6
 
 ### Skapa maskin
 POST {{Bookings.Api_HostAddress}}/api/machines
@@ -23,7 +24,7 @@ POST {{Bookings.Api_HostAddress}}/api/bookings
 Content-Type: application/json
 
 {
-  "customerId": "3f2b8c1e-7a4d-4e9b-9c11-2d5e6f708192",
+  "customerId": "{{customerId}}",
   "startsAt": "2026-11-20T07:00:00Z",
   "endsAt": "2026-11-22T16:00:00Z",
   "machines": [
@@ -52,7 +53,7 @@ POST {{Bookings.Api_HostAddress}}/api/bookings
 Content-Type: application/json
 
 {
-  "customerId": "3f2b8c1e-7a4d-4e9b-9c11-2d5e6f708192",
+  "customerId": "{{customerId}}",
   "startsAt": "2026-11-24T07:00:00Z",
   "endsAt": "2026-11-26T16:00:00Z",
   "machines": [
@@ -89,7 +90,7 @@ POST {{Bookings.Api_HostAddress}}/api/bookings
 Content-Type: application/json
 
 {
-  "customerId": "3f2b8c1e-7a4d-4e9b-9c11-2d5e6f708192",
+  "customerId": "{{customerId}}",
   "startsAt": "2026-11-22T07:00:00Z",
   "endsAt": "2026-11-20T16:00:00Z",
   "machines": [
@@ -102,7 +103,7 @@ POST {{Bookings.Api_HostAddress}}/api/bookings
 Content-Type: application/json
 
 {
-  "customerId": "3f2b8c1e-7a4d-4e9b-9c11-2d5e6f708192",
+  "customerId": "{{customerId}}",
   "startsAt": "2026-11-24T07:00:00Z",
   "endsAt": "2026-11-26T16:00:00Z",
   "machines": [
@@ -126,7 +127,7 @@ POST {{Bookings.Api_HostAddress}}/api/bookings
 Content-Type: application/json
 
 {
-  "customerId": "3f2b8c1e-7a4d-4e9b-9c11-2d5e6f708192",
+  "customerId": "{{customerId}}",
   "startsAt": "2026-11-24T07:00:00Z",
   "endsAt": "2026-11-26T16:00:00Z",
   "services": [
@@ -150,7 +151,7 @@ POST {{Bookings.Api_HostAddress}}/api/bookings
 Content-Type: application/json
 
 {
-  "customerId": "3f2b8c1e-7a4d-4e9b-9c11-2d5e6f708192",
+  "customerId": "{{customerId}}",
   "startsAt": "2027-01-01T07:00:00Z",
   "endsAt": "2027-02-15T16:00:00Z",
   "services": [
@@ -163,7 +164,7 @@ POST {{Bookings.Api_HostAddress}}/api/bookings
 Content-Type: application/json
 
 {
-  "customerId": "3f2b8c1e-7a4d-4e9b-9c11-2d5e6f708192",
+  "customerId": "{{customerId}}",
   "startsAt": "2027-03-01T07:00:00Z",
   "services": [
     { "serviceId": "{{serviceId}}", "estimatedHours": 8 }
@@ -175,7 +176,7 @@ POST {{Bookings.Api_HostAddress}}/api/bookings
 Content-Type: application/json
 
 {
-  "customerId": "3f2b8c1e-7a4d-4e9b-9c11-2d5e6f708192",
+  "customerId": "{{customerId}}",
   "startsAt": "2026-11-21T07:00:00Z",
   "endsAt": "2026-11-23T16:00:00Z",
   "machines": [

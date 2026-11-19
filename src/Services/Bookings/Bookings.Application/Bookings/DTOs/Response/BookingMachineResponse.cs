@@ -2,5 +2,6 @@
 
 public record BookingMachineResponse(
     Guid MachineId,
+    string Name,
     decimal PricePerDay
     );

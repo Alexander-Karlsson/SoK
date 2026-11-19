@@ -12,7 +12,7 @@ public record BookingResponse(
     Guid? ProjectId,
     Guid? InvoiceId,
     IReadOnlyList<Guid> EmployeeIds,
-    IReadOnlyList<BookingServiceResponse> Service,
+    IReadOnlyList<BookingServiceResponse> Services,
     IReadOnlyList<BookingMachineResponse> Machines
     );
 

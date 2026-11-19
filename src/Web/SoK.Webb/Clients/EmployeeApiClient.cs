@@ -1,4 +1,5 @@
-﻿using Employees.Application.Employees.DTOs.Employee;
+﻿using Employees.Application.Employees.DTOs;
+using Employees.Application.Employees.DTOs.Employee;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -17,16 +18,41 @@ public class EmployeeApiClient(HttpClient httpClient)
     public async Task<EmployeeResponse?> GetByIdAsync(Guid id)
     => await httpClient.GetFromJsonAsync<EmployeeResponse>($"api/employees/{id}", jsonOptions);
 
-    public async Task<bool> CreateAsync(CreateEmployeeRequest request)
+    public async Task<(EmployeeResponse? Employee, string? Error)> CreateAsync(CreateEmployeeRequest request)
     {
         var response = await httpClient.PostAsJsonAsync("api/employees", request, jsonOptions);
-        return response.IsSuccessStatusCode;
+
+        if (response.IsSuccessStatusCode)
+        {
+            var employee = await response.Content.ReadFromJsonAsync<EmployeeResponse>(jsonOptions);
+            return (employee, null);
+        }
+
+        if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
+        {
+            var error = await response.Content.ReadFromJsonAsync<ErrorResponse>(jsonOptions);
+            return (null, error?.Message);
+        }
+
+        return (null, "Kunde inte spara den anställda.");
     }
 
-    public async Task<bool> UpdateAsync(Guid id, UpdateEmployeeRequest request)
+    public async Task<(EmployeeResponse? Employee, string? Error)> UpdateAsync(Guid id, UpdateEmployeeRequest request)
     {
         var response = await httpClient.PutAsJsonAsync($"api/employees/{id}", request, jsonOptions);
-        return response.IsSuccessStatusCode;
+        if (response.IsSuccessStatusCode)
+        {
+            var employee = await response.Content.ReadFromJsonAsync<EmployeeResponse>(jsonOptions);
+            return (employee, null);
+        }
+
+        if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
+        {
+            var error = await response.Content.ReadFromJsonAsync<ErrorResponse>(jsonOptions);
+            return (null, error?.Message);
+        }
+
+        return (null, "Kunde inte uppdatera den anställda.");
     }
 
     public async Task<EmployeeResponse?> DeactivateAsync(Guid id, DateOnly endDate)

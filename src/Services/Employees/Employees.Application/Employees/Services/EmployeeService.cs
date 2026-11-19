@@ -1,4 +1,5 @@
 ﻿using Employees.Application.Employees.DTOs.Employee;
+using Employees.Application.Employees.Exceptions;
 using Employees.Domain.Entities;
 using Employees.Infrastructure;
 
@@ -8,6 +9,8 @@ public class EmployeeService(IEmployeeRepository repository)
 {
     public async Task<EmployeeResponse> CreateEmployeeAsync(CreateEmployeeRequest request)
     {
+        await EnsureUniqueAsync(request.PersonalNumber.Trim(), request.Email.Trim());
+
         var employee = new Employee
         {
             FirstName = request.FirstName.Trim(),
@@ -54,11 +57,13 @@ public class EmployeeService(IEmployeeRepository repository)
 
     public async Task<EmployeeResponse?> UpdateEmployeeAsync(Guid id, UpdateEmployeeRequest request)
     {
+
         var employee = await repository.GetByIdAsync(id);
         if (employee == null)
         {
             return null;
         }
+        await EnsureUniqueAsync(request.PersonalNumber.Trim(), request.Email.Trim(), id);
 
         employee.FirstName = request.FirstName.Trim();
         employee.LastName = request.LastName.Trim();
@@ -118,6 +123,19 @@ public class EmployeeService(IEmployeeRepository repository)
     public Task DeleteEmployeeAsync(Guid id)
     {
         return repository.DeleteAsync(id);
+    }
+
+    private async Task EnsureUniqueAsync(string personalNumber, string email, Guid? exceptId = null)
+    {
+        if (await repository.PersonalNumberExistsAsync(personalNumber, exceptId))
+        {
+            throw new DuplicateEmployeeException($"Det finns redan en anställd med personnummer {personalNumber}.");
+        }
+
+        if (await repository.EmailExistsAsync(email, exceptId))
+        {
+            throw new DuplicateEmployeeException($"Det finns redan en anställd med e-post {email}.");
+        }
     }
 
     private static EmployeeResponse ToResponse(Employee e) => new()

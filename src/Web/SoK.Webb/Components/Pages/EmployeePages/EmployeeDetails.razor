@@ -83,6 +83,8 @@ else
     }
 }
 
+<button @onclick="BackToList">Tillbaka till anställda</button>
+
 @code {
     [Parameter] public Guid Id { get; set; }
 
@@ -128,5 +130,10 @@ else
 
         employee = updated;
         selectedDate = DateOnly.FromDateTime(DateTime.Today);
+    }
+
+    private void BackToList()
+    {
+        Navigation.NavigateTo("/employeelist");
     }
 }

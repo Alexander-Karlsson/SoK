@@ -186,15 +186,15 @@
             return;
         }
 
-        var ok = await EmployeeClient.CreateAsync(employee);
+        var (created, error) = await EmployeeClient.CreateAsync(employee);
 
-        if (ok)
+        if (created is not null)
         {
             Navigation.NavigateTo("/employeelist");
         }
         else
         {
-            message = "Kunde inte spara den anställda.";
+            message = error;
         }
     }
 

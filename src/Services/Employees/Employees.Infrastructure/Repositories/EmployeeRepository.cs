@@ -44,4 +44,16 @@ public class EmployeeRepository(EmployeesDbContext context) : IEmployeeRepositor
         await context.SaveChangesAsync();
         return employee;
     }
+
+    public async Task<bool> PersonalNumberExistsAsync(string personalNumber, Guid? exceptId = null)
+    {
+        return await context.Employees
+            .AnyAsync(e => e.PersonalNumber == personalNumber && e.Id != exceptId);
+    }
+
+    public async Task<bool> EmailExistsAsync(string email, Guid? exceptId = null)
+    {
+        return await context.Employees
+            .AnyAsync(e => e.Email == email && e.Id != exceptId);
+    }
 }

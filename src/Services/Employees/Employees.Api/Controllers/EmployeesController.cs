@@ -1,4 +1,6 @@
-﻿using Employees.Application.Employees.DTOs.Employee;
+﻿using Employees.Application.Employees.DTOs;
+using Employees.Application.Employees.DTOs.Employee;
+using Employees.Application.Employees.Exceptions;
 using Employees.Application.Employees.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,8 +13,15 @@ public class EmployeesController(EmployeeService service) : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateEmployee([FromBody] CreateEmployeeRequest request)
     {
-        var employee = await service.CreateEmployeeAsync(request);
-        return Ok(employee);
+        try
+        {
+            var employee = await service.CreateEmployeeAsync(request);
+            return Ok(employee);
+        }
+        catch (DuplicateEmployeeException ex)
+        {
+            return Conflict(new ErrorResponse(ex.Message));
+        }
     }
 
     [HttpGet("{id:guid}")]
@@ -38,13 +47,21 @@ public class EmployeesController(EmployeeService service) : ControllerBase
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> UpdateEmployee(Guid id, [FromBody] UpdateEmployeeRequest request)
     {
-        var employee = await service.UpdateEmployeeAsync(id, request);
-        if (employee == null)
+        try
         {
-            return NotFound();
-        }
+            var employee = await service.UpdateEmployeeAsync(id, request);
 
-        return Ok(employee);
+            if (employee == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(employee);
+        }
+        catch (DuplicateEmployeeException ex)
+        {
+            return Conflict(new ErrorResponse(ex.Message));
+        }
     }
 
     [HttpPut("{id:guid}/deactivate")]

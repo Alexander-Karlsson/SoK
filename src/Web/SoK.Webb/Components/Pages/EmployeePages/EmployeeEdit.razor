@@ -177,6 +177,8 @@ else
 </EditForm>
 }
 
+<button @onclick="BackToList">Tillbaka till anställda</button>
+
 @code {
     [Parameter]
     public Guid Id { get; set; }
@@ -229,15 +231,15 @@ else
             return;
         }
 
-        var ok = await EmployeeClient.UpdateAsync(Id, employee);
+        var (update, error) = await EmployeeClient.UpdateAsync(Id, employee);
 
-        if (ok)
+        if (update is not null)
         {
-            Navigation.NavigateTo($"employeedetails/{Id}");
+            Navigation.NavigateTo($"/employeedetails/{Id}");
         }
         else
         {
-            message = "Kunde inte spara ändringarna.";
+            message = error;
         }
     }
 
@@ -247,6 +249,11 @@ else
         {
             employee.EmploymentEndDate = null;
         }
+    }
+
+    private void BackToList()
+    {
+        Navigation.NavigateTo($"/employeedetails/{Id}");
     }
 }
 

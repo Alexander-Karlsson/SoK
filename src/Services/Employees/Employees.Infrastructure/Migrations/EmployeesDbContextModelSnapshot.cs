@@ -65,6 +65,10 @@ namespace Employees.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Department")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -97,7 +101,7 @@ namespace Employees.Infrastructure.Migrations
                     b.Property<DateTime>("EmploymentDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("EmploymentEndDate")
+                    b.Property<DateTime?>("EmploymentEndDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("FirstName")
@@ -137,6 +141,10 @@ namespace Employees.Infrastructure.Migrations
 
                     b.Property<int>("VacationDaysPerYear")
                         .HasColumnType("int");
+
+                    b.Property<string>("Zipcode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 

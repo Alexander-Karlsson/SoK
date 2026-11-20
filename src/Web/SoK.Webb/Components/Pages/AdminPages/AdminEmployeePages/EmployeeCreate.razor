@@ -1,0 +1,230 @@
+﻿@page "/createemployee"
+@rendermode InteractiveServer
+@using Employees.Application.Employees.DTOs.Employee
+@using Employees.Domain.Enums
+@using SoK.Webb.Clients
+@inject EmployeeApiClient EmployeeClient
+@inject NavigationManager Navigation
+
+<PageTitle>Skapa ny anställd</PageTitle>
+
+<div class="page">
+    <div class="page-header">
+        <h2>Skapa ny anställd</h2>
+    </div>
+
+    @if (message is not null)
+    {
+        <p class="alert alert-error">@message</p>
+    }
+
+    <EditForm Model="employee" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+
+        <div class="form-grid">
+            <section class="card">
+                <h4>Personuppgifter</h4>
+
+                <div class="form-field">
+                    <label>
+                        Förnamn
+                        <InputText @bind-Value="employee.FirstName" />
+                    </label>
+                    <ValidationMessage For="() => employee.FirstName" />
+                </div>
+
+                <div class="form-field">
+                    <label>
+                        Efternamn
+                        <InputText @bind-Value="employee.LastName" />
+                    </label>
+                    <ValidationMessage For="() => employee.LastName" />
+                </div>
+
+                <div class="form-field">
+                    <label>
+                        Personnummer
+                        <InputText @bind-Value="employee.PersonalNumber" />
+                    </label>
+                    <ValidationMessage For="() => employee.PersonalNumber" />
+                </div>
+
+                <div class="form-field">
+                    <label>
+                        Email
+                        <InputText @bind-Value="employee.Email" />
+                    </label>
+                    <ValidationMessage For="() => employee.Email" />
+                </div>
+
+                <div class="form-field">
+                    <label>
+                        Telefonnummer
+                        <InputText @bind-Value="employee.PhoneNumber" />
+                    </label>
+                    <ValidationMessage For="() => employee.PhoneNumber" />
+                </div>
+
+                <div class="form-field">
+                    <label>
+                        Adress
+                        <InputText @bind-Value="employee.Address" />
+                    </label>
+                    <ValidationMessage For="() => employee.Address" />
+                </div>
+
+                <div class="form-field">
+                    <label>
+                        Postnummer
+                        <InputText @bind-Value="employee.Zipcode" />
+                    </label>
+                    <ValidationMessage For="() => employee.Zipcode" />
+                </div>
+
+                <div class="form-field">
+                    <label>
+                        Stad
+                        <InputText @bind-Value="employee.City" />
+                    </label>
+                    <ValidationMessage For="() => employee.City" />
+                </div>
+            </section>
+
+            <section class="card">
+                <h4>Nödkontakt</h4>
+
+                <div class="form-field">
+                    <label>
+                        Namn
+                        <InputText @bind-Value="employee.EmergencyContactName" />
+                    </label>
+                    <ValidationMessage For="() => employee.EmergencyContactName" />
+                </div>
+
+                <div class="form-field">
+                    <label>
+                        Telefonnummer
+                        <InputText @bind-Value="employee.EmergencyContactNumber" />
+                    </label>
+                    <ValidationMessage For="() => employee.EmergencyContactNumber" />
+                </div>
+
+                <div class="form-field">
+                    <label>
+                        Relation
+                        <InputText @bind-Value="employee.Relationship" />
+                    </label>
+                    <ValidationMessage For="() => employee.Relationship" />
+                </div>
+            </section>
+
+            <section class="card">
+                <h4>Anställning</h4>
+
+                <div class="form-field">
+                    <label>
+                        Titel
+                        <InputText @bind-Value="employee.Title" />
+                    </label>
+                    <ValidationMessage For="() => employee.Title" />
+                </div>
+
+                <div class="form-field">
+                    <label>
+                        Avdelning
+                        <InputSelect @bind-Value="employee.Department">
+                            @foreach (var i in Enum.GetValues<Department>())
+                            {
+                                <option value="@i">@i</option>
+                            }
+                        </InputSelect>
+                    </label>
+                    <ValidationMessage For="() => employee.Department" />
+                </div>
+
+                <div class="form-field">
+                    <label>
+                        Anställningsform
+                        <InputSelect @bind-Value="employee.EmployeeType"
+                                     @bind-Value:after="WhenEmployeeTypeChanged">
+                            @foreach (var i in Enum.GetValues<EmployeeType>())
+                            {
+                                <option value="@i">@i</option>
+                            }
+                        </InputSelect>
+                    </label>
+                    <ValidationMessage For="() => employee.EmployeeType" />
+                </div>
+
+                <div class="form-field">
+                    <label>
+                        Startdatum
+                        <InputDate @bind-Value="employee.EmploymentStartDate" />
+                    </label>
+                    <ValidationMessage For="() => employee.EmploymentStartDate" />
+                </div>
+
+                @if (employee.EmployeeType != EmployeeType.Permanent)
+                {
+                    <div class="form-field">
+                        <label>
+                            Slutdatum
+                            <InputDate @bind-Value="employee.EmploymentEndDate" />
+                        </label>
+                        <ValidationMessage For="() => employee.EmploymentEndDate" />
+                    </div>
+                }
+
+                <div class="form-field">
+                    <label>
+                        Sysselsättningsgrad (%)
+                        <InputNumber @bind-Value="employee.EmployeeRate" />
+                    </label>
+                    <ValidationMessage For="() => employee.EmployeeRate" />
+                </div>
+            </section>
+        </div>
+
+        <div class="form-actions">
+            <a class="btn btn-secondary" href="/employeelist">Avbryt</a>
+            <button type="submit" class="btn btn-primary">Spara</button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    private CreateEmployeeRequest employee = new();
+
+    private string? message;
+
+    private async Task HandleSubmit()
+    {
+        message = null;
+
+        if (employee.EmploymentEndDate is not null &&
+        employee.EmploymentEndDate < employee.EmploymentStartDate)
+        {
+            message = "Slutdatum kan inte vara före startdatum.";
+            return;
+        }
+
+        var (created, error) = await EmployeeClient.CreateAsync(employee);
+
+        if (created is not null)
+        {
+            Navigation.NavigateTo("/employeelist");
+        }
+        else
+        {
+            message = error;
+        }
+    }
+
+    private void WhenEmployeeTypeChanged()
+    {
+        if (employee.EmployeeType == EmployeeType.Permanent)
+        {
+            employee.EmploymentEndDate = null;
+        }
+    }
+}

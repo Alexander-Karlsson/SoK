@@ -1,0 +1,145 @@
+@page "/employeedetails/{Id:guid}"
+@rendermode InteractiveServer
+@using Employees.Application.Employees.DTOs.Employee
+@using SoK.Webb.Clients
+@inject EmployeeApiClient EmployeeClient
+@inject NavigationManager Navigation
+
+<PageTitle>Info om anställd</PageTitle>
+
+<div class="page">
+    <div class="page-header">
+        <h2>@(employee is null ? "Info om anställd" : $"{employee.FirstName} {employee.LastName}")</h2>
+        <button class="btn btn-secondary" @onclick="BackToList">← Tillbaka</button>
+    </div>
+
+    @if (employee is null)
+    {
+        <p>Sidan laddar...</p>
+    }
+    else
+    {
+        <div class="details-grid">
+            <section class="card">
+                <h4>Personuppgifter</h4>
+                <dl>
+                    <div><dt>Anställningsnummer</dt><dd>@employee.EmployeeNumber</dd></div>
+                    <div><dt>Namn</dt><dd>@employee.FirstName @employee.LastName</dd></div>
+                    <div><dt>Telefonnummer</dt><dd>@employee.PhoneNumber</dd></div>
+                    <div><dt>Mail</dt><dd>@employee.Email</dd></div>
+                    <div>
+                        <dt>Adress</dt>
+                        <dd>@employee.Address<br />@employee.Zipcode @employee.City</dd>
+                    </div>
+                </dl>
+            </section>
+
+            <section class="card">
+                <h4>Nödkontakt</h4>
+                <dl>
+                    <div><dt>Namn</dt><dd>@employee.EmergencyContactName</dd></div>
+                    <div><dt>Telefonnummer</dt><dd>@employee.EmergencyContactNumber</dd></div>
+                    <div><dt>Relation</dt><dd>@employee.Relationship</dd></div>
+                </dl>
+            </section>
+
+            <section class="card">
+                <h4>Anställning</h4>
+                <dl>
+                    <div><dt>Titel</dt><dd>@employee.Title</dd></div>
+                    <div><dt>Avdelning</dt><dd>@employee.Department</dd></div>
+                    <div><dt>Sysselsättningsgrad</dt><dd>@employee.EmployeeRate %</dd></div>
+                    <div><dt>Anställningsform</dt><dd>@employee.EmployeeType</dd></div>
+                    <div><dt>Anställdes</dt><dd>@employee.EmploymentStartDate</dd></div>
+                    <div><dt>Avslutar anställning</dt><dd>@(employee.EmploymentEndDate?.ToString() ?? "–")</dd></div>
+                    <div><dt>Semesterdagar</dt><dd>@employee.VacationDaysPerYear</dd></div>
+                    <div>
+                        <dt>Status</dt>
+                        <dd>
+                            <span class="badge @(employee.IsActive ? "badge-active" : "badge-inactive")">
+                                @(employee.IsActive ? "Aktiv" : "Inaktiv")
+                            </span>
+                        </dd>
+                    </div>
+                </dl>
+            </section>
+        </div>
+
+        <div class="actions-bar">
+            <button class="btn btn-primary" @onclick="EditEmployee">Redigera</button>
+        </div>
+
+        <section class="card status-card">
+            <h4>@(employee.IsActive ? "Avsluta anställning" : "Återanställ")</h4>
+
+            <div class="status-form">
+                <label>
+                    @(employee.IsActive ? "Sista anställningsdag" : "Nytt startdatum")
+                    <input type="date" @bind="selectedDate" />
+                </label>
+                <button class="btn @(employee.IsActive ? "btn-danger" : "btn-primary")"
+                        @onclick="ToggleEmployment">
+                    @(employee.IsActive ? "Avsluta anställning" : "Återanställ")
+                </button>
+            </div>
+
+            @if (message is not null)
+            {
+                <p class="alert alert-error">@message</p>
+            }
+        </section>
+    }
+</div>
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+
+    private DateOnly selectedDate = DateOnly.FromDateTime(DateTime.Today);
+    private EmployeeResponse? employee;
+    private string? message;
+
+    protected override async Task OnInitializedAsync()
+    {
+        employee = await EmployeeClient.GetByIdAsync(Id);
+    }
+
+    private void EditEmployee()
+    {
+        Navigation.NavigateTo($"employeeedit/{Id}");
+    }
+
+    private async Task ToggleEmployment()
+    {
+        message = null;
+        EmployeeResponse? updated;
+
+        if (employee!.IsActive)
+        {
+            if (selectedDate < employee.EmploymentStartDate)
+            {
+                message = "Slutdatum kan inte vara före startdatum.";
+                return;
+            }
+
+            updated = await EmployeeClient.DeactivateAsync(Id, selectedDate);
+        }
+        else
+        {
+            updated = await EmployeeClient.ReactivateAsync(Id, selectedDate);
+        }
+
+        if (updated is null)
+        {
+            message = "Något gick fel, försök igen.";
+            return;
+        }
+
+        employee = updated;
+        selectedDate = DateOnly.FromDateTime(DateTime.Today);
+    }
+
+    private void BackToList()
+    {
+        Navigation.NavigateTo("/employeelist");
+    }
+}

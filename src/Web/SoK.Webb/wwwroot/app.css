@@ -46,3 +46,131 @@ h1:focus {
 
     --font-heading: "Bebas Neue", "Arial Narrow", sans-serif;
 }
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    background: var(--color-beige);
+}
+
+.page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+    .page-header h2 {
+        font-family: var(--font-heading);
+        font-size: 2.25rem;
+        letter-spacing: 0.03em;
+        color: var(--color-dark);
+        margin: 0;
+    }
+
+.card {
+    background: #ffffff;
+    border: 1px solid #e2ddd5;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+    .card h4 {
+        font-family: var(--font-heading);
+        font-size: 1.4rem;
+        letter-spacing: 0.03em;
+        color: var(--color-dark);
+        margin: 0 0 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--color-yellow);
+    }
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.6rem 1.25rem;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+}
+
+    .btn:focus-visible {
+        outline: 3px solid var(--color-yellow);
+        outline-offset: 2px;
+    }
+
+.btn-primary {
+    background: var(--color-dark);
+    color: var(--color-text-menu);
+}
+
+    .btn-primary:hover {
+        background: var(--color-yellow);
+    }
+
+.btn-secondary {
+    background: transparent;
+    color: var(--color-dark);
+    border-color: var(--color-dark);
+}
+
+    .btn-secondary:hover {
+        background: var(--color-dark);
+        color: var(--color-text-menu);
+    }
+
+.btn-danger {
+    background: #b32121;
+    color: #ffffff;
+}
+
+    .btn-danger:hover {
+        background: #8f1a1a;
+    }
+
+.badge {
+    display: inline-block;
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.badge-active {
+    background: #e3f4e8;
+    color: #1d7a3a;
+}
+
+.badge-inactive {
+    background: #f1e3e3;
+    color: #9b2c2c;
+}
+
+.alert {
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+}
+
+.alert-error {
+    background: #fdecec;
+    color: #9b2c2c;
+    border-left: 4px solid #b32121;
+}

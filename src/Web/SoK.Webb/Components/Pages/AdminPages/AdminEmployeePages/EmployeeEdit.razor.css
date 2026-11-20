@@ -1,20 +1,63 @@
-﻿body {
+﻿.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    align-items: start;
 }
 
-h4 {
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    margin-bottom: 1rem;
+}
+
+    .form-field:last-child {
+        margin-bottom: 0;
+    }
+
+    .form-field label {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #6b665e;
+    }
+
+/* ::deep behövs eftersom InputText/InputSelect/InputDate är egna komponenter */
+.form-grid ::deep input,
+.form-grid ::deep select {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid #d6d0c8;
+    border-radius: 6px;
     font-size: 1rem;
+    font-weight: 400;
+    color: var(--color-text);
+    background: #ffffff;
+    transition: border-color 0.15s, box-shadow 0.15s;
 }
 
-label {
-    font-size: 1rem;
+    .form-grid ::deep input:focus,
+    .form-grid ::deep select:focus {
+        outline: none;
+        border-color: var(--color-yellow);
+        box-shadow: 0 0 0 3px rgba(184, 137, 26, 0.25);
+    }
+
+.form-grid ::deep .invalid {
+    border-color: #b32121;
+    outline: none;
 }
 
-.create-table {
-    padding: 12px 12px 12px 12px;
-    margin: 2rem;
+.form-grid ::deep .validation-message {
+    font-size: 0.8rem;
 }
 
-button {
-    margin-top: 2rem;
-    padding: 0.8px 16px
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1.5rem;
 }

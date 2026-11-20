@@ -7,48 +7,61 @@
 
 <PageTitle>Anställda</PageTitle>
 
-<h3>Lista på Anställda</h3>
+<div class="page">
+    <div class="page-header">
+        <h2>Anställda</h2>
+        <a class="btn btn-primary" href="/createemployee">+ Ny anställd</a>
+    </div>
 
-<input type="text"
-       placeholder="Sök på namn, nummer, titel, avdelning eller mobilnummer"
-       @bind="search"
-       @bind:event="oninput" />
+    <input class="search"
+           type="search"
+           placeholder="Sök på namn, nummer, titel, avdelning eller mobilnummer"
+           @bind="search"
+           @bind:event="oninput" />
 
-@if (!FilteredEmployees.Any())
-{
-    <p>Inga anställda matchar sökningen.</p>
-}
-
-<table>
-    <thead>
-        <tr>
-            <th>Anställnings nummer</th>
-            <th>Förnamn</th>
-            <th>Efternamn</th>
-            <th>Telefonnummer</th>
-            <th>Email</th>
-            <th>Titel</th>
-            <th>Avdelning</th>
-            <th>Aktiv</th>
-        </tr>
-    </thead>
-    <tbody>
-
-        @foreach (var i in FilteredEmployees)
+    @if (!FilteredEmployees.Any())
     {
-        <tr @onclick="() => ViweDetails(i.Id)">
-            <td>@i.EmployeeNumber</td>
-            <td>@i.FirstName</td>
-            <td>@i.LastName</td>
-            <td>@i.PhoneNumber</td>
-            <td>@i.Email</td>
-            <td>@i.Title</td>
-            <td>@i.Department</td>
-            <td>@i.IsActive</td>
-        </tr>
+        <p class="empty">Inga anställda matchar sökningen.</p>
     }
-    </tbody>
-</table>
+    else
+    {
+        <div class="table-wrapper">
+            <table class="employee-table">
+                <thead>
+                    <tr>
+                        <th>Anst.nr</th>
+                        <th>Förnamn</th>
+                        <th>Efternamn</th>
+                        <th>Telefonnummer</th>
+                        <th>Email</th>
+                        <th>Titel</th>
+                        <th>Avdelning</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var i in FilteredEmployees)
+                    {
+                        <tr @onclick="() => ViweDetails(i.Id)">
+                            <td>@i.EmployeeNumber</td>
+                            <td>@i.FirstName</td>
+                            <td>@i.LastName</td>
+                            <td>@i.PhoneNumber</td>
+                            <td>@i.Email</td>
+                            <td>@i.Title</td>
+                            <td>@i.Department</td>
+                            <td>
+                                <span class="badge @(i.IsActive ? "badge-active" : "badge-inactive")">
+                                    @(i.IsActive ? "Aktiv" : "Inaktiv")
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
 
 @code {
     private List<EmployeeResponse> Employee { get; set; } = new();
@@ -68,10 +81,10 @@
         string.IsNullOrWhiteSpace(search)
             ? Employee
             : Employee.Where(
-                e =>$"{e.FirstName} {e.LastName}".Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                e => $"{e.FirstName} {e.LastName}".Contains(search, StringComparison.OrdinalIgnoreCase) ||
                 e.EmployeeNumber.ToString().Contains(search) ||
                 e.Title.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                e.Department.ToString().Contains(search, StringComparison.OrdinalIgnoreCase) || 
+                e.Department.ToString().Contains(search, StringComparison.OrdinalIgnoreCase) ||
                 e.PhoneNumber.ToString().Contains(search));
 
 }

@@ -40,10 +40,11 @@ h1:focus {
 :root {
     --color-dark: #1f1f1b;
     --color-yellow: #b8891a;
-    --color-beige: #f3efea;
+    --color-beige: #eadcca;
     --color-text: #000000;
     --color-text-menu: #ffffff;
-
+    --color-beige-dark: #cfb799;
+    --color-blue: #a7bcd0;
     --font-heading: "Bebas Neue", "Arial Narrow", sans-serif;
 }
 

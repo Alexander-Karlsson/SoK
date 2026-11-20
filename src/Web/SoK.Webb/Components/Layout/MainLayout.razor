@@ -1,6 +1,27 @@
 ﻿@inherits LayoutComponentBase
 
-@Body
+<nav class="navbar navbar-expand-md navbar-dark" style="background-color: var(--color-dark); font-family: var(--font-heading);">
+    <div class="container">
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#meny">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="meny">
+            <ul class="navbar-nav mx-auto fs-4">
+                <li class="nav-item"><a class="nav-link" href="/" style="color: var(--color-text-menu);">Hem</a></li>
+                <li class="nav-item"><a class="nav-link" href="/#tjanster" style="color: var(--color-text-menu);">Tjänster</a></li>
+                <li class="nav-item"><a class="nav-link" href="/contact" style="color: var(--color-text-menu);">Kontakt</a></li>
+            </ul>
+            <a class="btn" href="Account/Login" style="background-color: var(--color-blue);">Logga in</a>
+        </div>
+
+    </div>
+</nav>
+
+<main>
+    @Body
+</main>
 
 <div id="blazor-error-ui" data-nosnippet>
     An unhandled error has occurred.

@@ -97,7 +97,7 @@ body {
         border-bottom: 2px solid var(--color-yellow);
     }
 
-.btn {
+/*.btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -135,7 +135,7 @@ body {
     .btn-secondary:hover {
         background: var(--color-dark);
         color: var(--color-text-menu);
-    }
+    }*/
 
 .btn-danger {
     background: #b32121;

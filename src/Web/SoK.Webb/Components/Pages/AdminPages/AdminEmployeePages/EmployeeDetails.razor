@@ -7,10 +7,10 @@
 
 <PageTitle>Info om anställd</PageTitle>
 
-<div class="page">
-    <div class="page-header">
+<div class="admin-page">
+    <div class="admin-page-header">
         <h2>@(employee is null ? "Info om anställd" : $"{employee.FirstName} {employee.LastName}")</h2>
-        <button class="btn btn-secondary" @onclick="BackToList">← Tillbaka</button>
+        <button class="admin-btn admin-btn-secondary" @onclick="BackToList">← Tillbaka</button>
     </div>
 
     @if (employee is null)
@@ -19,8 +19,8 @@
     }
     else
     {
-        <div class="details-grid">
-            <section class="card">
+        <div class="admin-details-grid">
+            <section class="admin-card">
                 <h4>Personuppgifter</h4>
                 <dl>
                     <div><dt>Anställningsnummer</dt><dd>@employee.EmployeeNumber</dd></div>
@@ -34,7 +34,7 @@
                 </dl>
             </section>
 
-            <section class="card">
+            <section class="admin-card">
                 <h4>Nödkontakt</h4>
                 <dl>
                     <div><dt>Namn</dt><dd>@employee.EmergencyContactName</dd></div>
@@ -43,7 +43,7 @@
                 </dl>
             </section>
 
-            <section class="card">
+            <section class="admin-card">
                 <h4>Anställning</h4>
                 <dl>
                     <div><dt>Titel</dt><dd>@employee.Title</dd></div>
@@ -56,7 +56,7 @@
                     <div>
                         <dt>Status</dt>
                         <dd>
-                            <span class="badge @(employee.IsActive ? "badge-active" : "badge-inactive")">
+                            <span class="admin-badge @(employee.IsActive ? "admin-badge-active" : "admin-badge-inactive")">
                                 @(employee.IsActive ? "Aktiv" : "Inaktiv")
                             </span>
                         </dd>
@@ -65,19 +65,19 @@
             </section>
         </div>
 
-        <div class="actions-bar">
-            <button class="btn btn-primary" @onclick="EditEmployee">Redigera</button>
+        <div class="admin-actions-bar">
+            <button class="admin-btn admin-btn-primary" @onclick="EditEmployee">Redigera</button>
         </div>
 
-        <section class="card status-card">
+        <section class="admin-card admin-status-card">
             <h4>@(employee.IsActive ? "Avsluta anställning" : "Återanställ")</h4>
 
-            <div class="status-form">
+            <div class="admin-status-form">
                 <label>
                     @(employee.IsActive ? "Sista anställningsdag" : "Nytt startdatum")
                     <input type="date" @bind="selectedDate" />
                 </label>
-                <button class="btn @(employee.IsActive ? "btn-danger" : "btn-primary")"
+                <button class="admin-btn @(employee.IsActive ? "admin-btn-danger" : "admin-btn-primary")"
                         @onclick="ToggleEmployment">
                     @(employee.IsActive ? "Avsluta anställning" : "Återanställ")
                 </button>
@@ -85,7 +85,7 @@
 
             @if (message is not null)
             {
-                <p class="alert alert-error">@message</p>
+                <p class="admin-alert admin-alert-error">@message</p>
             }
         </section>
     }

@@ -56,13 +56,13 @@ body {
     background: var(--color-beige);
 }
 
-.page {
+.admin-page {
     max-width: 1200px;
     margin: 0 auto;
     padding: 2rem 1.5rem;
 }
 
-.page-header {
+.admin-page-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -71,7 +71,7 @@ body {
     margin-bottom: 1.5rem;
 }
 
-    .page-header h2 {
+    .admin-page-header h2 {
         font-family: var(--font-heading);
         font-size: 2.25rem;
         letter-spacing: 0.03em;
@@ -79,7 +79,7 @@ body {
         margin: 0;
     }
 
-.card {
+.admin-card {
     background: #ffffff;
     border: 1px solid #e2ddd5;
     border-radius: 10px;
@@ -87,7 +87,7 @@ body {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-    .card h4 {
+    .admin-card h4 {
         font-family: var(--font-heading);
         font-size: 1.4rem;
         letter-spacing: 0.03em;
@@ -97,7 +97,7 @@ body {
         border-bottom: 2px solid var(--color-yellow);
     }
 
-/*.btn {
+.admin-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -112,41 +112,41 @@ body {
     transition: background-color 0.15s, color 0.15s, border-color 0.15s;
 }
 
-    .btn:focus-visible {
+    .admin-btn:focus-visible {
         outline: 3px solid var(--color-yellow);
         outline-offset: 2px;
     }
 
-.btn-primary {
+.admin-btn-primary {
     background: var(--color-dark);
     color: var(--color-text-menu);
 }
 
-    .btn-primary:hover {
+    .admin-btn-primary:hover {
         background: var(--color-yellow);
     }
 
-.btn-secondary {
+.admin-btn-secondary {
     background: transparent;
     color: var(--color-dark);
     border-color: var(--color-dark);
 }
 
-    .btn-secondary:hover {
+    .admin-btn-secondary:hover {
         background: var(--color-dark);
         color: var(--color-text-menu);
-    }*/
+    }
 
-.btn-danger {
+.admin-btn-danger {
     background: #b32121;
     color: #ffffff;
 }
 
-    .btn-danger:hover {
+    .admin-btn-danger:hover {
         background: #8f1a1a;
     }
 
-.badge {
+.admin-badge {
     display: inline-block;
     padding: 0.2rem 0.65rem;
     border-radius: 999px;
@@ -154,23 +154,28 @@ body {
     font-weight: 600;
 }
 
-.badge-active {
+.admin-badge-active {
     background: #e3f4e8;
     color: #1d7a3a;
 }
 
-.badge-inactive {
+.admin-badge-inactive {
     background: #f1e3e3;
     color: #9b2c2c;
 }
 
-.alert {
+.empty {
+    color: #6b665e;
+    font-style: italic;
+}
+
+.admin-alert {
     padding: 0.75rem 1rem;
     border-radius: 6px;
     margin-bottom: 1rem;
 }
 
-.alert-error {
+.admin-alert-error {
     background: #fdecec;
     color: #9b2c2c;
     border-left: 4px solid #b32121;

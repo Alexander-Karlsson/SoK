@@ -1,0 +1,52 @@
+.invoice-page {
+    max-width: 850px;
+}
+
+.btn-back {
+    background-color: var(--color-blue);
+}
+
+.btn-print {
+    background-color: var(--color-yellow);
+}
+
+/* print-color-adjust gör att färgerna följer med vid utskrift */
+.invoice-paper {
+    background-color: #ffffff;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+}
+
+.invoice-header {
+    background-color: var(--color-dark);
+    color: var(--color-text-menu);
+}
+
+.invoice-header h1 {
+    font-family: var(--font-heading);
+    margin: 0;
+}
+
+.invoice-logo {
+    height: 70px;
+}
+
+.adress-box {
+    height: 100%;
+    padding: 1rem;
+    border-left: 4px solid var(--color-yellow);
+}
+
+.label {
+    font-size: 0.85rem;
+    color: #6c757d;
+    text-transform: uppercase;
+}
+
+.info-row {
+    background-color: var(--color-beige-dark);
+}
+
+.invoice-footer {
+    border-top: 1px solid #dee2e6;
+}

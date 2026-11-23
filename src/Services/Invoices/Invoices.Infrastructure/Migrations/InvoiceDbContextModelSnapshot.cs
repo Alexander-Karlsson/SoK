@@ -159,6 +159,10 @@ namespace Invoices.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("OurReference")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("PrimaryColor")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -174,6 +178,25 @@ namespace Invoices.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("InvoicesTemplates");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("11111111-1111-1111-1111-111111111111"),
+                            CompanyAddress = "Storgatan 1",
+                            CompanyBankgiro = "123-4567",
+                            CompanyCity = "Örebro",
+                            CompanyEmail = "faktura@sok.se",
+                            CompanyName = "Skrot & Korn AB",
+                            CompanyNumber = "112233-4455",
+                            CompanyPhone = "070-123 12 33",
+                            CompanyPostalCode = "111 22",
+                            Logo = "images/logo.png",
+                            OurReference = "Börje Gunnarsson",
+                            PrimaryColor = "#1f1f1b",
+                            StandardText = "Tack för att du anlitar Skrot & Korn!",
+                            VatNumber = "SE112233445501"
+                        });
                 });
 
             modelBuilder.Entity("Invoices.Domain.Entities.Invoice", b =>

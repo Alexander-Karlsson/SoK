@@ -5,7 +5,8 @@
 @Customers.Api_HostAddress = http://localhost:5119
 
 # Testid
-@templateId = 484a2379-c380-43e7-94c5-46e8e30803ff
+@templateId = 11111111-1111-1111-1111-111111111111
+@redTemplateId = b8a02753-7151-4c7c-8b10-c401789a7f24
 @invoiceId = 456159ee-3693-444c-a313-88e020eb4a7b
 
 # Testkunder (skapade i Customers.Api)
@@ -75,15 +76,16 @@ Content-Type: application/json
   "companyPhone": "070-123 12 33",
   "companyEmail": "faktura@sok.se",
   "companyBankgiro": "123-4567",
-  "logo": "",
-  "primaryColor": "",
-  "standardText": "Tack för att du anlitar Skrot & Korn!"
+  "logo": "images/logo.png",
+  "primaryColor": "#8b2e2e",
+  "standardText": "Vi på SoK önskar er en god jul!",
+  "ourReference": "Ethel och Grethel"
 }
 
 ### Hämta alla mallar
 GET {{Invoices.Api_HostAddress}}/api/templates
 
-### Hämta en mall
+### Hämta den seedade mallen
 GET {{Invoices.Api_HostAddress}}/api/templates/{{templateId}}
 
 
@@ -114,6 +116,18 @@ Content-Type: application/json
   "lines": [
     { "description": "Grävning", "quantity": 2, "unit": "Hours", "unitPrice": 500 },
     { "description": "Rivning", "quantity": 4, "unit": "Hours", "unitPrice": 700 }
+  ]
+}
+
+### Skapa faktura med röd mall
+POST {{Invoices.Api_HostAddress}}/api/invoices
+Content-Type: application/json
+
+{
+  "customerId": "{{companyCustomerId}}",
+  "templateId": "{{redTemplateId}}",
+  "lines": [
+    { "description": "Grävning", "quantity": 2, "unit": "Hours", "unitPrice": 500 }
   ]
 }
 

@@ -34,4 +34,12 @@ public class InvoiceApiClient(HttpClient httpClient)
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync<InvoiceResponse>(jsonOptions);
     }
+
+    // Hämtar alla fakturamallar, ger en tom lista om det inte finns några
+    public async Task<List<TemplateResponse>> GetTemplatesAsync()
+    {
+        var templates = await httpClient.GetFromJsonAsync<List<TemplateResponse>>("api/templates", jsonOptions);
+
+        return templates ?? new();
+    }
 }

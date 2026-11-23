@@ -42,6 +42,22 @@ public class InvoiceDbContext(DbContextOptions<InvoiceDbContext> options) : DbCo
             entity.HasOne<Invoice>().WithMany().HasForeignKey(l => l.InvoiceId);
         });
 
-            
+        modelBuilder.Entity<InvoiceTemplate>().HasData(new InvoiceTemplate
+        {
+            Id = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            CompanyName = "Skrot & Korn AB",
+            CompanyNumber = "112233-4455",
+            VatNumber = "SE112233445501",
+            CompanyAddress = "Storgatan 1",
+            CompanyPostalCode = "111 22",
+            CompanyCity = "Örebro",
+            CompanyPhone = "070-123 12 33",
+            CompanyEmail = "faktura@sok.se",
+            CompanyBankgiro = "123-4567",
+            Logo = "images/logo.png",
+            PrimaryColor = "#1f1f1b",
+            StandardText = "Tack för att du anlitar Skrot & Korn!",
+            OurReference = "Börje Gunnarsson"
+        });
     }
 }

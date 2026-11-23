@@ -20,8 +20,8 @@ else
 
         <div class="invoice-paper">
 
-            <div class="invoice-header d-flex justify-content-between align-items-center p-4">
-                <img src="images/logo.png" alt="Skrot och Korn" class="invoice-logo" />
+            <div class="invoice-header d-flex justify-content-between align-items-center p-4" style="background-color: @invoice.Template?.PrimaryColor;">
+                <img src="@invoice.Template?.Logo" alt="@invoice.Template?.CompanyName" class="invoice-logo" />
                 <h1>Faktura: @invoice.InvoiceNumber</h1>
             </div>
 
@@ -32,6 +32,10 @@ else
                         <div class="adress-box">
                             <div class="label">Från</div>
                             <div class="fw-bold fs-5">@invoice.Template?.CompanyName</div>
+                            @if (!string.IsNullOrWhiteSpace(invoice.Template?.OurReference))
+                            {
+                                <div>Vår referens: @invoice.Template.OurReference</div>
+                            }
                             <div>@invoice.Template?.CompanyAddress</div>
                             <div>@invoice.Template?.CompanyPostalCode @invoice.Template?.CompanyCity</div>
                             <div class="mt-2 small">Org.nr: @invoice.Template?.CompanyNumber</div>
@@ -89,7 +93,7 @@ else
                         <tr>
                             <td>@line.Description</td>
                             <td>@line.Quantity.ToString("0.##")</td>
-                            <td>@line.Unit</td>
+                            <td>@UnitText(line.Unit)</td>
                             <td>@line.UnitPrice.ToString("#,0.##") kr</td>
                             <td>@line.Amount.ToString("#,0.##") kr</td>
                         </tr>
@@ -130,5 +134,16 @@ else
     protected override async Task OnInitializedAsync()
     {
         invoice = await InvoiceClient.GetByIdAsync(Id);
+    }
+
+    private string UnitText(object unit)
+    {
+        return unit.ToString() switch
+        {
+            "Hours" => "tim",
+            "Days" => "dagar",
+            "Pieces" => "st",
+            _ => unit.ToString() ?? ""
+        };
     }
 }

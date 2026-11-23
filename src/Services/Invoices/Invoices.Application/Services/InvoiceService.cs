@@ -123,7 +123,10 @@ public class InvoiceService(IInvoiceRepository repo, ITemplateRepository templat
         var response = ToResponse(invoice, lines);
 
         response.Customer = await customerClient.GetByIdAsync(invoice.CustomerId);
-        response.Template = await templateRepo.GetByIdAsync(invoice.TemplateId);
+
+        var template = await templateRepo.GetByIdAsync(invoice.TemplateId);
+
+        response.Template = template == null ? null : TemplateService.ToResponse(template);
 
         return response;
     }

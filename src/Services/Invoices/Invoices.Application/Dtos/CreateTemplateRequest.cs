@@ -44,7 +44,8 @@ public class CreateTemplateRequest
     public string CompanyBankgiro { get; set; } = string.Empty;
 
     public string Logo { get; set; } = string.Empty;
-    public string PrimaryColor { get; set; } = string.Empty; // "000000"
+    public string PrimaryColor { get; set; } = string.Empty;
     public string StandardText { get; set; } = string.Empty;
+    public string OurReference {  get; set; } = string.Empty;
 
 }

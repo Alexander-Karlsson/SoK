@@ -6,7 +6,7 @@ namespace Invoices.Application.Services;
 
 public class TemplateService(ITemplateRepository repo)
 {
-    public async Task<InvoiceTemplate> CreateTemplateAsync(CreateTemplateRequest request)
+    public async Task<TemplateResponse> CreateTemplateAsync(CreateTemplateRequest request) 
     {
         var template = new InvoiceTemplate()
         {
@@ -22,15 +22,44 @@ public class TemplateService(ITemplateRepository repo)
             CompanyBankgiro = request.CompanyBankgiro,
             Logo = request.Logo,
             PrimaryColor = request.PrimaryColor,
-            StandardText = request.StandardText
+            StandardText = request.StandardText,
+            OurReference = request.OurReference
         };
 
-        return await repo.AddAsync(template);
+        var saved = await repo.AddAsync(template);
+        return ToResponse(saved);
     }
 
-    public async Task<List<InvoiceTemplate>> GetAllAsync()
-        => await repo.GetAllAsync();
+    public async Task<List<TemplateResponse>> GetAllAsync()
+    {
+        var templates = await repo.GetAllAsync();
+        return templates.Select(ToResponse).ToList();
+    }
 
-    public async Task<InvoiceTemplate?> GetByIdAsync(Guid id)
-        => await repo.GetByIdAsync(id);
+    public async Task<TemplateResponse?> GetByIdAsync(Guid id)
+    {
+        var template = await repo.GetByIdAsync(id);
+        return template == null ? null : ToResponse(template);
+    }
+
+    public static TemplateResponse ToResponse(InvoiceTemplate template)
+    {
+        return new TemplateResponse
+        {
+            Id = template.Id,
+            CompanyName = template.CompanyName,
+            CompanyNumber = template.CompanyNumber,
+            VatNumber = template.VatNumber,
+            CompanyAddress = template.CompanyAddress,
+            CompanyPostalCode = template.CompanyPostalCode,
+            CompanyCity = template.CompanyCity,
+            CompanyPhone = template.CompanyPhone,
+            CompanyEmail = template.CompanyEmail,
+            CompanyBankgiro = template.CompanyBankgiro,
+            Logo = template.Logo,
+            PrimaryColor = template.PrimaryColor,
+            StandardText = template.StandardText,
+            OurReference = template.OurReference
+        };
+    }
 }

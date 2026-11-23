@@ -15,6 +15,20 @@ public class TemplatesController(TemplateService service) : ControllerBase
         return Ok(template);
     }
 
+    [HttpPut]
+    [Route("{id:guid}")]
+    public async Task<IActionResult> UpdateTemplate(Guid id, [FromBody] CreateTemplateRequest request)
+    {
+        var template = await service.UpdateTemplateAsync(id, request);
+
+        if (template == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(template);
+    }
+
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {

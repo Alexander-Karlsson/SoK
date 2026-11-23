@@ -14,10 +14,9 @@ public class EmployeeRepository(EmployeesDbContext context) : IEmployeeRepositor
         return employee;
     }
 
-    public async Task<Employee> GetByIdAsync(Guid id)
+    public async Task<Employee?> GetByIdAsync(Guid id)
     {
-        var employee = await context.Employees.FindAsync(id);
-        return employee ?? throw new InvalidOperationException("Employee not found");
+        return await context.Employees.FindAsync(id);
     }
 
     public async Task<List<Employee>> GetAllAsync()
@@ -35,6 +34,7 @@ public class EmployeeRepository(EmployeesDbContext context) : IEmployeeRepositor
         await context.SaveChangesAsync();
         return employee;
     }
+
     public async Task<Employee> DeleteAsync(Guid id)
     {
         var employee = await context.Employees.FindAsync(id);
@@ -43,5 +43,17 @@ public class EmployeeRepository(EmployeesDbContext context) : IEmployeeRepositor
         context.Employees.Remove(employee);
         await context.SaveChangesAsync();
         return employee;
+    }
+
+    public async Task<bool> PersonalNumberExistsAsync(string personalNumber, Guid? exceptId = null)
+    {
+        return await context.Employees
+            .AnyAsync(e => e.PersonalNumber == personalNumber && e.Id != exceptId);
+    }
+
+    public async Task<bool> EmailExistsAsync(string email, Guid? exceptId = null)
+    {
+        return await context.Employees
+            .AnyAsync(e => e.Email == email && e.Id != exceptId);
     }
 }

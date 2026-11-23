@@ -5,8 +5,10 @@ namespace Employees.Infrastructure;
 public interface IEmployeeRepository 
 {
     Task<Employee> AddAsync(Employee employee);
-    Task<Employee> GetByIdAsync(Guid id);
+    Task<Employee?> GetByIdAsync(Guid id);
     Task<List<Employee>> GetAllAsync();
     Task<Employee> UpdateAsync(Employee employee);
     Task<Employee> DeleteAsync(Guid id);
+    Task<bool> PersonalNumberExistsAsync(string personalNumber, Guid? exceptId = null);
+    Task<bool> EmailExistsAsync(string email, Guid? exceptId = null);
 }

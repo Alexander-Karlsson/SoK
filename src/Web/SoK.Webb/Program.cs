@@ -23,6 +23,11 @@ public class Program
             client.BaseAddress = new Uri(builder.Configuration["ApiUrls:Invoices"]!);
         });
 
+        builder.Services.AddHttpClient<EmployeeApiClient>(client =>
+        {
+            client.BaseAddress = new Uri(builder.Configuration["ApiUrls:Employees"]!);
+        });
+
         builder.Services.AddCascadingAuthenticationState();
         builder.Services.AddScoped<IdentityRedirectManager>();
         builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();

@@ -18,11 +18,18 @@ public class Program
         builder.Services.AddRazorComponents()
             .AddInteractiveServerComponents();
 
+        // Add HttpClient services for API clients
+        //Invoices
         builder.Services.AddHttpClient<InvoiceApiClient>(client =>
         {
             client.BaseAddress = new Uri(builder.Configuration["ApiUrls:Invoices"]!);
         });
-
+        //Bookings
+        builder.Services.AddHttpClient<BookingApiClient>(client =>
+        {
+            client.BaseAddress = new Uri(builder.Configuration["ApiUrls:Bookings"]!);
+        });
+        //Employees
         builder.Services.AddHttpClient<EmployeeApiClient>(client =>
         {
             client.BaseAddress = new Uri(builder.Configuration["ApiUrls:Employees"]!);

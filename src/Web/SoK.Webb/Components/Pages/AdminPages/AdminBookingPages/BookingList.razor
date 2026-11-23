@@ -1,0 +1,66 @@
+﻿@page "/bookinglist"
+@rendermode InteractiveServer
+@using Bookings.Application.Bookings.DTOs.Response
+@using Bookings.Domain.Enums
+@using SoK.Webb.Clients
+
+@inject BookingApiClient BookingApiClient
+
+<PageTitle>Bokningar</PageTitle>
+
+<div class="page">
+    <div class="page-header">
+        <h2>Bokningar</h2>
+    </div>
+
+    @if (bookings is null)
+    {
+        <p>Laddar...</p>
+    }
+    else if (bookings.Count == 0)
+    {
+        <p class="empty">Det finns inga bokningar.</p>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Start</th>
+                    <th>Slut</th>
+                    <th>Status</th>
+                    <th>Kund</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var b in bookings)
+                {
+                    <tr>
+                        <td><a href="/bookings/@b.Id">@b.StartsAt.ToString("yyyy-MM-dd HH:mm")</a></td>
+                        <td>@b.EndsAt?.ToString("yyyy-MM-dd HH:mm")</td>
+                        <td>@StatusText(b.Status)</td>
+                        <td>@b.CustomerId</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@code
+{
+    private List<BookingSummaryResponse>? bookings;
+
+    protected override async Task OnInitializedAsync()
+    {
+        bookings = await BookingApiClient.GetAllAsync();
+    }
+
+    private static string StatusText(BookingStatus status) => status switch
+    {
+        BookingStatus.Booked => "Bokad",
+        BookingStatus.Completed => "Avslutad",
+        BookingStatus.Cancelled => "Avbokad",
+        _ => status.ToString()
+    };
+}

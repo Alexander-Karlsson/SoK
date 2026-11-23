@@ -1,4 +1,5 @@
 ﻿using Invoices.Application.Dtos;
+using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -18,5 +19,19 @@ public class InvoiceApiClient(HttpClient httpClient)
         var invoices = await httpClient.GetFromJsonAsync<List<InvoiceResponse>>("api/invoices", jsonOptions);
 
         return invoices ?? new();
+    }
+
+    // Hämtar en faktura med rader, kund och mall, ger null om den inte finns
+    public async Task<InvoiceResponse?> GetByIdAsync(Guid id)
+    {
+        var response = await httpClient.GetAsync($"api/invoices/{id}");
+
+        if (response.StatusCode == HttpStatusCode.NotFound)
+        {
+            return null;
+        }
+
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<InvoiceResponse>(jsonOptions);
     }
 }

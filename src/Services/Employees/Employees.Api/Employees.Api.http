@@ -74,23 +74,69 @@ Content-Type: application/json
   "reason": "VAB"
 }
 
-### 9. Skapa lön
-POST {{host}}/api/employeepayrolls
+### 9a. Lön – skapa lönevillkor (förväntat: 201 Created)
+POST {{host}}/api/employees/{{employeeId}}/payroll
 Content-Type: application/json
 
 {
-  "employeeId": "{{employeeId}}",
   "salary": 35000,
-  "taxTable": 32,
-  "bonus": 0,
+  "taxRate": 30,
   "bankName": "Swedbank",
-  "bankAccount": "8327-9 123 456 789-0",
-  "deductions": 0,
-  "payrollDate": "2026-11-25"
+  "bankAccount": "8327-9 123 456 789-0"
 }
 
-### 10. Hämta lön
-GET {{host}}/api/employeepayrolls?employeeId={{employeeId}}
+### 9b. Lön – skapa igen för samma anställd (förväntat: 409 Conflict)
+POST {{host}}/api/employees/{{employeeId}}/payroll
+Content-Type: application/json
+
+{
+  "salary": 35000,
+  "taxRate": 30,
+  "bankName": "Swedbank",
+  "bankAccount": "8327-9 123 456 789-0"
+}
+
+### 9c. Lön – hämta (förväntat: 200 med värdena från 9a)
+GET {{host}}/api/employees/{{employeeId}}/payroll
+
+### 9d. Lön – anställd som inte finns (förväntat: 404 Not Found)
+POST {{host}}/api/employees/00000000-0000-0000-0000-000000000001/payroll
+Content-Type: application/json
+
+{
+  "salary": 35000,
+  "taxRate": 30,
+  "bankName": "Swedbank",
+  "bankAccount": "8327-9 123 456 789-0"
+}
+
+### 9e. Lön – ogiltig lön (förväntat: 400 Bad Request)
+POST {{host}}/api/employees/{{employeeId2}}/payroll
+Content-Type: application/json
+
+{
+  "salary": 0,
+  "taxRate": 30,
+  "bankName": "Swedbank",
+  "bankAccount": "8327-9 123 456 789-0"
+}
+
+### 9f. Lön – uppdatera (förväntat: 200 med ny lön)
+PUT {{host}}/api/employees/{{employeeId}}/payroll
+Content-Type: application/json
+
+{
+  "salary": 38000,
+  "taxRate": 31,
+  "bankName": "Handelsbanken",
+  "bankAccount": "6000-123 456 789"
+}
+
+### 9g. Lön – ta bort (förväntat: 204 No Content)
+DELETE {{host}}/api/employees/{{employeeId}}/payroll
+
+### 9h. Lön – ta bort igen (förväntat: 404 Not Found)
+DELETE {{host}}/api/employees/{{employeeId}}/payroll
 
 ### 11. Ta bort frånvaron (kör #3 först)
 DELETE {{host}}/api/absences/{{createAbsence.response.body.$.id}}

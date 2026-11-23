@@ -1,22 +1,22 @@
-﻿.form-grid {
+﻿.admin-form-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 1.5rem;
     align-items: start;
 }
 
-.form-field {
+.admin-form-field {
     display: flex;
     flex-direction: column;
     gap: 0.3rem;
     margin-bottom: 1rem;
 }
 
-    .form-field:last-child {
+    .admin-form-field:last-child {
         margin-bottom: 0;
     }
 
-    .form-field label {
+    .admin-form-field label {
         display: flex;
         flex-direction: column;
         gap: 0.35rem;
@@ -25,9 +25,8 @@
         color: #6b665e;
     }
 
-/* ::deep behövs eftersom InputText/InputSelect/InputDate är egna komponenter */
-.form-grid ::deep input,
-.form-grid ::deep select {
+.admin-form-grid ::deep input,
+.admin-form-grid ::deep select {
     width: 100%;
     padding: 0.6rem 0.75rem;
     border: 1px solid #d6d0c8;
@@ -39,23 +38,23 @@
     transition: border-color 0.15s, box-shadow 0.15s;
 }
 
-    .form-grid ::deep input:focus,
-    .form-grid ::deep select:focus {
+    .admin-form-grid ::deep input:focus,
+    .admin-form-grid ::deep select:focus {
         outline: none;
         border-color: var(--color-yellow);
         box-shadow: 0 0 0 3px rgba(184, 137, 26, 0.25);
     }
 
-.form-grid ::deep .invalid {
+.admin-form-grid ::deep .invalid {
     border-color: #b32121;
     outline: none;
 }
 
-.form-grid ::deep .validation-message {
+.admin-form-grid ::deep .validation-message {
     font-size: 0.8rem;
 }
 
-.form-actions {
+.admin-form-actions {
     display: flex;
     justify-content: flex-end;
     gap: 1rem;

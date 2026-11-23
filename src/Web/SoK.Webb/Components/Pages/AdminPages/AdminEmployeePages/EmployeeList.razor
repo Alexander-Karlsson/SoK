@@ -1,36 +1,36 @@
-@page "/employeelist"
+Ôªø@page "/employeelist"
 @rendermode InteractiveServer
 @using Employees.Application.Employees.DTOs.Employee
 @using SoK.Webb.Clients
 @inject EmployeeApiClient EmployeeClient
 @inject NavigationManager Navigation
 
-<PageTitle>Anst‰llda</PageTitle>
+<PageTitle>Anst√§llda</PageTitle>
 
-<div class="page">
-    <div class="page-header">
-        <h2>Anst‰llda</h2>
-        <a class="btn btn-primary" href="/createemployee">+ Ny anst‰lld</a>
+<div class="admin-page">
+    <div class="admin-page-header">
+        <h2>Anst√§llda</h2>
+        <a class="admin-btn admin-btn-primary" href="/createemployee">+ Ny anst√§lld</a>
     </div>
 
-    <input class="search"
+    <input class="admin-search"
            type="search"
-           placeholder="Sˆk pÂ namn, nummer, titel, avdelning eller mobilnummer"
+           placeholder="S√∂k p√• namn, nummer, titel, avdelning eller mobilnummer"
            @bind="search"
            @bind:event="oninput" />
 
     @if (!FilteredEmployees.Any())
     {
-        <p class="empty">Inga anst‰llda matchar sˆkningen.</p>
+        <p class="empty">Inga anst√§llda matchar s√∂kningen.</p>
     }
     else
     {
-        <div class="table-wrapper">
-            <table class="employee-table">
+        <div class="admin-table-wrapper">
+            <table class="admin-employee-table">
                 <thead>
                     <tr>
                         <th>Anst.nr</th>
-                        <th>Fˆrnamn</th>
+                        <th>F√∂rnamn</th>
                         <th>Efternamn</th>
                         <th>Telefonnummer</th>
                         <th>Email</th>
@@ -51,7 +51,7 @@
                             <td>@i.Title</td>
                             <td>@i.Department</td>
                             <td>
-                                <span class="badge @(i.IsActive ? "badge-active" : "badge-inactive")">
+                                <span class="admin-badge @(i.IsActive ? "admin-badge-active" : "admin-badge-inactive")">
                                     @(i.IsActive ? "Aktiv" : "Inaktiv")
                                 </span>
                             </td>

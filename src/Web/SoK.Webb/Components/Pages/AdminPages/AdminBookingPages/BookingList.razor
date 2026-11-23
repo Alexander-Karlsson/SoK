@@ -1,7 +1,6 @@
 ﻿@page "/bookinglist"
 @rendermode InteractiveServer
 @using Bookings.Application.Bookings.DTOs.Response
-@using Bookings.Domain.Enums
 @using SoK.Webb.Clients
 
 @inject BookingApiClient BookingApiClient
@@ -36,9 +35,9 @@
                 @foreach (var b in bookings)
                 {
                     <tr>
-                        <td><a href="/bookings/@b.Id">@b.StartsAt.ToString("yyyy-MM-dd HH:mm")</a></td>
+                        <td><a href="/bookingdetails/@b.Id">@b.StartsAt.ToString("yyyy-MM-dd HH:mm")</a></td>
                         <td>@b.EndsAt?.ToString("yyyy-MM-dd HH:mm")</td>
-                        <td>@StatusText(b.Status)</td>
+                        <td>@b.Status.ToSwedish()</td>
                         <td>@b.CustomerId</td>
                     </tr>
                 }
@@ -55,12 +54,5 @@
     {
         bookings = await BookingApiClient.GetAllAsync();
     }
-
-    private static string StatusText(BookingStatus status) => status switch
-    {
-        BookingStatus.Booked => "Bokad",
-        BookingStatus.Completed => "Avslutad",
-        BookingStatus.Cancelled => "Avbokad",
-        _ => status.ToString()
-    };
+    
 }

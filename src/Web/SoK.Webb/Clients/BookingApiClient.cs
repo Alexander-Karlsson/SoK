@@ -28,5 +28,21 @@ public class BookingApiClient(HttpClient httpClient)
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync<BookingResponse>(jsonOptions);
     }
+
+    public async Task<string?> CancelAsync(Guid id)
+    {
+        var response = await httpClient.PostAsync($"api/bookings/{id}/cancel", null);
+
+        if (response.IsSuccessStatusCode)
+            return null;
+
+        if (response.StatusCode == HttpStatusCode.NotFound)
+            return "Bokningen finns inte.";
+
+        if (response.StatusCode == HttpStatusCode.Conflict)
+            return await response.Content.ReadAsStringAsync();
+
+        return "Något gick fel, försök igen.";
+    }
 }
 

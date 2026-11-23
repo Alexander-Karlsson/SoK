@@ -1,0 +1,106 @@
+﻿@page "/bookingdetails/{Id:Guid}"
+@rendermode InteractiveServer
+@using Bookings.Application.Bookings.DTOs.Response
+@using SoK.Webb.Clients
+@using Bookings.Domain.Enums
+
+@inject BookingApiClient BookingApiClient
+
+<PageTitle>Bokning</PageTitle>
+
+<div class="page">
+    <div class="page-header">
+        <h2>Bokning</h2>
+        <a href="/bookinglist">Tillbaka</a>
+    </div>
+
+    @if (loading)
+    {
+        <p>Laddar...</p>
+    }
+    else if (booking is null)
+    {
+        <p class="empty">Bokningen hittades inte.</p>
+    }
+    else
+    {
+        <p>
+            @booking.StartsAt.ToString("yyyy-MM-dd HH:mm") – @booking.EndsAt?.ToString("yyyy-MM-dd HH:mm")<br />
+            Status: @booking.Status.ToSwedish()<br />
+            Kund: @booking.CustomerId
+        </p>
+
+        @if (booking.Machines.Count > 0)
+        {
+            <h3>Maskiner</h3>
+            <ul>
+                @foreach (var m in booking.Machines)
+                {
+                    <li>@m.Name – @m.PricePerDay.ToString("N2") kr/dag</li>
+                }
+            </ul>
+        }
+
+        @if (booking.Services.Count > 0)
+        {
+            <h3>Tjänster</h3>
+            <ul>
+                @foreach (var s in booking.Services)
+                {
+                    <li>@s.Name – @s.EstimatedHours timmar × @s.PricePerHour.ToString("N2") kr/tim</li>
+                }
+            </ul>
+        }
+
+        @if (error is not null)
+        {
+            <p class="text-danger">@error</p>
+        }
+
+        @if (booking.Status == BookingStatus.Booked)
+        {
+            @if (!confirmCancel)
+            {
+                <button class="btn btn-outline-danger" @onclick="() => confirmCancel = true">Avboka</button>
+            }
+            else
+            {
+                <p>Vill du avboka bokningen?</p>
+                <button class="btn btn-danger" @onclick="CancelAsync" disabled="@busy">Ja, avboka</button>
+                <button class="btn btn-secondary" @onclick="() => confirmCancel = false" disabled="@busy">Nej</button>
+            }
+        }
+    }
+</div>
+
+@code
+{
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private BookingResponse? booking;
+    private bool loading = true;
+    private bool confirmCancel;
+    private bool busy;
+    private string? error;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        booking = await BookingApiClient.GetByIdAsync(Id);
+        loading = false;
+    }
+
+    private async Task CancelAsync()
+    {
+        busy = true;
+        error = await BookingApiClient.CancelAsync(Id);
+
+        if (error is null)
+            booking = await BookingApiClient.GetByIdAsync(Id);
+
+        confirmCancel = false;
+        busy = false;
+    }
+    
+}

@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 @using Employees.Application.Employees.DTOs.Employee
 @using SoK.Webb.Clients
+@using SoK.Webb.Components.Pages.AdminPages.AdminEmployeePayrollPages
 @inject EmployeeApiClient EmployeeClient
 @inject NavigationManager Navigation
 
@@ -63,6 +64,7 @@
                     </div>
                 </dl>
             </section>
+            <EmployeePayrollSection EmployeeId="Id" />
         </div>
 
         <div class="admin-actions-bar">

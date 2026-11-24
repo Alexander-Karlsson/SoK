@@ -1,0 +1,140 @@
+﻿@using Employees.Application.Employees.DTOs.EmployeePayroll
+@using SoK.Webb.Clients
+@inject EmployeePayrollApiClient PayrollClient
+
+<section class="admin-card">
+    <h4>Lön</h4>
+
+    @if (isLoading)
+    {
+        <p>Laddar...</p>
+    }
+    else if (isEditing)
+    {
+        <EditForm Model="form" OnValidSubmit="Save">
+            <DataAnnotationsValidator />
+
+            <div class="admin-form-field">
+                <label>
+                    Månadslön (kr)
+                    <InputNumber @bind-Value="form.Salary" ParsingErrorMessage="Måste ange en lön" />
+                </label>
+                <ValidationMessage For="() => form.Salary" />
+            </div>
+
+            <div class="admin-form-field">
+                <label>
+                    Skattesats (%)
+                    <InputNumber @bind-Value="form.TaxRate" ParsingErrorMessage="Måste ange skattesats mellan 0 - 100" />
+                </label>
+                <ValidationMessage For="() => form.TaxRate" />
+            </div>
+
+            <div class="admin-form-field">
+                <label>
+                    Bank
+                    <InputText @bind-Value="form.BankName" />
+                </label>
+                <ValidationMessage For="() => form.BankName" />
+            </div>
+
+            <div class="admin-form-field">
+                <label>
+                    Kontonummer
+                    <InputText @bind-Value="form.BankAccount" />
+                </label>
+                <ValidationMessage For="() => form.BankAccount" />
+            </div>
+
+            <div class="admin-form-actions">
+                <button type="button" class="admin-btn admin-btn-secondary" @onclick="Cancel">Avbryt</button>
+                <button type="submit" class="admin-btn admin-btn-primary">Spara</button>
+            </div>
+        </EditForm>
+    }
+    else if (payroll is null)
+    {
+        <p class="empty">Inga lönevillkor registrerade.</p>
+        <button class="admin-btn admin-btn-primary" @onclick="StartEdit">Lägg till lön</button>
+    }
+    else
+    {
+        <dl>
+            <div><dt>Månadslön</dt><dd>@payroll.Salary.ToString("N0") kr</dd></div>
+            <div><dt>Skattesats</dt><dd>@payroll.TaxRate %</dd></div>
+            <div><dt>Bank</dt><dd>@payroll.BankName</dd></div>
+            <div><dt>Kontonummer</dt><dd>@payroll.BankAccount</dd></div>
+        </dl>
+        <button class="admin-btn admin-btn-secondary" @onclick="StartEdit">Ändra lön</button>
+    }
+
+    @if (message is not null)
+    {
+        <p class="admin-alert admin-alert-error">@message</p>
+    }
+</section>
+
+@code {
+    [Parameter, EditorRequired]
+    public Guid EmployeeId { get; set; }
+
+    private EmployeePayrollResponse? payroll;
+    private CreateEmployeePayrollRequest form = new();
+    private bool isLoading = true;
+    private bool isEditing;
+    private string? message;
+
+    protected override async Task OnInitializedAsync()
+    {
+        payroll = await PayrollClient.GetAsync(EmployeeId);
+        isLoading = false;
+    }
+
+    private void StartEdit()
+    {
+        message = null;
+
+        // Ny lön: tomt formulär. Befintlig: fyll i nuvarande värden.
+        form = payroll is null
+            ? new CreateEmployeePayrollRequest()
+            : new CreateEmployeePayrollRequest
+            {
+                Salary = payroll.Salary,
+                TaxRate = payroll.TaxRate,
+                BankName = payroll.BankName,
+                BankAccount = payroll.BankAccount
+            };
+
+        isEditing = true;
+    }
+
+    private void Cancel()
+    {
+        isEditing = false;
+        message = null;
+    }
+
+    private async Task Save()
+    {
+        message = null;
+
+        var (saved, error) = payroll is null
+            ? await PayrollClient.CreateAsync(EmployeeId, form)
+            : await PayrollClient.UpdateAsync(EmployeeId, new UpdateEmployeePayrollRequest
+            {
+                Salary = form.Salary,
+                TaxRate = form.TaxRate,
+                BankName = form.BankName,
+                BankAccount = form.BankAccount
+            });
+
+        if (saved is null)
+        {
+            message = error;
+            return;
+        }
+
+        payroll = saved;
+        isEditing = false;
+    }
+}

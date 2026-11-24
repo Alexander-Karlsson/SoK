@@ -1,7 +1,6 @@
 ﻿using Employees.Application.Employees.DTOs;
 using Employees.Application.Employees.DTOs.EmployeePayroll;
 using Employees.Application.Employees.Services;
-using Employees.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Employees.Api.Controllers;

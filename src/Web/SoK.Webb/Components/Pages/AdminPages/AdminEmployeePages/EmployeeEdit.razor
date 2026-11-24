@@ -185,7 +185,7 @@
                     <div class="admin-form-field">
                         <label>
                             Sysselsättningsgrad (%)
-                            <InputNumber @bind-Value="employee.EmployeeRate" />
+                            <InputNumber @bind-Value="employee.EmployeeRate" ParsingErrorMessage="Måste ange sysselsättningsgrad mellan 0 - 100"" />
                         </label>
                         <ValidationMessage For="() => employee.EmployeeRate" />
                     </div>

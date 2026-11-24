@@ -1,9 +1,11 @@
 @host = https://localhost:7020
 @employeeId = 20f3772f-44b8-4a96-ac66-b6d4c37f2b94
 @employeeId2 = 9a7ff8e3-14f1-4976-bc32-f55ce0f97933
-@employee2 = 315472f9-41e5-4942-aeb9-7fc27998bd79
-### 1. Skapa en anställd
-# @name createEmployee
+@missingId = 00000000-0000-0000-0000-000000000001
+
+### ANSTÄLLD
+
+### A1. Anställd – skapa (förväntat: 201 Created)
 POST {{host}}/api/employees
 Content-Type: application/json
 
@@ -26,26 +28,216 @@ Content-Type: application/json
   "employeeRate": 100
 }
 
-### 2. Hämta alla anställda
+### A2. Anställd – hämta alla (förväntat: 200)
 GET {{host}}/api/employees
 
-### 3. Skapa frånvaro
-# @name createAbsence
-POST {{host}}/api/absences
+### A3. Anställd – hämta via id (förväntat: 200)
+GET {{host}}/api/employees/{{employeeId}}
+
+### A4. Anställd – avsluta anställning (förväntat: 200)
+PUT {{host}}/api/employees/{{employeeId}}/deactivate
+Content-Type: application/json
+{
+  "employmentEndDate": "2026-08-31"
+}
+
+### A5. Anställd – återanställ (förväntat: 200)
+PUT {{host}}/api/employees/{{employeeId}}/reactivate
+Content-Type: application/json
+{
+  "employmentStartDate": "2027-06-01"
+}
+
+### LÖN
+
+### L1. Lön – skapa lönevillkor (förväntat: 201 Created)
+POST {{host}}/api/employees/{{employeeId}}/payroll
 Content-Type: application/json
 
 {
-  "employeeId": "{{employeeId}}",
-  "type": 1,
-  "startDate": "2026-11-16T08:00:00",
-  "endDate": "2026-11-16T17:00:00",
+  "salary": 35000,
+  "taxRate": 30,
+  "bankName": "Swedbank",
+  "bankAccount": "8327-9 123 456 789-0"
+}
+
+### L2. Lön – skapa igen för samma anställd (förväntat: 409 Conflict)
+POST {{host}}/api/employees/{{employeeId}}/payroll
+Content-Type: application/json
+
+{
+  "salary": 35000,
+  "taxRate": 30,
+  "bankName": "Swedbank",
+  "bankAccount": "8327-9 123 456 789-0"
+}
+
+### L3. Lön – hämta (förväntat: 200 med värdena från L1)
+GET {{host}}/api/employees/{{employeeId}}/payroll
+
+### L4. Lön – anställd som inte finns (förväntat: 404 Not Found)
+POST {{host}}/api/employees/{{missingId}}/payroll
+Content-Type: application/json
+
+{
+  "salary": 35000,
+  "taxRate": 30,
+  "bankName": "Swedbank",
+  "bankAccount": "8327-9 123 456 789-0"
+}
+
+### L5. Lön – ogiltig lön (förväntat: 400 Bad Request)
+POST {{host}}/api/employees/{{employeeId2}}/payroll
+Content-Type: application/json
+
+{
+  "salary": 0,
+  "taxRate": 30,
+  "bankName": "Swedbank",
+  "bankAccount": "8327-9 123 456 789-0"
+}
+
+### L6. Lön – uppdatera (förväntat: 200 med ny lön)
+PUT {{host}}/api/employees/{{employeeId}}/payroll
+Content-Type: application/json
+
+{
+  "salary": 38000,
+  "taxRate": 31,
+  "bankName": "Handelsbanken",
+  "bankAccount": "6000-123 456 789"
+}
+
+### L7. Lön – ta bort (förväntat: 204 No Content)
+DELETE {{host}}/api/employees/{{employeeId}}/payroll
+
+### L8. Lön – ta bort igen (förväntat: 404 Not Found)
+DELETE {{host}}/api/employees/{{employeeId}}/payroll
+
+### FRÅNVARO
+
+### F1. Frånvaro – lista (förväntat: 200, kan vara tom)
+GET {{host}}/api/employees/{{employeeId}}/absences
+
+### F2. Frånvaro – sjukanmälan 1–3 dec (förväntat: 201 Created)
+# @name createAbsence
+POST {{host}}/api/employees/{{employeeId}}/absences
+Content-Type: application/json
+
+{
+  "type": "Sick",
+  "startDate": "2026-12-01",
+  "endDate": "2026-12-03",
   "reason": "Förkyld"
 }
 
-### 4. Hämta frånvaro för den anställda
-GET {{host}}/api/absences?employeeId={{employeeId}}
+### F3. Frånvaro – överlappar F2 (förväntat: 409 Conflict)
+POST {{host}}/api/employees/{{employeeId}}/absences
+Content-Type: application/json
 
-### 5. Skapa ett schemapass
+{
+  "type": "Childcare",
+  "startDate": "2026-12-03",
+  "endDate": "2026-12-05",
+  "reason": "VAB"
+}
+
+### F4. Frånvaro – slutdatum före startdatum (förväntat: 400 Bad Request)
+POST {{host}}/api/employees/{{employeeId}}/absences
+Content-Type: application/json
+
+{
+  "type": "Sick",
+  "startDate": "2026-12-20",
+  "endDate": "2026-12-18",
+  "reason": "Fel ordning"
+}
+
+### F5. Frånvaro – anställd som inte finns (förväntat: 404 Not Found)
+POST {{host}}/api/employees/{{missingId}}/absences
+Content-Type: application/json
+
+{
+  "type": "Sick",
+  "startDate": "2026-12-01",
+  "endDate": "2026-12-01",
+  "reason": "Test"
+}
+
+### F6. Frånvaro – ogiltig typ (förväntat: 400 Bad Request)
+POST {{host}}/api/employees/{{employeeId}}/absences
+Content-Type: application/json
+
+{
+  "type": 99,
+  "startDate": "2026-12-15",
+  "endDate": "2026-12-15",
+  "reason": "Test"
+}
+
+### F7. Frånvaro – hämta F2 (förväntat: 200)
+GET {{host}}/api/employees/{{employeeId}}/absences/{{createAbsence.response.body.$.id}}
+
+### F8. Frånvaro – hämta F2 via FEL anställd (förväntat: 404)
+GET {{host}}/api/employees/{{employeeId2}}/absences/{{createAbsence.response.body.$.id}}
+
+### F9. Frånvaro – uppdatera F2 med samma datum (förväntat: 200, krockar inte med sig själv)
+PUT {{host}}/api/employees/{{employeeId}}/absences/{{createAbsence.response.body.$.id}}
+Content-Type: application/json
+
+{
+  "type": "Sick",
+  "startDate": "2026-12-01",
+  "endDate": "2026-12-03",
+  "reason": "Förkyld och feber"
+}
+
+### F10. Frånvaro – en till period 10–11 dec (förväntat: 201)
+# @name createAbsence2
+POST {{host}}/api/employees/{{employeeId}}/absences
+Content-Type: application/json
+
+{
+  "type": "Vacation",
+  "startDate": "2026-12-10",
+  "endDate": "2026-12-11",
+  "reason": "Semester"
+}
+
+### F11. Frånvaro – flytta F2 så att den krockar med F10 (förväntat: 409)
+PUT {{host}}/api/employees/{{employeeId}}/absences/{{createAbsence.response.body.$.id}}
+Content-Type: application/json
+
+{
+  "type": "Sick",
+  "startDate": "2026-12-09",
+  "endDate": "2026-12-12",
+  "reason": "Krock"
+}
+
+### F12. Frånvaro – ta bort F2 (förväntat: 204)
+DELETE {{host}}/api/employees/{{employeeId}}/absences/{{createAbsence.response.body.$.id}}
+
+### F13. Frånvaro – ta bort F2 igen (förväntat: 404)
+DELETE {{host}}/api/employees/{{employeeId}}/absences/{{createAbsence.response.body.$.id}}
+
+### F14. Frånvaro – ta bort F10 (förväntat: 204)
+DELETE {{host}}/api/employees/{{employeeId}}/absences/{{createAbsence2.response.body.$.id}}
+
+### F15. Frånvaro – sjukdagar som SPARAS till lönespecen (förväntat: 201)
+POST {{host}}/api/employees/{{employeeId}}/absences
+Content-Type: application/json
+
+{
+  "type": "Sick",
+  "startDate": "2026-11-16",
+  "endDate": "2026-11-18",
+  "reason": "Influensa – används i lönetest"
+}
+
+### SCHEMA
+
+### S1. Schema – skapa ett pass (förväntat: 200)
 # @name createSchedule
 POST {{host}}/api/schedules
 Content-Type: application/json
@@ -57,108 +249,13 @@ Content-Type: application/json
   "breakMinutes": 30
 }
 
-### 6. Hämta schema för en vecka
+### S2. Schema – hämta för en vecka (förväntat: 200)
 GET {{host}}/api/schedules?employeeId={{employeeId}}&from=2026-11-16&to=2026-11-23
 
-### 7. Hämta en anställd via id
-GET {{host}}/api/employees/{{employeeId}}
-
-### 8. Uppdatera frånvaron (kör #3 först)
-PUT {{host}}/api/absences/{{createAbsence.response.body.$.id}}
-Content-Type: application/json
-
-{
-  "type": 4,
-  "startDate": "2026-11-16T08:00:00",
-  "endDate": "2026-11-16T12:00:00",
-  "reason": "VAB"
-}
-
-### 9a. Lön – skapa lönevillkor (förväntat: 201 Created)
-POST {{host}}/api/employees/{{employeeId}}/payroll
-Content-Type: application/json
-
-{
-  "salary": 35000,
-  "taxRate": 30,
-  "bankName": "Swedbank",
-  "bankAccount": "8327-9 123 456 789-0"
-}
-
-### 9b. Lön – skapa igen för samma anställd (förväntat: 409 Conflict)
-POST {{host}}/api/employees/{{employeeId}}/payroll
-Content-Type: application/json
-
-{
-  "salary": 35000,
-  "taxRate": 30,
-  "bankName": "Swedbank",
-  "bankAccount": "8327-9 123 456 789-0"
-}
-
-### 9c. Lön – hämta (förväntat: 200 med värdena från 9a)
-GET {{host}}/api/employees/{{employeeId}}/payroll
-
-### 9d. Lön – anställd som inte finns (förväntat: 404 Not Found)
-POST {{host}}/api/employees/00000000-0000-0000-0000-000000000001/payroll
-Content-Type: application/json
-
-{
-  "salary": 35000,
-  "taxRate": 30,
-  "bankName": "Swedbank",
-  "bankAccount": "8327-9 123 456 789-0"
-}
-
-### 9e. Lön – ogiltig lön (förväntat: 400 Bad Request)
-POST {{host}}/api/employees/{{employeeId2}}/payroll
-Content-Type: application/json
-
-{
-  "salary": 0,
-  "taxRate": 30,
-  "bankName": "Swedbank",
-  "bankAccount": "8327-9 123 456 789-0"
-}
-
-### 9f. Lön – uppdatera (förväntat: 200 med ny lön)
-PUT {{host}}/api/employees/{{employeeId}}/payroll
-Content-Type: application/json
-
-{
-  "salary": 38000,
-  "taxRate": 31,
-  "bankName": "Handelsbanken",
-  "bankAccount": "6000-123 456 789"
-}
-
-### 9g. Lön – ta bort (förväntat: 204 No Content)
-DELETE {{host}}/api/employees/{{employeeId}}/payroll
-
-### 9h. Lön – ta bort igen (förväntat: 404 Not Found)
-DELETE {{host}}/api/employees/{{employeeId}}/payroll
-
-### 11. Ta bort frånvaron (kör #3 först)
-DELETE {{host}}/api/absences/{{createAbsence.response.body.$.id}}
-
-### 12. Ta bort schemapasset (kör #5 först)
+### S3. Schema – ta bort passet från S1 (förväntat: 204)
 DELETE {{host}}/api/schedules/{{createSchedule.response.body.$.id}}
 
-### 13. Ta bort den anställda (kör sist)
+### STÄDNING – kör bara när du vill ta bort testpersonen
+
+### X1. Anställd – ta bort (förväntat: 204)
 DELETE {{host}}/api/employees/{{employeeId}}
-
-### 14. Avsluta anställning
-PUT {{host}}/api/employees/{{employeeId}}/deactivate
-Content-Type: application/json
-
-{
-  "employmentEndDate": "2026-08-31"
-}
-
-### 15. Återanställ
-PUT {{host}}/api/employees/{{employeeId}}/reactivate
-Content-Type: application/json
-
-{
-  "employmentStartDate": "2027-06-01"
-}

@@ -17,4 +17,7 @@ public class InvoiceResponse
     public InvoiceStatus Status { get; set; }
 
     public List<InvoiceLineResponse> Lines { get; set; } = [];
+
+    public CustomerInfo? Customer {  get; set; }
+    public TemplateResponse? Template { get; set; }
 }

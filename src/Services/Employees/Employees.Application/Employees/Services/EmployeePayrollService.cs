@@ -1,73 +1,70 @@
-﻿using Employees.Application.Employees.DTOs.EmployeePayrol;
-using Employees.Application.Employees.DTOs.EmployeePayroll;
+﻿using Employees.Application.Employees.DTOs.EmployeePayroll;
 using Employees.Application.Employees.Interfaces;
 using Employees.Domain.Entities;
+using Employees.Domain.Enums;
+using Employees.Infrastructure;
 
 namespace Employees.Application.Employees.Services;
 
-public class EmployeePayrollService(IEmployeePayrollRepository repository)
+public class EmployeePayrollService(
+    IEmployeePayrollRepository repository,
+    IEmployeeRepository employeeRepository)
 {
-    public async Task<EmployeePayrollResponse> CreatePayrollAsync(CreateEmployeePayrollRequest request)
+    public async Task<(PayrollResult Result, EmployeePayrollResponse? Payroll)> CreatePayrollAsync(
+        Guid employeeId, CreateEmployeePayrollRequest request)
     {
+        var employee = await employeeRepository.GetByIdAsync(employeeId);
+        if (employee is null)
+            return (PayrollResult.EmployeeNotFound, null);
+
+        var existing = await repository.GetByEmployeeIdAsync(employeeId);
+        if (existing is not null)
+            return (PayrollResult.AlreadyExists, null);
+
         var payroll = new EmployeePayroll
         {
-            EmployeeId = request.EmployeeId,
+            EmployeeId = employeeId,
             Salary = request.Salary,
-            TaxTable = request.TaxTable,
-            Bonus = request.Bonus,
+            TaxRate = request.TaxRate,
             BankName = request.BankName.Trim(),
-            BankAccount = request.BankAccount.Trim(),
-            Deductions = request.Deductions,
-            PayrollDate = request.PayrollDate
+            BankAccount = request.BankAccount.Trim()
         };
 
         var created = await repository.AddAsync(payroll);
-        return ToResponse(created);
+        return (PayrollResult.Ok, ToResponse(created));
     }
 
-    public async Task<EmployeePayrollResponse> GetPayrollByIdAsync(Guid id)
+    public async Task<EmployeePayrollResponse?> GetPayrollAsync(Guid employeeId)
     {
-        var payroll = await repository.GetByIdAsync(id);
-        return ToResponse(payroll);
+        var payroll = await repository.GetByEmployeeIdAsync(employeeId);
+        return payroll is null ? null : ToResponse(payroll);
     }
 
-    public async Task<List<EmployeePayrollResponse>> GetPayrollsByEmployeeIdAsync(Guid employeeId)
+    public async Task<EmployeePayrollResponse?> UpdatePayrollAsync(
+        Guid employeeId, UpdateEmployeePayrollRequest request)
     {
-        var payrolls = await repository.GetByEmployeeIdAsync(employeeId);
-        return payrolls.Select(ToResponse).ToList();
-    }
-
-    public async Task<EmployeePayrollResponse> UpdatePayrollAsync(Guid id, UpdateEmployeePayrollRequest request)
-    {
-        var payroll = await repository.GetByIdAsync(id);
+        var payroll = await repository.GetByEmployeeIdAsync(employeeId);
+        if (payroll is null) return null;
 
         payroll.Salary = request.Salary;
-        payroll.TaxTable = request.TaxTable;
-        payroll.Bonus = request.Bonus;
+        payroll.TaxRate = request.TaxRate;
         payroll.BankName = request.BankName.Trim();
         payroll.BankAccount = request.BankAccount.Trim();
-        payroll.Deductions = request.Deductions;
-        payroll.PayrollDate = request.PayrollDate;
 
         var updated = await repository.UpdateAsync(payroll);
         return ToResponse(updated);
     }
 
-    public Task DeletePayrollAsync(Guid id)
-    {
-        return repository.DeleteAsync(id);
-    }
+    public Task<bool> DeletePayrollAsync(Guid employeeId)
+        => repository.DeleteByEmployeeIdAsync(employeeId);
 
     private static EmployeePayrollResponse ToResponse(EmployeePayroll p) => new()
     {
         Id = p.Id,
         EmployeeId = p.EmployeeId,
         Salary = p.Salary,
-        TaxTable = p.TaxTable,
-        Bonus = p.Bonus,
+        TaxRate = p.TaxRate,
         BankName = p.BankName,
         BankAccount = p.BankAccount,
-        Deductions = p.Deductions,
-        PayrollDate = p.PayrollDate
     };
 }

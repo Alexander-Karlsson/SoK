@@ -68,7 +68,7 @@ public class EmployeesDbContext(DbContextOptions<EmployeesDbContext> options) : 
 
             entity.Property(e => e.Title)
             .HasMaxLength(100);
-            
+
             // Genererar automatiskt ett unikt anställningsnummer via SQL-sekvens vid skapande av ny post
             entity.Property(entity => entity.EmployeeNumber)
             .HasDefaultValueSql("NEXT VALUE FOR EmployeeNumber");
@@ -118,11 +118,9 @@ public class EmployeesDbContext(DbContextOptions<EmployeesDbContext> options) : 
             .HasPrecision(18, 2)
             .IsRequired();
 
-            entity.Property(p => p.Bonus)
-            .HasPrecision(18, 2);
-
-            entity.Property(p => p.Deductions)
-            .HasPrecision(18, 2);
+            entity.Property(p => p.TaxRate)
+            .HasPrecision(5, 2)
+            .IsRequired();
 
             entity.Property(p => p.BankName)
             .IsRequired()

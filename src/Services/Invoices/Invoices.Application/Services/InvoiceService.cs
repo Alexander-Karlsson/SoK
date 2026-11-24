@@ -120,7 +120,15 @@ public class InvoiceService(IInvoiceRepository repo, ITemplateRepository templat
         }
 
         var lines = await repo.GetLinesAsync(id);
-        return ToResponse(invoice, lines);
+        var response = ToResponse(invoice, lines);
+
+        response.Customer = await customerClient.GetByIdAsync(invoice.CustomerId);
+
+        var template = await templateRepo.GetByIdAsync(invoice.TemplateId);
+
+        response.Template = template == null ? null : TemplateService.ToResponse(template);
+
+        return response;
     }
 
     public async Task<List<InvoiceResponse>> GetAllAsync()

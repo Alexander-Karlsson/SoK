@@ -2,9 +2,6 @@
 using Employees.Domain.Entities;
 using Employees.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Employees.Infrastructure.Repositories;
 
@@ -17,29 +14,25 @@ public class EmployeePayrollRepository(EmployeesDbContext context) : IEmployeePa
         return employeePayroll;
     }
 
-    public async Task<EmployeePayroll> DeleteAsync(Guid id)
+    public async  Task<bool> DeleteByEmployeeIdAsync(Guid employeeId)
     {
-        var employeePayroll = await context.EmployeePayrolls.FindAsync(id);
-        if (employeePayroll == null) throw new InvalidOperationException("Employee payroll not found");
+        var payroll = await context.EmployeePayrolls
+        .FirstOrDefaultAsync(p => p.EmployeeId == employeeId);
 
-        context.EmployeePayrolls.Remove(employeePayroll);
+        if (payroll == null)
+        {
+            return false;
+        }
+
+        context.EmployeePayrolls.Remove(payroll);
         await context.SaveChangesAsync();
-        return employeePayroll;
+        return true;
     }
 
-    public async Task<EmployeePayroll> GetByIdAsync(Guid id)
-    {
-        var employeePayroll = await context.EmployeePayrolls.FindAsync(id);
-        return employeePayroll ?? throw new InvalidOperationException("Employee payroll not found");
-    }
-
-    public async Task<List<EmployeePayroll>> GetByEmployeeIdAsync(Guid employeeId)
+    public async Task<EmployeePayroll?> GetByEmployeeIdAsync(Guid employeeId)
     {
         return await context.EmployeePayrolls
-            .AsNoTracking()
-            .Where(p => p.EmployeeId == employeeId)
-            .OrderByDescending(p => p.PayrollDate)
-            .ToListAsync();
+            .FirstOrDefaultAsync(p => p.EmployeeId == employeeId);
     }
 
     public async Task<EmployeePayroll> UpdateAsync(EmployeePayroll employeePayroll)

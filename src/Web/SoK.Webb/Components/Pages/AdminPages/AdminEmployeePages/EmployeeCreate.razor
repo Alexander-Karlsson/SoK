@@ -8,24 +8,24 @@
 
 <PageTitle>Skapa ny anställd</PageTitle>
 
-<div class="page">
-    <div class="page-header">
+<div class="admin-page">
+    <div class="admin-page-header">
         <h2>Skapa ny anställd</h2>
     </div>
 
     @if (message is not null)
     {
-        <p class="alert alert-error">@message</p>
+        <p class="admin-alert admin-alert-error">@message</p>
     }
 
     <EditForm Model="employee" OnValidSubmit="HandleSubmit">
         <DataAnnotationsValidator />
 
-        <div class="form-grid">
-            <section class="card">
+        <div class="admin-form-grid">
+            <section class="admin-card">
                 <h4>Personuppgifter</h4>
 
-                <div class="form-field">
+                <div class="admin-form-field">
                     <label>
                         Förnamn
                         <InputText @bind-Value="employee.FirstName" />
@@ -33,7 +33,7 @@
                     <ValidationMessage For="() => employee.FirstName" />
                 </div>
 
-                <div class="form-field">
+                <div class="admin-form-field">
                     <label>
                         Efternamn
                         <InputText @bind-Value="employee.LastName" />
@@ -41,7 +41,7 @@
                     <ValidationMessage For="() => employee.LastName" />
                 </div>
 
-                <div class="form-field">
+                <div class="admin-form-field">
                     <label>
                         Personnummer
                         <InputText @bind-Value="employee.PersonalNumber" />
@@ -49,7 +49,7 @@
                     <ValidationMessage For="() => employee.PersonalNumber" />
                 </div>
 
-                <div class="form-field">
+                <div class="admin-form-field">
                     <label>
                         Email
                         <InputText @bind-Value="employee.Email" />
@@ -57,7 +57,7 @@
                     <ValidationMessage For="() => employee.Email" />
                 </div>
 
-                <div class="form-field">
+                <div class="admin-form-field">
                     <label>
                         Telefonnummer
                         <InputText @bind-Value="employee.PhoneNumber" />
@@ -65,7 +65,7 @@
                     <ValidationMessage For="() => employee.PhoneNumber" />
                 </div>
 
-                <div class="form-field">
+                <div class="admin-form-field">
                     <label>
                         Adress
                         <InputText @bind-Value="employee.Address" />
@@ -73,7 +73,7 @@
                     <ValidationMessage For="() => employee.Address" />
                 </div>
 
-                <div class="form-field">
+                <div class="admin-form-field">
                     <label>
                         Postnummer
                         <InputText @bind-Value="employee.Zipcode" />
@@ -81,7 +81,7 @@
                     <ValidationMessage For="() => employee.Zipcode" />
                 </div>
 
-                <div class="form-field">
+                <div class="admin-form-field">
                     <label>
                         Stad
                         <InputText @bind-Value="employee.City" />
@@ -90,10 +90,10 @@
                 </div>
             </section>
 
-            <section class="card">
+            <section class="admin-card">
                 <h4>Nödkontakt</h4>
 
-                <div class="form-field">
+                <div class="admin-form-field">
                     <label>
                         Namn
                         <InputText @bind-Value="employee.EmergencyContactName" />
@@ -101,7 +101,7 @@
                     <ValidationMessage For="() => employee.EmergencyContactName" />
                 </div>
 
-                <div class="form-field">
+                <div class="admin-form-field">
                     <label>
                         Telefonnummer
                         <InputText @bind-Value="employee.EmergencyContactNumber" />
@@ -109,7 +109,7 @@
                     <ValidationMessage For="() => employee.EmergencyContactNumber" />
                 </div>
 
-                <div class="form-field">
+                <div class="admin-form-field">
                     <label>
                         Relation
                         <InputText @bind-Value="employee.Relationship" />
@@ -118,10 +118,10 @@
                 </div>
             </section>
 
-            <section class="card">
+            <section class="admin-card">
                 <h4>Anställning</h4>
 
-                <div class="form-field">
+                <div class="admin-form-field">
                     <label>
                         Titel
                         <InputText @bind-Value="employee.Title" />
@@ -129,7 +129,7 @@
                     <ValidationMessage For="() => employee.Title" />
                 </div>
 
-                <div class="form-field">
+                <div class="admin-form-field">
                     <label>
                         Avdelning
                         <InputSelect @bind-Value="employee.Department">
@@ -142,7 +142,7 @@
                     <ValidationMessage For="() => employee.Department" />
                 </div>
 
-                <div class="form-field">
+                <div class="admin-form-field">
                     <label>
                         Anställningsform
                         <InputSelect @bind-Value="employee.EmployeeType"
@@ -156,7 +156,7 @@
                     <ValidationMessage For="() => employee.EmployeeType" />
                 </div>
 
-                <div class="form-field">
+                <div class="admin-form-field">
                     <label>
                         Startdatum
                         <InputDate @bind-Value="employee.EmploymentStartDate" />
@@ -166,7 +166,7 @@
 
                 @if (employee.EmployeeType != EmployeeType.Permanent)
                 {
-                    <div class="form-field">
+                    <div class="admin-form-field">
                         <label>
                             Slutdatum
                             <InputDate @bind-Value="employee.EmploymentEndDate" />
@@ -175,7 +175,7 @@
                     </div>
                 }
 
-                <div class="form-field">
+                <div class="admin-form-field">
                     <label>
                         Sysselsättningsgrad (%)
                         <InputNumber @bind-Value="employee.EmployeeRate" />
@@ -185,9 +185,9 @@
             </section>
         </div>
 
-        <div class="form-actions">
-            <a class="btn btn-secondary" href="/employeelist">Avbryt</a>
-            <button type="submit" class="btn btn-primary">Spara</button>
+        <div class="admin-form-actions">
+            <a class="admin-btn admin-btn-secondary" href="/employeelist">Avbryt</a>
+            <button type="submit" class="admin-btn admin-btn-primary">Spara</button>
         </div>
     </EditForm>
 </div>

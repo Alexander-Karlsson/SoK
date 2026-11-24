@@ -73,14 +73,14 @@
 .invoice-label {
     font-family: var(--font-heading);
     text-transform: uppercase;
-    color: #6c757d;
+    color: var(--color-text);
 }
 
 .invoice-card-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: var(--color-beige);
+    background: var(--color-beige-dark);
     padding: 14px 16px;
 }
 

@@ -3,6 +3,7 @@
 @using Employees.Application.Employees.DTOs.Employee
 @using SoK.Webb.Clients
 @using SoK.Webb.Components.Pages.AdminPages.AdminEmployeePayrollPages
+@using SoK.Webb.Components.Pages.AdminPages.AdminEmployeeAbsencePages
 @inject EmployeeApiClient EmployeeClient
 @inject NavigationManager Navigation
 
@@ -65,6 +66,7 @@
                 </dl>
             </section>
             <EmployeePayrollSection EmployeeId="Id" />
+            <EmployeeAbsenceSection EmployeeId="Id" />
         </div>
 
         <div class="admin-actions-bar">

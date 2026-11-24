@@ -1,4 +1,8 @@
-﻿.admin-form-field {
+﻿.admin-card {
+    align-self: start;
+}
+
+.admin-form-field {
     display: flex;
     flex-direction: column;
     gap: 0.3rem;

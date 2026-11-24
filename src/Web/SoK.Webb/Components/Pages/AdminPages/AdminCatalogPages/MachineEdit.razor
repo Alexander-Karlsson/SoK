@@ -1,0 +1,164 @@
+﻿@page "/createmachine"
+@page "/machineedit/{Id:guid}"
+@rendermode InteractiveServer
+@using Bookings.Application.Bookings.DTOs.Request
+@using SoK.Webb.Clients
+@inject CatalogApiClient CatalogApiClient
+@inject NavigationManager Navigation
+
+<PageTitle>@(IsEdit ? "Redigera maskin" : "Ny maskin")</PageTitle>
+
+<div class="admin-page">
+    <div class="admin-page-header">
+        <h2>@(IsEdit ? "Redigera maskin" : "Ny maskin")</h2>
+        <a class="admin-btn admin-btn-primary" href="/machinelist">Tillbaka</a>
+    </div>
+
+    @if (loading)
+    {
+        <p class="empty">Laddar...</p>
+    }
+    else if (notFound)
+    {
+        <p class="empty">Maskinen hittades inte.</p>
+    }
+    else
+    {
+        @if (error is not null)
+        {
+            <p class="admin-alert admin-alert-error">@error</p>
+        }
+
+        <section class="admin-card catalog-form">
+            <label class="catalog-field">
+                Namn
+                <input @bind="name" />
+            </label>
+
+            <label class="catalog-field">
+                Typ
+                <input @bind="type" placeholder="t.ex. Grävmaskin" />
+            </label>
+
+            <label class="catalog-field">
+                Registreringsnummer
+                <input @bind="registrationNumber" />
+            </label>
+
+            <label class="catalog-field">
+                Pris per dag (kr)
+                <input type="number" min="0" step="1" @bind="pricePerDay" />
+            </label>
+
+            @if (IsEdit)
+            {
+                <label class="catalog-check">
+                    <input type="checkbox" @bind="isOutOfService" />
+                    Ur drift (kan inte bokas)
+                </label>
+            }
+        </section>
+
+        <div class="catalog-actions">
+            @if (IsEdit)
+            {
+                @if (confirmDelete)
+                {
+                    <span>Ta bort maskinen?</span>
+                    <button class="admin-btn admin-btn-secondary" @onclick="() => confirmDelete = false" disabled="@busy">Nej</button>
+                    <button class="admin-btn admin-btn-danger" @onclick="DeleteAsync" disabled="@busy">Ja, ta bort</button>
+                }
+                else
+                {
+                    <button class="admin-btn admin-btn-danger" @onclick="() => confirmDelete = true" disabled="@busy">Ta bort</button>
+                }
+            }
+
+            @if (!confirmDelete)
+            {
+                <button class="admin-btn admin-btn-primary" @onclick="SaveAsync" disabled="@busy">
+                    @(IsEdit ? "Spara" : "Skapa")
+                </button>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public Guid? Id { get; set; }
+
+    private bool IsEdit => Id is not null;
+
+    private bool loading = true;
+    private bool notFound;
+    private bool busy;
+    private bool confirmDelete;
+    private string? error;
+
+    private string name = "";
+    private string type = "";
+    private string registrationNumber = "";
+    private decimal pricePerDay;
+    private bool isOutOfService;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (IsEdit)
+        {
+            var machine = await CatalogApiClient.GetMachineAsync(Id!.Value);
+
+            if (machine is null)
+            {
+                notFound = true;
+            }
+            else
+            {
+                name = machine.Name;
+                type = machine.Type;
+                registrationNumber = machine.RegistrationNumber;
+                pricePerDay = machine.PricePerDay;
+                isOutOfService = machine.IsOutOfService;
+            }
+        }
+
+        loading = false;
+    }
+
+    private async Task SaveAsync()
+    {
+        busy = true;
+
+        error = IsEdit
+            ? await CatalogApiClient.UpdateMachineAsync(Id!.Value, new UpdateMachineRequest
+            {
+                Name = name,
+                Type = type,
+                RegistrationNumber = registrationNumber,
+                PricePerDay = pricePerDay,
+                IsOutOfService = isOutOfService
+            })
+            : await CatalogApiClient.CreateMachineAsync(new CreateMachineRequest
+            {
+                Name = name,
+                Type = type,
+                RegistrationNumber = registrationNumber,
+                PricePerDay = pricePerDay
+            });
+
+        busy = false;
+
+        if (error is null)
+            Navigation.NavigateTo("/machinelist");
+    }
+
+    private async Task DeleteAsync()
+    {
+        busy = true;
+        error = await CatalogApiClient.DeleteMachineAsync(Id!.Value);
+        busy = false;
+        confirmDelete = false;
+
+        if (error is null)
+            Navigation.NavigateTo("/machinelist");
+    }
+}

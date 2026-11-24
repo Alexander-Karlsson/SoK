@@ -1,0 +1,45 @@
+/* CSS for MachineList component */
+.catalog-table-wrapper {
+    overflow-x: auto;
+    background: #ffffff;
+    border: 1px solid #e2ddd5;
+    border-radius: 10px;
+}
+
+.catalog-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+    .catalog-table th {
+        background: var(--color-dark);
+        color: var(--color-text-menu);
+        text-align: left;
+        font-weight: 600;
+        padding: 0.85rem 1rem;
+        white-space: nowrap;
+    }
+
+    .catalog-table td {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #eee8df;
+        white-space: nowrap;
+    }
+
+    .catalog-table tbody tr {
+        cursor: pointer;
+        transition: background-color 0.12s;
+    }
+
+        .catalog-table tbody tr:nth-child(even) {
+            background: #faf8f5;
+        }
+
+        .catalog-table tbody tr:hover {
+            background: var(--color-beige);
+        }
+
+        .catalog-table tbody tr:last-child td {
+            border-bottom: none;
+        }

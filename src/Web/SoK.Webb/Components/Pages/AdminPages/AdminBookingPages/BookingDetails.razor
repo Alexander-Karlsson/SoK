@@ -1,22 +1,25 @@
 ﻿@page "/bookingdetails/{Id:guid}"
+
 @rendermode InteractiveServer
 @using Bookings.Application.Bookings.DTOs.Response
 @using SoK.Webb.Clients
 @using Bookings.Domain.Enums
+@using Invoices.Application.Dtos
 
+@inject InvoiceApiClient InvoiceApiClient
 @inject BookingApiClient BookingApiClient
 
 <PageTitle>Bokning</PageTitle>
 
-<div class="page">
-    <div class="page-header">
+<div class="admin-page">
+    <div class="admin-page-header">
         <h2>Bokning</h2>
-        <a href="/bookinglist">Tillbaka</a>
+        <a class="admin-btn admin-btn-primary" href="/bookinglist">Tillbaka</a>
     </div>
 
     @if (loading)
     {
-        <p>Laddar...</p>
+        <p class="empty">Laddar...</p>
     }
     else if (booking is null)
     {
@@ -24,51 +27,120 @@
     }
     else
     {
-        <p>
-            @booking.StartsAt.ToString("yyyy-MM-dd HH:mm") – @booking.EndsAt?.ToString("yyyy-MM-dd HH:mm")<br />
-            Status: @booking.Status.ToSwedish()<br />
-            Kund: @booking.CustomerId
-        </p>
-
-        @if (booking.Machines.Count > 0)
-        {
-            <h3>Maskiner</h3>
-            <ul>
-                @foreach (var m in booking.Machines)
-                {
-                    <li>@m.Name – @m.PricePerDay.ToString("N2") kr/dag</li>
-                }
-            </ul>
-        }
-
-        @if (booking.Services.Count > 0)
-        {
-            <h3>Tjänster</h3>
-            <ul>
-                @foreach (var s in booking.Services)
-                {
-                    <li>@s.Name – @s.EstimatedHours timmar × @s.PricePerHour.ToString("N2") kr/tim</li>
-                }
-            </ul>
-        }
-
         @if (error is not null)
         {
-            <p class="text-danger">@error</p>
+            <p class="admin-alert admin-alert-error">@error</p>
         }
+
+        <div class="booking-details-grid">
+            <section class="admin-card">
+                <h4>Översikt</h4>
+                <dl class="booking-facts">
+                    <dt>Status</dt>
+                    <dd>
+                        <span class="admin-badge @booking.Status.ToBadgeClass()">
+                            @booking.Status.ToSwedish()
+                        </span>
+                    </dd>
+
+                    <dt>Start</dt>
+                    <dd>@booking.StartsAt.ToString("yyyy-MM-dd HH:mm")</dd>
+
+                    <dt>Slut</dt>
+                    <dd>@booking.EndsAt?.ToString("yyyy-MM-dd HH:mm")</dd>
+
+                    <dt>Kund</dt>
+                    <dd>@booking.CustomerId</dd>
+
+                    @if (booking.InvoiceId is not null)
+                    {
+                        <dt>Faktura</dt>
+                        <dd><a class="admin-btn admin-btn-secondary booking-small-btn" href="/invoices/@booking.InvoiceId">Visa faktura</a></dd>
+                    }
+                </dl>
+            </section>
+
+            <section class="admin-card">
+                <h4>Maskiner</h4>
+                @if (booking.Machines.Count == 0)
+                {
+                    <p class="empty">Inga maskiner.</p>
+                }
+                else
+                {
+                    <ul class="booking-items">
+                        @foreach (var m in booking.Machines)
+                        {
+                            <li>
+                                <span>@m.Name</span>
+                                <span>@m.PricePerDay.ToString("N2") kr/dag</span>
+                            </li>
+                        }
+                    </ul>
+                }
+            </section>
+
+            <section class="admin-card">
+                <h4>Tjänster</h4>
+                @if (booking.Services.Count == 0)
+                {
+                    <p class="empty">Inga tjänster.</p>
+                }
+                else
+                {
+                    <ul class="booking-items">
+                        @foreach (var s in booking.Services)
+                        {
+                            <li>
+                                <span>@s.Name</span>
+                                <span>@s.EstimatedHours timmar × @s.PricePerHour.ToString("N2") kr/tim</span>
+                            </li>
+                        }
+                    </ul>
+                }
+            </section>
+        </div>
 
         @if (booking.Status == BookingStatus.Booked)
         {
-            @if (!confirmCancel)
-            {
-                <button class="btn btn-outline-danger" @onclick="() => confirmCancel = true">Avboka</button>
-            }
-            else
-            {
-                <p>Vill du avboka bokningen?</p>
-                <button class="btn btn-danger" @onclick="CancelAsync" disabled="@busy">Ja, avboka</button>
-                <button class="btn btn-secondary" @onclick="() => confirmCancel = false" disabled="@busy">Nej</button>
-            }
+            <section class="admin-card booking-actions-card">
+                @if (confirmCancel)
+                {
+                    <p>Vill du avboka bokningen?</p>
+                    <div class="booking-actions">
+                        <button class="admin-btn admin-btn-secondary" @onclick="() => confirmCancel = false" disabled="@busy">Nej</button>
+                        <button class="admin-btn admin-btn-danger" @onclick="CancelAsync" disabled="@busy">Ja, avboka</button>
+                    </div>
+                }
+                else if (confirmComplete)
+                {
+                    @if (templates.Count > 1)
+                    {
+                        <label class="booking-template">
+                            Fakturamall
+                            <select @bind="selectedTemplateId">
+                                @foreach (var t in templates)
+                                {
+                                    <option value="@t.Id">@t.CompanyName</option>
+                                }
+                            </select>
+                        </label>
+                    }
+
+                    <p>Vill du avsluta bokningen och skapa en faktura?</p>
+                    <div class="booking-actions">
+                        <button class="admin-btn admin-btn-secondary" @onclick="() => confirmComplete = false" disabled="@busy">Nej</button>
+                        <button class="admin-btn admin-btn-primary" @onclick="CompleteAsync" disabled="@busy">Ja, avsluta</button>
+                    </div>
+                }
+                else
+                {
+                    <div class="booking-actions">
+                        <button class="admin-btn admin-btn-danger" @onclick="() => confirmCancel = true" disabled="@busy">Avboka</button>
+                        <button class="admin-btn admin-btn-primary" @onclick="StartCompleteAsync" disabled="@busy">Avsluta och fakturera</button>
+                    </div>
+                }
+            </section>
         }
     }
 </div>
@@ -81,8 +153,11 @@
     private BookingResponse? booking;
     private bool loading = true;
     private bool confirmCancel;
+    private bool confirmComplete;
     private bool busy;
     private string? error;
+    private List<TemplateResponse> templates = [];
+    private Guid selectedTemplateId;
 
 
     protected override async Task OnInitializedAsync()
@@ -103,4 +178,39 @@
         busy = false;
     }
     
+    private async Task StartCompleteAsync()
+    {
+        error = null;
+
+        try
+        {
+            templates = await InvoiceApiClient.GetTemplatesAsync();
+        }
+        catch (HttpRequestException)
+        {
+            error = "Kunde inte hämta fakturamallar. Försök igen senare.";
+            return;
+        }
+
+        if (templates.Count == 0)
+        {
+            error = "Det finns ingen fakturamall.";
+            return;
+        }
+
+        selectedTemplateId = templates[0].Id;
+        confirmComplete = true;
+    }
+
+    private async Task CompleteAsync()
+    {
+        busy = true;
+        error = await BookingApiClient.CompleteAsync(Id, selectedTemplateId);
+
+        if (error is null)
+            booking = await BookingApiClient.GetByIdAsync(Id);
+
+        confirmComplete = false;
+        busy = false;
+    }
 }

@@ -11,4 +11,12 @@ public static class BookingStatusText
         BookingStatus.Cancelled => "Avbokad",
         _ => status.ToString()
     };
+
+    // Färg på statusbadgen: grön = bokad, grå = avslutad, röd = avbokad
+    public static string ToBadgeClass(this BookingStatus status) => status switch
+    {
+        BookingStatus.Booked => "admin-badge-active",
+        BookingStatus.Completed => "booking-badge-completed",
+        _ => "admin-badge-inactive"
+    };
 }

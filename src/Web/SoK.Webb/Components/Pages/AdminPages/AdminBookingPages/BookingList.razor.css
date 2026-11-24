@@ -1,0 +1,49 @@
+.booking-badge-completed {
+    background: #ebe8e3;
+    color: #5c5750;
+}
+
+.booking-table-wrapper {
+    overflow-x: auto;
+    background: #ffffff;
+    border: 1px solid #e2ddd5;
+    border-radius: 10px;
+}
+
+.booking-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+    .booking-table th {
+        background: var(--color-dark);
+        color: var(--color-text-menu);
+        text-align: left;
+        font-weight: 600;
+        padding: 0.85rem 1rem;
+        white-space: nowrap;
+    }
+
+    .booking-table td {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #eee8df;
+        white-space: nowrap;
+    }
+
+    .booking-table tbody tr {
+        cursor: pointer;
+        transition: background-color 0.12s;
+    }
+
+        .booking-table tbody tr:nth-child(even) {
+            background: #faf8f5;
+        }
+
+        .booking-table tbody tr:hover {
+            background: var(--color-beige);
+        }
+
+        .booking-table tbody tr:last-child td {
+            border-bottom: none;
+        }

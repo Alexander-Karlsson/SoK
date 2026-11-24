@@ -6,6 +6,7 @@ public static class BookingValidation
 {
     public const int MinRentalDays = 1;
     public const int MaxRentalDays = 30;
+    public const int HoursPerDay = 8;
 
     public static void ValidateCreate(CreateBookingRequest request)
     {
@@ -18,10 +19,16 @@ public static class BookingValidation
         if (request.EmployeeIds.Count == 0 && request.Services.Count == 0 && request.Machines.Count == 0)
             throw new ArgumentException("Bokningen måste innehålla minst en anställd, tjänst eller maskin.");
        
+        if (request.StartsAt.Date < DateTime.UtcNow.Date)
+            throw new ArgumentException("En bokning kan inte starta bakåt i tiden.");
+
         ValidateDates(request.StartsAt, request.EndsAt);
         ValidateEmployees(request.EmployeeIds);
         ValidateServices(request.Services);
         ValidateMachines(request.Machines);
+
+        var endsAt = request.EndsAt ?? request.StartsAt.AddDays(MaxRentalDays);
+        ValidateServiceHours(request.StartsAt, endsAt, request.Services.Select(s => s.EstimatedHours));
     }
 
     public static void ValidateUpdate(UpdateBookingRequest request)
@@ -44,6 +51,17 @@ public static class BookingValidation
 
         if (length > TimeSpan.FromDays(MaxRentalDays))
             throw new ArgumentException($"En bokning får vara högst {MaxRentalDays} dagar.");
+    }
+
+    // En tjänst räknas som arbetstid: högst HoursPerDay timmar per påbörjad dag i perioden.
+    // Dagarna räknas på samma sätt som på fakturan (Math.Ceiling).
+    public static void ValidateServiceHours(DateTime startsAt, DateTime endsAt, IEnumerable<decimal> estimatedHours)
+    {
+        var days = (decimal)Math.Ceiling((endsAt - startsAt).TotalDays);
+        var maxHours = days * HoursPerDay;
+
+        if (estimatedHours.Any(h => h > maxHours))
+            throw new ArgumentException($"En tjänst kan ha högst {maxHours:0} timmar för den här perioden ({days:0} dagar × {HoursPerDay} timmar).");
     }
 
     private static void ValidateEmployees(List<Guid> employeeIds)

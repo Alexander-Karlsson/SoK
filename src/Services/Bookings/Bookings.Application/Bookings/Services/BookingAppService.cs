@@ -60,7 +60,9 @@ public class BookingAppService(IBookingRepository repo, IMachineRepository machi
 
         var details = await repo.GetBookingDetailsAsync(id);
 
-        if (details!.Machines.Count > 0 &&
+        BookingValidation.ValidateServiceHours(request.StartsAt, endsAt, details!.Services.Select(s => s.EstimatedHours));
+
+        if (details.Machines.Count > 0 &&
             await machineRepo.IsAnyBookedAsync(details.Machines.Select(m => m.MachineId).ToList(), request.StartsAt, endsAt, id))
             throw new InvalidOperationException("En eller flera maskiner är redan bokade under perioden.");
 

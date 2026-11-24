@@ -1,0 +1,89 @@
+﻿@using Invoices.Application.Dtos
+
+<EditForm Model="Model" OnValidSubmit="Submit">
+    <DataAnnotationsValidator />
+
+    <FormCardComponent Title="Företag">
+        <label class="form-label">Företagsnamn</label>
+        <InputText class="form-control mb-3" @bind-Value="Model.CompanyName" />
+        <ValidationMessage class="text-danger small" For="@(() => Model.CompanyName)" />
+
+        <label class="form-label">Organisationsnummer</label>
+        <InputText class="form-control mb-3" @bind-Value="Model.CompanyNumber" placeholder="112233-4455" />
+        <ValidationMessage class="text-danger small" For="@(() => Model.CompanyNumber)" />
+
+        <label class="form-label">Momsnummer</label>
+        <InputText class="form-control mb-3" @bind-Value="Model.VatNumber" placeholder="SE112233445501" />
+        <ValidationMessage class="text-danger small" For="@(() => Model.VatNumber)" />
+
+        <label class="form-label">Adress</label>
+        <InputText class="form-control mb-3" @bind-Value="Model.CompanyAddress" />
+        <ValidationMessage class="text-danger small" For="@(() => Model.CompanyAddress)" />
+
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Postnummer</label>
+                <InputText class="form-control" @bind-Value="Model.CompanyPostalCode" placeholder="111 22" />
+                <ValidationMessage class="text-danger small" For="@(() => Model.CompanyPostalCode)" />
+            </div>
+            <div class="col-md-8">
+                <label class="form-label">Ort</label>
+                <InputText class="form-control" @bind-Value="Model.CompanyCity" />
+                <ValidationMessage class="text-danger small" For="@(() => Model.CompanyCity)" />
+            </div>
+        </div>
+    </FormCardComponent>
+
+    <FormCardComponent Title="Kontakt och betalning">
+        <label class="form-label">Telefon</label>
+        <InputText class="form-control mb-3" @bind-Value="Model.CompanyPhone" placeholder="070-123 45 67" />
+        <ValidationMessage class="text-danger small" For="@(() => Model.CompanyPhone)" />
+
+        <label class="form-label">E-post</label>
+        <InputText class="form-control mb-3" @bind-Value="Model.CompanyEmail" placeholder="faktura@sok.se" />
+        <ValidationMessage class="text-danger small" For="@(() => Model.CompanyEmail)" />
+
+        <label class="form-label">Bankgiro</label>
+        <InputText class="form-control mb-3" @bind-Value="Model.CompanyBankgiro" placeholder="123-4567" />
+        <ValidationMessage class="text-danger small" For="@(() => Model.CompanyBankgiro)" />
+
+        <label class="form-label">Vår referens</label>
+        <div class="form-text">Vem kan kunden kontakta?</div>
+        <InputText class="form-control" @bind-Value="Model.OurReference" />
+    </FormCardComponent>
+
+    <FormCardComponent Title="Utseende">
+        <label class="form-label">Logga</label>
+        <div class="form-text">Sökväg till bilden</div>
+        <InputText class="form-control mb-3" @bind-Value="Model.Logo" />
+
+        <label class="form-label">Färg</label>
+        <div class="form-text">Färgen på fakturans rubrikrad</div>
+        <InputText type="color" class="form-control form-control-color mb-3" @bind-Value="Model.PrimaryColor" />
+
+        <label class="form-label">Standardtext</label>
+        <div class="form-text">Visas längst ner på fakturan</div>
+        <InputTextArea class="form-control" rows="3" @bind-Value="Model.StandardText" />
+    </FormCardComponent>
+
+    <div class="d-flex justify-content-between">
+        <a href="/templates" class="btn btn-back">Tillbaka</a>
+        <button type="submit" class="btn btn-save">@ButtonText</button>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter]
+    public CreateTemplateRequest Model { get; set; } = new();
+
+    [Parameter]
+    public string ButtonText { get; set; } = "Spara";
+
+    [Parameter]
+    public EventCallback OnValidSubmit { get; set; }
+
+    private async Task Submit()
+    {
+        await OnValidSubmit.InvokeAsync();
+    }
+}

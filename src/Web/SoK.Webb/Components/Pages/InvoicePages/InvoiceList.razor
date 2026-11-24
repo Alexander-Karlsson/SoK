@@ -18,7 +18,7 @@
                         <a class="invoice-link stretched-link" href="invoices/@i.Id">
                             @i.InvoiceNumber
                         </a>
-                        <span class="invoice-status">@i.Status</span>
+                        <span class="invoice-status">@StatusText(i.Status)</span>
                     </div>
 
                     <div class="invoice-card-body">
@@ -49,5 +49,17 @@
     protected override async Task OnInitializedAsync()
     {
         Invoice = await InvoiceClient.GetAllAsync();
+    }
+
+    private string StatusText(object status)
+    {
+        return status.ToString() switch
+        {
+            "Draft" => "Utkast",
+            "Sent" => "Skickad",
+            "Paid" => "Betald",
+            "Overdue" => "Förfallen",
+            _ => status.ToString() ?? ""
+        };
     }
 }

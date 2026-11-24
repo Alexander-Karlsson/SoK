@@ -1,0 +1,13 @@
+.card {
+    background-color: var(--color-cream);
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.card-header {
+    font-family: var(--font-heading);
+    font-size: 1.4rem;
+    background-color: transparent;
+    border-bottom: none;
+}

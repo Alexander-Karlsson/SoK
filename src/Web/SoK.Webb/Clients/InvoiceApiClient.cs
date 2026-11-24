@@ -42,4 +42,34 @@ public class InvoiceApiClient(HttpClient httpClient)
 
         return templates ?? new();
     }
+
+    // Hämtar en mall, ger null om den inte finns
+    public async Task<TemplateResponse?> GetTemplateByIdAsync(Guid id)
+    {
+        var response = await httpClient.GetAsync($"api/templates/{id}");
+
+        if (response.StatusCode == HttpStatusCode.NotFound)
+        {
+            return null;
+        }
+
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<TemplateResponse>(jsonOptions);
+    }
+
+    // Skapar en ny mall, ger true om det gick bra
+    public async Task<bool> CreateTemplateAsync(CreateTemplateRequest request)
+    {
+        var response = await httpClient.PostAsJsonAsync("api/templates", request);
+
+        return response.IsSuccessStatusCode;
+    }
+
+    // Ändrar en mall, ger true om det gick bra
+    public async Task<bool> UpdateTemplateAsync(Guid id, CreateTemplateRequest request)
+    {
+        var response = await httpClient.PutAsJsonAsync($"api/templates/{id}", request);
+
+        return response.IsSuccessStatusCode;
+    }
 }

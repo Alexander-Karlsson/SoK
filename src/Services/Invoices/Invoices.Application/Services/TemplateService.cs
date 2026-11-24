@@ -6,28 +6,29 @@ namespace Invoices.Application.Services;
 
 public class TemplateService(ITemplateRepository repo)
 {
-    public async Task<TemplateResponse> CreateTemplateAsync(CreateTemplateRequest request) 
+    public async Task<TemplateResponse> CreateTemplateAsync(CreateTemplateRequest request)
     {
-        var template = new InvoiceTemplate()
-        {
-            Id = Guid.NewGuid(),
-            CompanyName = request.CompanyName,
-            CompanyNumber = request.CompanyNumber,
-            VatNumber = request.VatNumber,
-            CompanyAddress = request.CompanyAddress,
-            CompanyPostalCode = request.CompanyPostalCode,
-            CompanyCity = request.CompanyCity,
-            CompanyPhone = request.CompanyPhone,
-            CompanyEmail = request.CompanyEmail,
-            CompanyBankgiro = request.CompanyBankgiro,
-            Logo = request.Logo,
-            PrimaryColor = request.PrimaryColor,
-            StandardText = request.StandardText,
-            OurReference = request.OurReference
-        };
+        var template = new InvoiceTemplate { Id = Guid.NewGuid() };
+
+        CopyFromRequest(template, request);
 
         var saved = await repo.AddAsync(template);
         return ToResponse(saved);
+    }
+
+    public async Task<TemplateResponse?> UpdateTemplateAsync(Guid id, CreateTemplateRequest request)
+    {
+        var template = await repo.GetByIdAsync(id);
+
+        if (template == null)
+        {
+            return null;
+        }
+
+        CopyFromRequest(template, request);
+
+        await repo.UpdateAsync(template);
+        return ToResponse(template);
     }
 
     public async Task<List<TemplateResponse>> GetAllAsync()
@@ -61,5 +62,22 @@ public class TemplateService(ITemplateRepository repo)
             StandardText = template.StandardText,
             OurReference = template.OurReference
         };
+    }
+
+    private static void CopyFromRequest(InvoiceTemplate template, CreateTemplateRequest request)
+    {
+        template.CompanyName = request.CompanyName;
+        template.CompanyNumber = request.CompanyNumber;
+        template.VatNumber = request.VatNumber;
+        template.CompanyAddress = request.CompanyAddress;
+        template.CompanyPostalCode = request.CompanyPostalCode;
+        template.CompanyCity = request.CompanyCity;
+        template.CompanyPhone = request.CompanyPhone;
+        template.CompanyEmail = request.CompanyEmail;
+        template.CompanyBankgiro = request.CompanyBankgiro;
+        template.Logo = request.Logo;
+        template.PrimaryColor = request.PrimaryColor;
+        template.StandardText = request.StandardText;
+        template.OurReference = request.OurReference;
     }
 }

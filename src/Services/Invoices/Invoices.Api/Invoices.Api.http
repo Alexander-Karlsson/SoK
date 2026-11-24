@@ -88,6 +88,26 @@ GET {{Invoices.Api_HostAddress}}/api/templates
 ### Hämta den seedade mallen
 GET {{Invoices.Api_HostAddress}}/api/templates/{{templateId}}
 
+### Ändra den röda mallen
+PUT {{Invoices.Api_HostAddress}}/api/templates/{{redTemplateId}}
+Content-Type: application/json
+
+{
+  "companyName": "Skrot & Korn AB",
+  "companyNumber": "112233-4455",
+  "vatNumber": "SE112233445501",
+  "companyAddress": "Storgatan 1",
+  "companyPostalCode": "111 22",
+  "companyCity": "Örebro",
+  "companyPhone": "070-123 12 33",
+  "companyEmail": "faktura@sok.se",
+  "companyBankgiro": "123-4567",
+  "logo": "images/logo.png",
+  "primaryColor": "#8b2e2e",
+  "standardText": "Gott nytt år från Skrot & Korn!",
+  "ourReference": "Ethel och Grethel"
+}
+
 
 ############################################
 # FAKTUROR

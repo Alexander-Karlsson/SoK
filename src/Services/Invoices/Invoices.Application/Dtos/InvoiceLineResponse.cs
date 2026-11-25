@@ -9,6 +9,7 @@ public class InvoiceLineResponse
     public string Description { get; set; } = string.Empty;
     public decimal Quantity { get; set; }
     public InvoiceUnit Unit { get; set; }
+    public string UnitText { get; set; } = string.Empty;
     public decimal UnitPrice { get; set; }
     public decimal VatRate { get; set; }
     public decimal Amount { get; set; }

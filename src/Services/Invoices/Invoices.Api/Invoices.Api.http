@@ -121,8 +121,8 @@ Content-Type: application/json
   "customerId": "{{companyCustomerId}}",
   "templateId": "{{templateId}}",
   "lines": [
-    { "description": "Grävning", "quantity": 2, "unit": "Hours", "unitPrice": 500 },
-    { "description": "Rivning", "quantity": 4, "unit": "Hours", "unitPrice": 700 }
+    { "description": "Grävning", "quantity": 6, "unit": "Hours", "unitPrice": 500 },
+    { "description": "Rivning", "quantity": 8, "unit": "Hours", "unitPrice": 700 }
   ]
 }
 
@@ -134,7 +134,7 @@ Content-Type: application/json
   "customerId": "{{privateCustomerId}}",
   "templateId": "{{templateId}}",
   "lines": [
-    { "description": "Grävning", "quantity": 2, "unit": "Hours", "unitPrice": 500 },
+    { "description": "Grävning", "quantity": 8, "unit": "Hours", "unitPrice": 500 },
     { "description": "Rivning", "quantity": 4, "unit": "Hours", "unitPrice": 700 }
   ]
 }

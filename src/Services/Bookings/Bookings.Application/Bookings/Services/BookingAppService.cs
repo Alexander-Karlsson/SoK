@@ -107,7 +107,7 @@ public class BookingAppService(IBookingRepository repo, IMachineRepository machi
 
     public async Task<BookingDetails?> GetByIdAsync(Guid id) => await repo.GetBookingDetailsAsync(id);
 
-    public async Task<IReadOnlyList<Booking>> GetAllAsync() => await repo.GetAllAsync();
+    public async Task<IReadOnlyList<Booking>> GetAllAsync(Guid? customerId = null) => await repo.GetAllAsync(customerId);
 
     private async Task<List<BookingMachine>> BuildMachinesAsync(Guid bookingId, List<CreateBookingMachineRequest> requested)
     {

@@ -13,9 +13,10 @@ public class BookingApiClient(HttpClient httpClient)
         Converters = { new JsonStringEnumConverter() }
     };
 
-    public async Task<List<BookingSummaryResponse>> GetAllAsync()
+    public async Task<List<BookingSummaryResponse>> GetAllAsync(Guid? customerId = null)
     {
-        var bookings = await httpClient.GetFromJsonAsync<List<BookingSummaryResponse>>("api/bookings", jsonOptions);
+        var url = customerId is null ? "api/bookings" : $"api/bookings?customerId={customerId}";
+        var bookings = await httpClient.GetFromJsonAsync<List<BookingSummaryResponse>>(url, jsonOptions);
         return bookings ?? [];
     }
 

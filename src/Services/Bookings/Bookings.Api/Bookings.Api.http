@@ -64,11 +64,17 @@ Content-Type: application/json
   ]
 }
 
+### Hämta en bokning
+GET {{Bookings.Api_HostAddress}}/api/bookings/{{bookingId}}
+
 ### Hämta alla bokningar
 GET {{Bookings.Api_HostAddress}}/api/bookings
 
-### Hämta en bokning
-GET {{Bookings.Api_HostAddress}}/api/bookings/{{bookingId}}
+### Hämta bokningar för en kund
+GET {{Bookings.Api_HostAddress}}/api/bookings?customerId={{customerId}}
+
+### Hämta bokningar för kund som inte har några (ska ge tom lista)
+GET {{Bookings.Api_HostAddress}}/api/bookings?customerId=00000000-0000-0000-0000-000000000001
 
 ### Uppdatera bokning
 PUT {{Bookings.Api_HostAddress}}/api/bookings/{{bookingId}}

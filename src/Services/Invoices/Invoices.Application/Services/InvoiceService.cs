@@ -101,7 +101,7 @@ public class InvoiceService(IInvoiceRepository repo, ITemplateRepository templat
         if (!IsAllowedStatusChange(invoice.Status, request.Status))
         {
             throw new ArgumentException(
-                $"Går inte att ändra från {InvoiceText.Status(invoice.Status)} till {InvoiceText.Status(request.Status)}");
+                 $"Går inte att ändra från {InvoiceText.Status(invoice.Status)} till {InvoiceText.Status(request.Status)}");
         }
 
         invoice.Status = request.Status;
@@ -192,6 +192,9 @@ public class InvoiceService(IInvoiceRepository repo, ITemplateRepository templat
             TotalAmount = invoice.TotalAmount,
             Status = status,
             StatusText = InvoiceText.Status(status),
+
+            CanMarkAsSent = IsAllowedStatusChange(invoice.Status, InvoiceStatus.Sent),
+            CanMarkAsPaid = IsAllowedStatusChange(invoice.Status, InvoiceStatus.Paid),
 
             Lines = lines.Select(l => new InvoiceLineResponse
             {

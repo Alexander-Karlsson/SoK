@@ -1,5 +1,6 @@
 ﻿@page "/templates"
 @using Invoices.Application.Dtos
+@using Invoices.Application.Helpers
 @using SoK.Webb.Clients
 @inject InvoiceApiClient InvoiceClient
 
@@ -26,7 +27,7 @@
                     <div class="template-card-header" style="background-color: @t.PrimaryColor;">
                         <img src="@t.Logo" alt="@t.CompanyName" class="template-logo" />
 
-                        @if (t.Id == StandardTemplateId)
+                        @if (t.Id == TemplateDefaults.StandardTemplateId)
                         {
                             <span class="template-badge">Standard</span>
                         }
@@ -50,8 +51,6 @@
 
 @code {
     private List<TemplateResponse> templates = new();
-
-    private static readonly Guid StandardTemplateId = Guid.Parse("11111111-1111-1111-1111-111111111111");
 
     protected override async Task OnInitializedAsync()
     {

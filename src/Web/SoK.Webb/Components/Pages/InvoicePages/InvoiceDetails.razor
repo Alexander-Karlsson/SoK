@@ -13,8 +13,6 @@
 }
 else
 {
-    var status = invoice.Status.ToString();
-
     <div class="container py-4 invoice-page">
 
         <div class="d-flex justify-content-between align-items-center d-print-none mb-3">
@@ -23,11 +21,11 @@ else
             <div class="d-flex align-items-center gap-2">
                 <InvoiceStatusBadgeComponent Status="invoice.Status" Text="@invoice.StatusText" />
 
-                @if (status == "Draft")
+                @if (invoice.CanMarkAsSent)
                 {
                     <button class="btn btn-status" @onclick='() => ChangeStatus("Sent")'>Markera som skickad</button>
                 }
-                @if (status == "Sent" || status == "Overdue")
+                @if (invoice.CanMarkAsPaid)
                 {
                     <button class="btn btn-status" @onclick='() => ChangeStatus("Paid")'>Markera som betald</button>
                 }
@@ -172,7 +170,7 @@ else
         }
         else
         {
-            errorMessage = "Det gick inte att ändra status";
+            errorMessage = "Det gick inte att ändra status.";
         }
     }
 }

@@ -48,4 +48,23 @@ public class CreateTemplateRequest
     public string StandardText { get; set; } = string.Empty;
     public string OurReference {  get; set; } = string.Empty;
 
+    public static CreateTemplateRequest FromResponse(TemplateResponse template)
+    {
+        return new CreateTemplateRequest
+        {
+            CompanyName = template.CompanyName,
+            CompanyNumber = template.CompanyNumber,
+            VatNumber = template.VatNumber,
+            CompanyAddress = template.CompanyAddress,
+            CompanyPostalCode = template.CompanyPostalCode,
+            CompanyCity = template.CompanyCity,
+            CompanyPhone = template.CompanyPhone,
+            CompanyEmail = template.CompanyEmail,
+            CompanyBankgiro = template.CompanyBankgiro,
+            Logo = template.Logo,
+            PrimaryColor = template.PrimaryColor,
+            StandardText = template.StandardText,
+            OurReference = template.OurReference
+        };
+    }
 }

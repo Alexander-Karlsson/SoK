@@ -34,6 +34,11 @@ public class Program
         {
             client.BaseAddress = new Uri(builder.Configuration["ApiUrls:Employees"]!);
         });
+        //Catalog
+        builder.Services.AddHttpClient<CatalogApiClient>(client =>
+        {
+            client.BaseAddress = new Uri(builder.Configuration["ApiUrls:Bookings"]!);
+        });
 
         builder.Services.AddCascadingAuthenticationState();
         builder.Services.AddScoped<IdentityRedirectManager>();

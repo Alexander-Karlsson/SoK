@@ -14,20 +14,28 @@ public class AbsenceRepository(EmployeesDbContext Context) : IAbsenceRepository
         return absence;
     }
 
-    public async Task<Absence> DeleteAsync(Guid id)
+    public async Task<bool> DeleteAsync(Guid id)
     {
         var absence = await Context.Absences.FindAsync(id);
-        if (absence == null) throw new InvalidOperationException("Absence not found");
-        
+        if (absence is null) return false;
+
         Context.Absences.Remove(absence);
         await Context.SaveChangesAsync();
-        return absence;
+        return true;
     }
 
-    public async Task<Absence> GetByIdAsync(Guid id)
+    public async Task<bool> HasOverlapAsync(Guid employeeId, DateOnly start, DateOnly end, Guid? exceptId = null)
     {
-        var absence = await Context.Absences.FindAsync(id);
-        return absence ?? throw new InvalidOperationException("Absence not found");
+        return await Context.Absences.AnyAsync(a =>
+            a.EmployeeId == employeeId &&
+            a.Id != exceptId &&
+            a.StartDate <= end &&
+            a.EndDate >= start);
+    }
+
+    public async Task<Absence?> GetByIdAsync(Guid id)
+    {
+        return await Context.Absences.FindAsync(id);
     }
 
     public async Task<List<Absence>> GetByEmployeeIdAsync(Guid employeeId)

@@ -1,6 +1,7 @@
 ﻿using Bookings.Application.Bookings.DTOs;
 using Bookings.Application.Bookings.Interfaces;
 using Bookings.Domain.Entities;
+using Bookings.Domain.Enums;
 using Bookings.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,10 +26,18 @@ public class BookingRepository(BookingDbContext context) : IBookingRepository
         await context.SaveChangesAsync();
     }
 
-    public async Task<IReadOnlyList<Booking>> GetAllAsync() => await context.Bookings
-        .AsNoTracking()
-        .OrderBy(b => b.CreatedAt)
-        .ToListAsync();
+    public async Task<IReadOnlyList<Booking>> GetAllAsync(Guid? customerId = null)
+    {
+        var query = context.Bookings.AsNoTracking();
+
+        if (customerId is not null)
+            query = query.Where(b => b.CustomerId == customerId);
+
+        return await query
+            .OrderBy(b => b.CreatedAt)
+            .ToListAsync();
+    }
+        
 
     public async Task<BookingDetails?> GetBookingDetailsAsync(Guid id)
     {
@@ -59,5 +68,14 @@ public class BookingRepository(BookingDbContext context) : IBookingRepository
     public async Task<Booking?> GetByIdAsync(Guid id) => await context.Bookings.FindAsync(id);
 
     public async Task UpdateAsync(Booking booking) => await context.SaveChangesAsync();
+
+    public async Task<bool> IsAnyEmployeeBookedAsync(List<Guid> employeeIds, DateTime startsAt, DateTime endsAt, Guid? excludeBookingId = null)
+    => await context.Bookings.AnyAsync(b =>
+        b.Id != excludeBookingId &&
+        b.Status != BookingStatus.Cancelled &&
+        b.Status != BookingStatus.Completed &&
+        b.StartsAt < endsAt &&
+        b.EndsAt > startsAt &&
+        context.BookingEmployees.Any(be => be.BookingId == b.Id && employeeIds.Contains(be.EmployeeId)));
 
 }

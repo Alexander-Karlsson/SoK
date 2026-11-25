@@ -1,6 +1,6 @@
-﻿using Employees.Application.Employees.DTOs.EmployeePayroll;
+﻿using Employees.Application.Employees.DTOs;
+using Employees.Application.Employees.DTOs.EmployeePayroll;
 using Employees.Application.Employees.Services;
-using Employees.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Employees.Api.Controllers;
@@ -21,7 +21,7 @@ public class EmployeePayrollsController(EmployeePayrollService service) : Contro
 
         if (result == PayrollResult.AlreadyExists)
         {
-            return Conflict("Den anställda har redan lönevillkor.");
+            return Conflict(new ErrorResponse("Den anställda har redan lönevillkor."));
         }
 
         return CreatedAtAction(nameof(GetPayroll), new { employeeId }, payroll);

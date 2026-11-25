@@ -1,7 +1,6 @@
 ﻿using Employees.Application.Employees.DTOs.EmployeePayroll;
 using Employees.Application.Employees.Interfaces;
 using Employees.Domain.Entities;
-using Employees.Domain.Enums;
 using Employees.Infrastructure;
 
 namespace Employees.Application.Employees.Services;

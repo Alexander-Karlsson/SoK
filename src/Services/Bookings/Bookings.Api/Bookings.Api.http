@@ -4,6 +4,7 @@
 @serviceId = 311ee1a4-5683-4d17-b225-8c7cce5d198d
 @customerId = 0c3acd15-08da-4a0d-bab7-3d12eccb7231
 @templateId = da7fb875-019b-4af6-ae9c-d45b64f2a7e6
+@employeeId = 11111111-2222-3333-4444-555555555555
 
 ### Skapa maskin
 POST {{Bookings.Api_HostAddress}}/api/machines
@@ -64,11 +65,17 @@ Content-Type: application/json
   ]
 }
 
+### Hämta en bokning
+GET {{Bookings.Api_HostAddress}}/api/bookings/{{bookingId}}
+
 ### Hämta alla bokningar
 GET {{Bookings.Api_HostAddress}}/api/bookings
 
-### Hämta en bokning
-GET {{Bookings.Api_HostAddress}}/api/bookings/{{bookingId}}
+### Hämta bokningar för en kund
+GET {{Bookings.Api_HostAddress}}/api/bookings?customerId={{customerId}}
+
+### Hämta bokningar för kund som inte har några (ska ge tom lista)
+GET {{Bookings.Api_HostAddress}}/api/bookings?customerId=00000000-0000-0000-0000-000000000001
 
 ### Uppdatera bokning
 PUT {{Bookings.Api_HostAddress}}/api/bookings/{{bookingId}}
@@ -219,4 +226,37 @@ Content-Type: application/json
 
 {
   "templateId": "00000000-0000-0000-0000-000000000000"
+}
+
+### Dubbelbokning anställd steg 1: boka anställd
+POST {{Bookings.Api_HostAddress}}/api/bookings
+Content-Type: application/json
+
+{
+  "customerId": "{{customerId}}",
+  "startsAt": "2027-02-01T07:00:00Z",
+  "endsAt": "2027-02-03T16:00:00Z",
+  "employeeIds": [ "{{employeeId}}" ]
+}
+
+### Dubbelbokning anställd steg 2: ska ge 409 (överlappar 1–3/2)
+POST {{Bookings.Api_HostAddress}}/api/bookings
+Content-Type: application/json
+
+{
+  "customerId": "{{customerId}}",
+  "startsAt": "2027-02-02T07:00:00Z",
+  "endsAt": "2027-02-04T16:00:00Z",
+  "employeeIds": [ "{{employeeId}}" ]
+}
+
+### Dubbelbokning anställd steg 3: ska ge 201 (efter 3/2, ingen krock)
+POST {{Bookings.Api_HostAddress}}/api/bookings
+Content-Type: application/json
+
+{
+  "customerId": "{{customerId}}",
+  "startsAt": "2027-02-04T07:00:00Z",
+  "endsAt": "2027-02-05T16:00:00Z",
+  "employeeIds": [ "{{employeeId}}" ]
 }

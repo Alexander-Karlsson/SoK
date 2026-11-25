@@ -6,6 +6,7 @@
 @using Bookings.Domain.Enums
 @using Invoices.Application.Dtos
 
+@inject EmployeeApiClient EmployeeApiClient
 @inject InvoiceApiClient InvoiceApiClient
 @inject BookingApiClient BookingApiClient
 
@@ -99,6 +100,25 @@
                     </ul>
                 }
             </section>
+
+            <section class="admin-card">
+                <h4>Anställda</h4>
+                @if (booking.EmployeeIds.Count == 0)
+                {
+                    <p class="empty">Inga anställda.</p>
+                }
+                else
+                {
+                    <ul class="booking-items">
+                        @foreach (var id in booking.EmployeeIds)
+                        {
+                            <li>
+                                <span>@(employeeNames.TryGetValue(id, out var name) ? name : "Okänd anställd")</span>
+                            </li>
+                        }
+                    </ul>
+                }
+            </section>
         </div>
 
         @if (booking.Status == BookingStatus.Booked)
@@ -158,11 +178,26 @@
     private string? error;
     private List<TemplateResponse> templates = [];
     private Guid selectedTemplateId;
+    private Dictionary<Guid, string> employeeNames = [];
 
 
     protected override async Task OnInitializedAsync()
     {
         booking = await BookingApiClient.GetByIdAsync(Id);
+
+        if (booking is not null && booking.EmployeeIds.Count > 0)
+        {
+            try
+            {
+                employeeNames = (await EmployeeApiClient.GetAllAsync())
+                    .ToDictionary(e => e.Id, e => $"{e.FirstName} {e.LastName}");
+            }
+            catch (HttpRequestException)
+            {
+                // Namnen visas som "Okänd anställd" om Employees inte svarar
+            }
+        }
+
         loading = false;
     }
 

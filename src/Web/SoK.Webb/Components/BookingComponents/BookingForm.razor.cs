@@ -1,5 +1,6 @@
 using Bookings.Application.Bookings.DTOs.Request;
 using Bookings.Application.Bookings.DTOs.Response;
+using Employees.Application.Employees.DTOs.Employee;
 using Microsoft.AspNetCore.Components;
 using SoK.Webb.Clients;
 
@@ -24,6 +25,9 @@ public partial class BookingForm
     private DateTime? endsAt;
     private HashSet<Guid> selectedMachines = [];
     private Dictionary<Guid, decimal> serviceHours = [];
+    private List<EmployeeResponse> employees = [];
+    private HashSet<Guid> selectedEmployees = [];
+    private string? employeeError;
 
     protected override async Task OnInitializedAsync()
     {
@@ -40,6 +44,18 @@ public partial class BookingForm
         foreach (var s in services)
             serviceHours[s.Id] = 0;
 
+        try
+        {
+            employees = (await EmployeeApiClient.GetAllAsync())
+                .Where(e => e.IsActive)
+                .OrderBy(e => e.FirstName)
+                .ToList();
+        }
+        catch (HttpRequestException)
+        {
+            employeeError = "Kunde inte hämta anställda. Försök igen senare.";
+        }
+
         loading = false;
     }
 
@@ -47,6 +63,11 @@ public partial class BookingForm
     {
         if (selected) selectedMachines.Add(id);
         else selectedMachines.Remove(id);
+    }
+    private void ToggleEmployee(Guid id, bool selected)
+    {
+        if (selected) selectedEmployees.Add(id);
+        else selectedEmployees.Remove(id);
     }
 
     private async Task SaveAsync()
@@ -70,6 +91,7 @@ public partial class BookingForm
             CustomerId = CustomerId.Value,
             StartsAt = startsAt.Value,
             EndsAt = endsAt,
+            EmployeeIds = selectedEmployees.ToList(),
             Machines = selectedMachines
                 .Select(id => new CreateBookingMachineRequest { MachineId = id })
                 .ToList(),

@@ -39,9 +39,9 @@ public class BookingsController(BookingAppService service) : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll([FromQuery] Guid? customerId)
     {
-        var bookings = await service.GetAllAsync();
+        var bookings = await service.GetAllAsync(customerId);
         return Ok(bookings.Select(b => b.ToSummary()));
     }
 

@@ -2,6 +2,8 @@
 @rendermode InteractiveServer
 @using Employees.Application.Employees.DTOs.Employee
 @using SoK.Webb.Clients
+@using SoK.Webb.Components.Pages.AdminPages.AdminEmployeePayrollPages
+@using SoK.Webb.Components.Pages.AdminPages.AdminEmployeeAbsencePages
 @inject EmployeeApiClient EmployeeClient
 @inject NavigationManager Navigation
 
@@ -63,6 +65,7 @@
                     </div>
                 </dl>
             </section>
+            <EmployeePayrollSection EmployeeId="Id" />
         </div>
 
         <div class="admin-actions-bar">
@@ -88,6 +91,7 @@
                 <p class="admin-alert admin-alert-error">@message</p>
             }
         </section>
+        <EmployeeAbsenceSection EmployeeId="Id" />
     }
 </div>
 

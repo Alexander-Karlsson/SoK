@@ -1,4 +1,6 @@
 ﻿@using SoK.Webb.Clients
+
+@inject EmployeeApiClient EmployeeApiClient
 @inject BookingApiClient BookingApiClient
 
 @if (loading)
@@ -61,6 +63,30 @@ else
                     @s.Name – @s.PricePerHour.ToString("N2") kr/tim
                     <input type="number" min="0" step="0.5" placeholder="Timmar"
                            @bind="serviceHours[s.Id]" />
+                </label>
+            }
+        </section>
+
+        <section class="admin-card">
+            <h4>Anställda</h4>
+
+            @if (employeeError is not null)
+            {
+                <p class="empty">@employeeError</p>
+            }
+            else if (employees.Count == 0)
+            {
+                <p class="empty">Inga anställda att boka.</p>
+            }
+
+            @foreach (var e in employees)
+            {
+                <label class="booking-check">
+                    <input type="checkbox"
+                           checked="@selectedEmployees.Contains(e.Id)"
+                           @onchange="ev => ToggleEmployee(e.Id, (bool)ev.Value!)" />
+                    <span>@e.FirstName @e.LastName</span>
+                    <span class="booking-price">@e.Title</span>
                 </label>
             }
         </section>

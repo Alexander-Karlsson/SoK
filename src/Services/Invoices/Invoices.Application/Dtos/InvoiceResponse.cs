@@ -15,6 +15,7 @@ public class InvoiceResponse
     public decimal VatAmount { get; set; }
     public decimal TotalAmount { get; set; }
     public InvoiceStatus Status { get; set; }
+    public string StatusText { get; set; } = string.Empty;
 
     public List<InvoiceLineResponse> Lines { get; set; } = [];
 

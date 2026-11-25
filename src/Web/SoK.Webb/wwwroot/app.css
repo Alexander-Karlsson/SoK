@@ -45,7 +45,11 @@ h1:focus {
     --color-text-menu: #ffffff;
     --color-beige-dark: #cfb799;
     --color-blue: #a7bcd0;
+    --color-dk-blue: #78a4ce;
     --color-cream: #f7f1e8;
+    --color-red: #8b2e2e;
+    --color-green: #4a7c59;
+    --color-brown: #7d6a55;
     --font-heading: "Bebas Neue", "Arial Narrow", sans-serif;
 }
 

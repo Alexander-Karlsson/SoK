@@ -72,4 +72,12 @@ public class InvoiceApiClient(HttpClient httpClient)
 
         return response.IsSuccessStatusCode;
     }
+
+    // Ändrar status på en faktura tex Sent eller Paid, ger true om det gick bra
+    public async Task<bool> UpdateStatusAsync(Guid id, string status)
+    {
+        var response = await httpClient.PutAsJsonAsync($"api/invoices/{id}/status", new { status });
+
+        return response.IsSuccessStatusCode;
+    }
 }

@@ -1,4 +1,5 @@
 ﻿using Invoices.Application.Dtos;
+using Invoices.Application.Helpers;
 using Invoices.Application.Interfaces;
 using Invoices.Domain.Entities;
 
@@ -8,7 +9,7 @@ public class InvoiceService(IInvoiceRepository repo, ITemplateRepository templat
 {
     private const decimal CompanyVatRate = 0m;
     private const decimal DefaultVatRate = 0.25m;
-    public async Task<InvoiceResponse> CreateInvoiceAsync(CreateInvoiceRequest request) 
+    public async Task<InvoiceResponse> CreateInvoiceAsync(CreateInvoiceRequest request)
     {
         if (request.CustomerId == Guid.Empty)
         {
@@ -100,7 +101,7 @@ public class InvoiceService(IInvoiceRepository repo, ITemplateRepository templat
         if (!IsAllowedStatusChange(invoice.Status, request.Status))
         {
             throw new ArgumentException(
-                $"Går inte att ändra från {StatusText(invoice.Status)} till {StatusText(request.Status)}");
+                $"Går inte att ändra från {InvoiceText.Status(invoice.Status)} till {InvoiceText.Status(request.Status)}");
         }
 
         invoice.Status = request.Status;
@@ -138,18 +139,6 @@ public class InvoiceService(IInvoiceRepository repo, ITemplateRepository templat
         return invoices.Select(i => ToResponse(i, [])).ToList();
     }
 
-    private static string StatusText(InvoiceStatus status)
-    {
-        return status switch
-        {
-            InvoiceStatus.Draft => "Utkast",
-            InvoiceStatus.Sent => "Skickad",
-            InvoiceStatus.Paid => "Betald",
-            InvoiceStatus.Overdue => "Förfallen",
-            _ => status.ToString()
-        };
-    }
-
     private static bool IsAllowedStatusChange(InvoiceStatus current, InvoiceStatus next)
     {
         // Utkast till skickad
@@ -173,8 +162,22 @@ public class InvoiceService(IInvoiceRepository repo, ITemplateRepository templat
         return false;
     }
 
+    private static InvoiceStatus CurrentStatus(Invoice invoice)
+    {
+        var today = DateOnly.FromDateTime(DateTime.Now);
+
+        if (invoice.Status == InvoiceStatus.Sent && invoice.DueDate < today)
+        {
+            return InvoiceStatus.Overdue;
+        }
+
+        return invoice.Status;
+    }
+
     private static InvoiceResponse ToResponse(Invoice invoice, List<InvoiceLine> lines)
     {
+        var status = CurrentStatus(invoice);
+
         return new InvoiceResponse
         {
             Id = invoice.Id,
@@ -187,7 +190,8 @@ public class InvoiceService(IInvoiceRepository repo, ITemplateRepository templat
             AmountExclVat = invoice.AmountExclVat,
             VatAmount = invoice.VatAmount,
             TotalAmount = invoice.TotalAmount,
-            Status = invoice.Status,
+            Status = status,
+            StatusText = InvoiceText.Status(status),
 
             Lines = lines.Select(l => new InvoiceLineResponse
             {
@@ -196,6 +200,7 @@ public class InvoiceService(IInvoiceRepository repo, ITemplateRepository templat
                 Description = l.Description,
                 Quantity = l.Quantity,
                 Unit = l.Unit,
+                UnitText = InvoiceText.Unit(l.Unit),
                 UnitPrice = l.UnitPrice,
                 VatRate = l.VatRate,
                 Amount = l.Amount

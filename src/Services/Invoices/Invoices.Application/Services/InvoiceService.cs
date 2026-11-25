@@ -30,7 +30,7 @@ public class InvoiceService(IInvoiceRepository repo, ITemplateRepository templat
         var customer = await customerClient.GetByIdAsync(request.CustomerId);
         if (customer == null)
         {
-            throw new ArgumentException("Kunden finns ej");
+            throw new ArgumentException("Kunden finns inte");
         }
 
         var isCompany = !string.IsNullOrWhiteSpace(customer.OrganisationNumber);
@@ -100,7 +100,7 @@ public class InvoiceService(IInvoiceRepository repo, ITemplateRepository templat
         if (!IsAllowedStatusChange(invoice.Status, request.Status))
         {
             throw new ArgumentException(
-                $"Går ej att ändra från {invoice.Status} till {request.Status}");
+                $"Går inte att ändra från {StatusText(invoice.Status)} till {StatusText(request.Status)}");
         }
 
         invoice.Status = request.Status;
@@ -136,6 +136,18 @@ public class InvoiceService(IInvoiceRepository repo, ITemplateRepository templat
         var invoices = await repo.GetAllAsync();
 
         return invoices.Select(i => ToResponse(i, [])).ToList();
+    }
+
+    private static string StatusText(InvoiceStatus status)
+    {
+        return status switch
+        {
+            InvoiceStatus.Draft => "Utkast",
+            InvoiceStatus.Sent => "Skickad",
+            InvoiceStatus.Paid => "Betald",
+            InvoiceStatus.Overdue => "Förfallen",
+            _ => status.ToString()
+        };
     }
 
     private static bool IsAllowedStatusChange(InvoiceStatus current, InvoiceStatus next)

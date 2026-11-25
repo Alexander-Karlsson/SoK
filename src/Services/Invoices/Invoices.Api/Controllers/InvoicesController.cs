@@ -23,7 +23,7 @@ public class InvoicesController (InvoiceService service) : ControllerBase
         }
         catch (HttpRequestException)
         {
-            return StatusCode(503, "Kunde inte nå customer");
+            return StatusCode(503, "Kunde inte nå kundregister");
         }
     }
 
@@ -52,7 +52,7 @@ public class InvoicesController (InvoiceService service) : ControllerBase
         }
         catch (HttpRequestException)
         {
-            return StatusCode(503, "Kunde ej nå customer");
+            return StatusCode(503, "Kunde inte nå kundregister");
         }
     }
 

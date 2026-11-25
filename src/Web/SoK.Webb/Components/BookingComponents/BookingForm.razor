@@ -78,22 +78,39 @@ else
             {
                 <p class="empty">Inga anställda att boka.</p>
             }
-
-            @foreach (var e in employees)
+            else
             {
-                <label class="booking-check">
-                    <input type="checkbox"
-                           checked="@selectedEmployees.Contains(e.Id)"
-                           @onchange="ev => ToggleEmployee(e.Id, (bool)ev.Value!)" />
-                    <span>@e.FirstName @e.LastName</span>
-                    <span class="booking-price">@e.Title</span>
+                <label class="booking-field">
+                    Sök
+                    <input placeholder="Namn eller titel..."
+                           @bind="employeeSearch" @bind:event="oninput" />
                 </label>
+
+                @if (selectedEmployees.Count > 0)
+                {
+                    <p class="booking-selected-count">@selectedEmployees.Count valda</p>
+                }
+
+                <div class="booking-scroll">
+                    @foreach (var e in FilteredEmployees)
+                    {
+                        <label class="booking-check">
+                            <input type="checkbox"
+                                   checked="@selectedEmployees.Contains(e.Id)"
+                                   @onchange="ev => ToggleEmployee(e.Id, (bool)ev.Value!)" />
+                            <span>@e.FirstName @e.LastName</span>
+                            <span class="booking-price">@e.Title</span>
+                        </label>
+                    }
+
+                    @if (FilteredEmployees.Count == 0)
+                    {
+                        <p class="empty">Ingen anställd matchar sökningen.</p>
+                    }
+                </div>
             }
         </section>
     </div>
 
-    <div class="booking-form-actions">
-        <button class="admin-btn admin-btn-primary" @onclick="SaveAsync" disabled="@busy">Skapa bokning</button>
-    </div>
 }
 

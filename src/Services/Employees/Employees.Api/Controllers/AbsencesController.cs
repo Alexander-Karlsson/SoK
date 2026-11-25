@@ -1,27 +1,27 @@
-﻿using Employees.Application.Employees.DTOs.Absence;
+﻿using Employees.Application.Employees.DTOs;
+using Employees.Application.Employees.DTOs.Absence;
 using Employees.Application.Employees.Services;
-using Employees.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Employees.Api.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/employees/{employeeId:guid}/absences")]
 public class AbsencesController(AbsenceService service) : ControllerBase
 {
-    [HttpPost]
-    public async Task<IActionResult> CreateAbsence([FromBody] CreateAbsenceRequest request)
+    [HttpGet]
+    public async Task<IActionResult> GetAbsences(Guid employeeId)
     {
-        var absence = await service.CreateAbsenceAsync(request);
-        return Ok(absence);
+        var absences = await service.GetAbsencesByEmployeeIdAsync(employeeId);
+        return Ok(absences);
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetAbsenceById(Guid id)
+    public async Task<IActionResult> GetAbsenceById(Guid employeeId, Guid id)
     {
-        var absence = await service.GetAbsenceByIdAsync(id);
+        var absence = await service.GetAbsenceByIdAsync(employeeId, id);
 
-        if (absence == null)
+        if (absence is null)
         {
             return NotFound();
         }
@@ -29,30 +29,62 @@ public class AbsencesController(AbsenceService service) : ControllerBase
         return Ok(absence);
     }
 
-    [HttpGet]
-    public async Task<IActionResult> GetAbsencesByEmployee([FromQuery] Guid employeeId)
+    [HttpPost]
+    public async Task<IActionResult> CreateAbsence(Guid employeeId, [FromBody] CreateAbsenceRequest request)
     {
-        var absences = await service.GetAbsencesByEmployeeIdAsync(employeeId);
-        return Ok(absences);
+        var (result, absence) = await service.CreateAbsenceAsync(employeeId, request);
+
+        if (result == AbsenceResult.EmployeeNotFound)
+        {
+            return NotFound();
+        }
+
+        if (result == AbsenceResult.InvalidDates)
+        {
+            return BadRequest(new ErrorResponse("Slutdatum kan inte vara före startdatum."));
+        }
+
+        if (result == AbsenceResult.Overlapping)
+        {
+            return Conflict(new ErrorResponse("Den anställda har redan frånvaro under den perioden."));
+        }
+
+        return CreatedAtAction(nameof(GetAbsenceById), new { employeeId, id = absence!.Id }, absence);
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> UpdateAbsence(Guid id, [FromBody] UpdateAbsenceRequest request)
+    public async Task<IActionResult> UpdateAbsence(Guid employeeId, Guid id, [FromBody] UpdateAbsenceRequest request)
     {
-        var absence = await service.UpdateAbsenceAsync(id, request);
+        var (result, absence) = await service.UpdateAbsenceAsync(employeeId, id, request);
 
-        if (absence == null)
+        if (result == AbsenceResult.AbsenceNotFound)
         {
             return NotFound();
+        }
+
+        if (result == AbsenceResult.InvalidDates)
+        {
+            return BadRequest(new ErrorResponse("Slutdatum kan inte vara före startdatum."));
+        }
+
+        if (result == AbsenceResult.Overlapping)
+        {
+            return Conflict(new ErrorResponse("Den anställda har redan frånvaro under den perioden."));
         }
 
         return Ok(absence);
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> DeleteAbsence(Guid id)
+    public async Task<IActionResult> DeleteAbsence(Guid employeeId, Guid id)
     {
-        await service.DeleteAbsenceAsync(id);
+        var deleted = await service.DeleteAbsenceAsync(employeeId, id);
+
+        if (!deleted)
+        {
+            return NotFound();
+        }
+
         return NoContent();
     }
 }

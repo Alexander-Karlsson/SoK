@@ -35,8 +35,12 @@ public class BookingAppService(IBookingRepository repo, IMachineRepository machi
         var machines = await BuildMachinesAsync(booking.Id, request.Machines);
 
         if (request.Machines.Count > 0 &&
-    await machineRepo.IsAnyBookedAsync(request.Machines.Select(m => m.MachineId).ToList(), request.StartsAt, endsAt))
-            throw new InvalidOperationException("En eller flera maskiner är redan bokade under perioden.");
+            await machineRepo.IsAnyBookedAsync(request.Machines.Select(m => m.MachineId).ToList(), request.StartsAt, endsAt))
+                throw new InvalidOperationException("En eller flera maskiner är redan bokade under perioden.");
+
+        if (employees.Count > 0 &&
+            await repo.IsAnyEmployeeBookedAsync(employees.Select(e => e.EmployeeId).ToList(), request.StartsAt, endsAt))
+                throw new InvalidOperationException("En eller flera anställda är redan bokade under perioden.");
 
         var details = new BookingDetails(booking, employees, services, machines);
         await repo.AddAsync(details);
@@ -64,7 +68,11 @@ public class BookingAppService(IBookingRepository repo, IMachineRepository machi
 
         if (details.Machines.Count > 0 &&
             await machineRepo.IsAnyBookedAsync(details.Machines.Select(m => m.MachineId).ToList(), request.StartsAt, endsAt, id))
-            throw new InvalidOperationException("En eller flera maskiner är redan bokade under perioden.");
+                throw new InvalidOperationException("En eller flera maskiner är redan bokade under perioden.");
+
+        if (details.Employees.Count > 0 &&
+            await repo.IsAnyEmployeeBookedAsync(details.Employees.Select(e => e.EmployeeId).ToList(), request.StartsAt, endsAt, id))
+                throw new InvalidOperationException("En eller flera anställda är redan bokade under perioden.");
 
         booking.ProjectId = request.ProjectId;
         booking.StartsAt = request.StartsAt;

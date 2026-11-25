@@ -8,7 +8,10 @@
 <div class="admin-page">
     <div class="admin-page-header">
         <h2>Ny bokning</h2>
-        <a class="admin-btn admin-btn-primary" href="/bookinglist">Tillbaka</a>
+        <div class="create-header-actions">
+            <a class="admin-btn admin-btn-primary" href="/bookinglist">Tillbaka</a>
+            <button class="admin-btn admin-btn-primary" @onclick="SaveAsync" disabled="@(form?.IsBusy == true)">Skapa bokning</button>
+        </div>
     </div>
 
     @* Tillfälligt textfält, byts mot en dropdown när Customers-klienten finns *@
@@ -20,11 +23,18 @@
         </label>
     </section>
 
-    <BookingForm CustomerId="CustomerId" OnCreated="GoToDetails" />
+    <BookingForm @ref="form" CustomerId="CustomerId" OnCreated="GoToDetails" />
 </div>
 
 @code {
+    private BookingForm? form;
     private string customerIdText = "";
+
+    private async Task SaveAsync()
+    {
+        if (form is not null)
+            await form.SaveAsync();
+    }
 
     private Guid? CustomerId => Guid.TryParse(customerIdText, out var id) ? id : null;
 

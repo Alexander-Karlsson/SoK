@@ -1,0 +1,89 @@
+﻿@page "/templates/edit/{TemplateId:guid}"
+@rendermode InteractiveServer
+
+@using Invoices.Application.Dtos
+@using SoK.Webb.Clients
+@using SoK.Webb.Components.InvoiceComponents
+
+@inject InvoiceApiClient InvoiceClient
+@inject NavigationManager Navigation
+
+<PageTitle>Ändra mall</PageTitle>
+
+<div class="container py-5">
+    <h2 class="mb-4">Ändra mall</h2>
+
+    @if (errorMessage != null)
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+
+    @if (isLoading)
+    {
+        <p>Laddar</p>
+    }
+    else if (notFound)
+    {
+        <p>Mallen finns inte.</p>
+        <a href="/templates" class="btn" style="background-color: var(--color-beige-dark);">Tillbaka till mallarna</a>
+    }
+    else
+    {
+        <TemplateFormComponent Model="template" ButtonText="Spara ändringar" OnValidSubmit="UpdateTemplate" />
+    }
+</div>
+
+@code {
+    [Parameter]
+    public Guid TemplateId { get; set; }
+
+    private CreateTemplateRequest template = new();
+    private bool isLoading = true;
+    private bool notFound;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var existing = await InvoiceClient.GetTemplateByIdAsync(TemplateId);
+
+        if (existing == null)
+        {
+            notFound = true;
+        }
+        else
+        {
+            template = new CreateTemplateRequest
+            {
+                CompanyName = existing.CompanyName,
+                CompanyNumber = existing.CompanyNumber,
+                VatNumber = existing.VatNumber,
+                CompanyAddress = existing.CompanyAddress,
+                CompanyPostalCode = existing.CompanyPostalCode,
+                CompanyCity = existing.CompanyCity,
+                CompanyPhone = existing.CompanyPhone,
+                CompanyEmail = existing.CompanyEmail,
+                CompanyBankgiro = existing.CompanyBankgiro,
+                Logo = existing.Logo,
+                PrimaryColor = existing.PrimaryColor,
+                StandardText = existing.StandardText,
+                OurReference = existing.OurReference
+            };
+        }
+
+        isLoading = false;
+    }
+
+    private async Task UpdateTemplate()
+    {
+        var success = await InvoiceClient.UpdateTemplateAsync(TemplateId, template);
+
+        if (success)
+        {
+            Navigation.NavigateTo("/templates");
+        }
+        else
+        {
+            errorMessage = "Det gick inte att spara ändringarna.";
+        }
+    }
+}

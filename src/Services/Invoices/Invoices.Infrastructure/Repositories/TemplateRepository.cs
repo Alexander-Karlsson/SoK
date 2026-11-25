@@ -18,6 +18,10 @@ public class TemplateRepository(InvoiceDbContext context) : ITemplateRepository
         => await context.InvoicesTemplates.ToListAsync();
     public async Task<InvoiceTemplate?> GetByIdAsync(Guid id)
         => await context.InvoicesTemplates.FindAsync(id);
+
+    public async Task UpdateAsync(InvoiceTemplate template)
+    {
+        context.InvoicesTemplates.Update(template);
+        await context.SaveChangesAsync();
+    }
 }
-
-

@@ -64,6 +64,9 @@ Content-Type: application/json
   ]
 }
 
+### Hämta en bokning
+GET {{Bookings.Api_HostAddress}}/api/bookings/{{bookingId}}
+
 ### Hämta alla bokningar
 GET {{Bookings.Api_HostAddress}}/api/bookings
 

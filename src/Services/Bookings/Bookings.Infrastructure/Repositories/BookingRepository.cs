@@ -25,10 +25,18 @@ public class BookingRepository(BookingDbContext context) : IBookingRepository
         await context.SaveChangesAsync();
     }
 
-    public async Task<IReadOnlyList<Booking>> GetAllAsync() => await context.Bookings
-        .AsNoTracking()
-        .OrderBy(b => b.CreatedAt)
-        .ToListAsync();
+    public async Task<IReadOnlyList<Booking>> GetAllAsync(Guid? customerId = null)
+    {
+        var query = context.Bookings.AsNoTracking();
+
+        if (customerId is not null)
+            query = query.Where(b => b.CustomerId == customerId);
+
+        return await query
+            .OrderBy(b => b.CreatedAt)
+            .ToListAsync();
+    }
+        
 
     public async Task<BookingDetails?> GetBookingDetailsAsync(Guid id)
     {

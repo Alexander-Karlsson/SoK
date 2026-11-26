@@ -14,8 +14,9 @@ public class BusinessAppService(IBusinessServiceRepository repo)
         var service = new BusinessService
         {
             Name = request.Name.Trim(),
-            Description = NormalizeDescription(request.Description),
-            PricePerHour = request.PricePerHour
+            Description = NormalizeText(request.Description),
+            PricePerHour = request.PricePerHour,
+            RequiredTitle = NormalizeText(request.RequiredTitle)
         };
 
         return await repo.AddAsync(service);
@@ -37,9 +38,10 @@ public class BusinessAppService(IBusinessServiceRepository repo)
             return false;
 
         service.Name = request.Name.Trim();
-        service.Description = NormalizeDescription(request.Description);
+        service.Description = NormalizeText(request.Description);
         service.PricePerHour = request.PricePerHour;
         service.IsActive = request.IsActive;
+        service.RequiredTitle = NormalizeText(request.RequiredTitle);
 
         await repo.UpdateAsync(service);
 
@@ -61,6 +63,6 @@ public class BusinessAppService(IBusinessServiceRepository repo)
         return true;
     }
 
-    private static string? NormalizeDescription(string? description)
-        => string.IsNullOrWhiteSpace(description) ? null : description.Trim();
+    private static string? NormalizeText(string? text)
+        => string.IsNullOrWhiteSpace(text) ? null : text.Trim();
 }

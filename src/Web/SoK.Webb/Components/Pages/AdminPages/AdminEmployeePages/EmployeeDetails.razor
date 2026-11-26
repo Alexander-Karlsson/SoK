@@ -5,6 +5,7 @@
 @using Employees.Domain.Enums
 @using SoK.Webb.Components.Pages.AdminPages.AdminEmployeePayrollPages
 @using SoK.Webb.Components.Pages.AdminPages.AdminEmployeeAbsencePages
+@using SoK.Webb.Components.Pages.AdminPages.AdminEmployeePayslipPages
 @inject EmployeeApiClient EmployeeClient
 @inject NavigationManager Navigation
 
@@ -93,6 +94,7 @@
             }
         </section>
         
+        <EmployeePayslipSection EmployeeId="Id" />
         <EmployeeAbsenceSection EmployeeId="Id" />
     }
 </div>

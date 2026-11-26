@@ -117,6 +117,7 @@ public class BookingDbContext(DbContextOptions<BookingDbContext> options) : DbCo
             entity.Property(s => s.Name).HasMaxLength(200).IsRequired();
             entity.Property(s => s.Description).HasMaxLength(1000);
             entity.Property(s => s.PricePerHour).HasPrecision(18, 2);
+            entity.Property(s => s.RequiredTitle).HasMaxLength(50);
         });
     }
 

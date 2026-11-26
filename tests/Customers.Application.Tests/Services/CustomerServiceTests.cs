@@ -11,15 +11,14 @@ namespace Customers.Application.Tests.Services;
 public class CustomerServiceTests
 {
     [Fact]
-    public async Task CreateCustomer_WhenCustomerNumberAlreadyExists_ThrowException()
+    public async Task CreateCustomer_WhenTwoCustomersAreCreated_ReturnsUniqueCustomerNumbers()
     {
         // Arrange -----
         var mockRepo = new MockCustomerRepository();
         var sut = new CustomerService(mockRepo);
 
-        mockRepo.ExistingCustomer = new Customer
+        var firstRequest = new CreateCustomerRequest
         {
-            CustomerNumber = "CUST-001",
             CustomerType = CustomerType.PrivatePerson,
             FirstName = "Anna",
             LastName = "Andersson",
@@ -29,10 +28,9 @@ public class CustomerServiceTests
             Phone = "0701234567",
             Email = "anna@example.com"
         };
-        
-        var request = new CreateCustomerRequest
+
+        var secondRequest = new CreateCustomerRequest
         {
-            CustomerNumber = "CUST-001",
             CustomerType = CustomerType.PrivatePerson,
             FirstName = "Erik",
             LastName = "Eriksson",
@@ -42,16 +40,21 @@ public class CustomerServiceTests
             Phone = "0709876543",
             Email = "erik@example.com"
         };
-        
+
         // Act -----
-        Func<Task> act = () => sut.CreateCustomerAsync(request);
-        
+        var firstResult = await sut.CreateCustomerAsync(firstRequest);
+        var secondResult = await sut.CreateCustomerAsync(secondRequest);
+
         // Assert -----
-        await Assert.ThrowsAsync<CustomerAlreadyExistsException>(act);
+        Assert.Equal("CUST-10001", firstResult.CustomerNumber);
+        Assert.Equal("CUST-10002", secondResult.CustomerNumber);
+        Assert.NotEqual(
+            firstResult.CustomerNumber,
+            secondResult.CustomerNumber);
     }
 
     [Fact]
-    public async Task CreateCustomer_WhenCustomerNumberIsUnique_ReturnsCreatedCustomer()
+    public async Task CreateCustomer_WhenRequestIsValid_ReturnsCreatedCustomer()
     {
         // Arrange -----
         var mockRepo = new MockCustomerRepository();
@@ -59,7 +62,6 @@ public class CustomerServiceTests
 
         var request = new CreateCustomerRequest
         {
-            CustomerNumber = "CUST-002",
             CustomerType = CustomerType.PrivatePerson,
             FirstName = "Erik",
             LastName = "Svensson",
@@ -69,15 +71,23 @@ public class CustomerServiceTests
             Phone = "0709876543",
             Email = "erik@example.com"
         };
-        
+
         // Act -----
         var result = await sut.CreateCustomerAsync(request);
-        
+
         // Assert -----
         Assert.NotNull(result);
-        Assert.Equal(request.CustomerNumber, result.CustomerNumber);
+        Assert.NotEqual(Guid.Empty, result.Id);
+        Assert.Equal("CUST-10001", result.CustomerNumber);
+        Assert.Equal(request.CustomerType, result.CustomerType);
         Assert.Equal(request.FirstName, result.FirstName);
         Assert.Equal(request.LastName, result.LastName);
+        Assert.Equal(request.Address, result.Address);
+        Assert.Equal(request.PostalCode, result.PostalCode);
+        Assert.Equal(request.City, result.City);
+        Assert.Equal(request.Phone, result.Phone);
+        Assert.Equal(request.Email, result.Email);
+        Assert.True(result.IsActive);
     }
     
     [Fact]

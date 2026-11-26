@@ -6,4 +6,5 @@ public class UpdateBusinessServiceRequest
     public string? Description { get; set; }
     public required decimal PricePerHour { get; set; }
     public required bool IsActive { get; set; }
+    public string? RequiredTitle { get; set; }
 }

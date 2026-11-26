@@ -1,4 +1,5 @@
 ﻿using Bookings.Application.Bookings.DTOs;
+using Bookings.Application.Bookings.DTOs.Response;
 using Bookings.Application.Bookings.Interfaces;
 using Bookings.Domain.Entities;
 using Bookings.Domain.Enums;
@@ -76,6 +77,24 @@ public class BookingRepository(BookingDbContext context) : IBookingRepository
         b.Status != BookingStatus.Completed &&
         b.StartsAt < endsAt &&
         b.EndsAt > startsAt &&
-        context.BookingEmployees.Any(be => be.BookingId == b.Id && employeeIds.Contains(be.EmployeeId)));
+        (context.BookingEmployees.Any(be => be.BookingId == b.Id && employeeIds.Contains(be.EmployeeId)) ||
+         context.BookingServices.Any(bs => bs.BookingId == b.Id && bs.EmployeeId != null && employeeIds.Contains(bs.EmployeeId.Value))));
 
+    public async Task<bool> TryAssignServiceAsync(Guid bookingId, Guid serviceId, Guid employeeId)
+    => await context.BookingServices
+        .Where(bs => bs.BookingId == bookingId && bs.ServiceId == serviceId && bs.EmployeeId == null)
+        .ExecuteUpdateAsync(s => s.SetProperty(bs => bs.EmployeeId, (Guid?)employeeId)) == 1;
+
+    public async Task<IReadOnlyList<OpenAssignmentResponse>> GetOpenAssignmentsAsync(string? title, DateTime now)
+    => await (from bs in context.BookingServices
+              join b in context.Bookings on bs.BookingId equals b.Id
+              join s in context.BusinessServices on bs.ServiceId equals s.Id
+              where bs.EmployeeId == null
+                 && b.Status == BookingStatus.Booked
+                 && b.EndsAt > now
+                 && (s.RequiredTitle == null || s.RequiredTitle == title)
+              orderby b.StartsAt
+              select new OpenAssignmentResponse(b.Id, bs.ServiceId, bs.Name, bs.EstimatedHours, b.StartsAt, b.EndsAt))
+        .AsNoTracking()
+        .ToListAsync();
 }

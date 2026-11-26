@@ -9,13 +9,17 @@ namespace Customers.Infrastructure.Persistence
     public class CustomersDbContext(DbContextOptions<CustomersDbContext> options) : DbContext(options)
     {
         public DbSet<Customer> Customers => Set<Customer>();
-        public DbSet<CustomerAgreement> CustomerAgreements => Set<CustomerAgreement>();
-        public DbSet<Project> Projects => Set<Project>();
+        // public DbSet<CustomerAgreement> CustomerAgreements => Set<CustomerAgreement>();
+        // public DbSet<Project> Projects => Set<Project>();
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            
+            modelBuilder.HasSequence<long>("CustomerNumberSequence")
+                .StartsAt(10001)
+                .IncrementsBy(1);
 
             // Customer
             modelBuilder.Entity<Customer>(entity =>
@@ -72,43 +76,43 @@ namespace Customers.Infrastructure.Persistence
             });
 
             // Customer Agreement
-            modelBuilder.Entity<CustomerAgreement>(entity =>
-            {
-                entity.HasOne<Customer>()
-                    .WithMany()
-                    .HasForeignKey(c => c.CustomerId)
-                    .OnDelete(DeleteBehavior.NoAction);
-
-                entity.Property(c => c.Terms)
-                    .HasMaxLength(4000)
-                    .IsRequired();
-
-                entity.Property(c => c.PaymentTermsDays)
-                    .HasDefaultValue(30);
-
-                entity.Property(c => c.ValidFrom)
-                    .IsRequired();
-            });
+            // modelBuilder.Entity<CustomerAgreement>(entity =>
+            // {
+            //     entity.HasOne<Customer>()
+            //         .WithMany()
+            //         .HasForeignKey(c => c.CustomerId)
+            //         .OnDelete(DeleteBehavior.NoAction);
+            //
+            //     entity.Property(c => c.Terms)
+            //         .HasMaxLength(4000)
+            //         .IsRequired();
+            //
+            //     entity.Property(c => c.PaymentTermsDays)
+            //         .HasDefaultValue(30);
+            //
+            //     entity.Property(c => c.ValidFrom)
+            //         .IsRequired();
+            // });
 
             // Project
-            modelBuilder.Entity<Project>(entity =>
-            {
-                entity.HasOne<Customer>()
-                    .WithMany()
-                    .HasForeignKey(p => p.CustomerId)
-                    .OnDelete(DeleteBehavior.NoAction);
-
-                entity.Property(p => p.ProjectName)
-                    .HasMaxLength(200)
-                    .IsRequired();
-
-                entity.Property(p => p.WorkAddress)
-                    .HasMaxLength(200)
-                    .IsRequired();
-
-                entity.Property(p => p.StartDate)
-                    .IsRequired();
-            });
+            // modelBuilder.Entity<Project>(entity =>
+            // {
+            //     entity.HasOne<Customer>()
+            //         .WithMany()
+            //         .HasForeignKey(p => p.CustomerId)
+            //         .OnDelete(DeleteBehavior.NoAction);
+            //
+            //     entity.Property(p => p.ProjectName)
+            //         .HasMaxLength(200)
+            //         .IsRequired();
+            //
+            //     entity.Property(p => p.WorkAddress)
+            //         .HasMaxLength(200)
+            //         .IsRequired();
+            //
+            //     entity.Property(p => p.StartDate)
+            //         .IsRequired();
+            // });
         }
     }
 }

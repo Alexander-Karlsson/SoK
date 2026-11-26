@@ -4,5 +4,6 @@ public record BookingServiceResponse(
     Guid ServiceId,
     string Name,
     decimal EstimatedHours,
-    decimal PricePerHour
+    decimal PricePerHour,
+    Guid? EmployeeId
     );

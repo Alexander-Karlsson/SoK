@@ -10,5 +10,7 @@ public static class BusinessServiceMappings
         service.Name,
         service.Description,
         service.PricePerHour,
-        service.IsActive);
+        service.IsActive,
+        service.RequiredTitle
+    );
 }

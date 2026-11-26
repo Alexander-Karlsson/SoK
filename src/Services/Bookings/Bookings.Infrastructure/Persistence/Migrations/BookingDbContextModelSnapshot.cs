@@ -122,6 +122,9 @@ namespace Bookings.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("BookingId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("EmployeeId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<decimal>("EstimatedHours")
                         .HasPrecision(10, 2)
                         .HasColumnType("decimal(10,2)");
@@ -169,6 +172,10 @@ namespace Bookings.Infrastructure.Persistence.Migrations
                     b.Property<decimal>("PricePerHour")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("RequiredTitle")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id");
 

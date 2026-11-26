@@ -1,10 +1,10 @@
 @Bookings.Api_HostAddress = http://localhost:5150
 @machineId = c6441d1c-e21b-4024-b785-d3837d2129a3
-@bookingId = 899b0629-e653-4323-a6da-94bf6ecf2b75
+@bookingId = 1407afaf-56d5-4ef4-bc66-117c1733f72e
 @serviceId = 311ee1a4-5683-4d17-b225-8c7cce5d198d
 @customerId = 0c3acd15-08da-4a0d-bab7-3d12eccb7231
 @templateId = da7fb875-019b-4af6-ae9c-d45b64f2a7e6
-@employeeId = 11111111-2222-3333-4444-555555555555
+@employeeId = 22222222-2222-2222-2222-222222222222
 
 ### Skapa maskin
 POST {{Bookings.Api_HostAddress}}/api/machines
@@ -260,3 +260,56 @@ Content-Type: application/json
   "endsAt": "2027-02-05T16:00:00Z",
   "employeeIds": [ "{{employeeId}}" ]
 }
+
+### Ta uppdrag: ska ge 204
+POST {{Bookings.Api_HostAddress}}/api/bookings/{{bookingId}}/services/{{serviceId}}/take
+Content-Type: application/json
+
+{
+  "employeeId": "{{employeeId}}"
+}
+
+### Ta uppdrag igen: ska ge 409, redan taget
+POST {{Bookings.Api_HostAddress}}/api/bookings/{{bookingId}}/services/{{serviceId}}/take
+Content-Type: application/json
+
+{
+  "employeeId": "{{employeeId}}"
+}
+
+### Ta uppdrag med tjänst som inte finns i bokningen: ska ge 404
+POST {{Bookings.Api_HostAddress}}/api/bookings/{{bookingId}}/services/00000000-0000-0000-0000-000000000001/take
+Content-Type: application/json
+
+{
+  "employeeId": "{{employeeId}}"
+}
+
+### Ta uppdrag utan anställd: ska ge 400
+POST {{Bookings.Api_HostAddress}}/api/bookings/{{bookingId}}/services/{{serviceId}}/take
+Content-Type: application/json
+
+{
+  "employeeId": "00000000-0000-0000-0000-000000000000"
+}
+
+### Tjänst kräver titel: sätt RequiredTitle
+PUT {{Bookings.Api_HostAddress}}/api/businessservices/{{serviceId}}
+Content-Type: application/json
+
+{
+  "name": "Schaktning",
+  "description": "Schaktning med maskinförare",
+  "pricePerHour": 650.00,
+  "isActive": true,
+  "requiredTitle": "ExcavatorOperator"
+}
+
+### Lediga uppdrag för grävmaskinist: ska visa bokningar med Schaktning som inte är tagna
+GET {{Bookings.Api_HostAddress}}/api/bookings/open?title=ExcavatorOperator
+
+### Lediga uppdrag för chaufför: Schaktning ska INTE synas
+GET {{Bookings.Api_HostAddress}}/api/bookings/open?title=Driver
+
+### Lediga uppdrag utan titel: bara tjänster utan titelkrav
+GET {{Bookings.Api_HostAddress}}/api/bookings/open

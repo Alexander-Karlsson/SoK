@@ -28,6 +28,15 @@ public partial class BookingForm
     private List<EmployeeResponse> employees = [];
     private HashSet<Guid> selectedEmployees = [];
     private string? employeeError;
+    private string employeeSearch = "";
+
+    // Valda anställda visas alltid, även om de inte matchar sökningen
+    private List<EmployeeResponse> FilteredEmployees => employees
+        .Where(e => selectedEmployees.Contains(e.Id)
+            || string.IsNullOrWhiteSpace(employeeSearch)
+            || $"{e.FirstName} {e.LastName} {e.Title}"
+                .Contains(employeeSearch.Trim(), StringComparison.OrdinalIgnoreCase))
+        .ToList();
 
     protected override async Task OnInitializedAsync()
     {
@@ -70,8 +79,15 @@ public partial class BookingForm
         else selectedEmployees.Remove(id);
     }
 
-    private async Task SaveAsync()
+    // Sidan som använder formuläret lägger själv sin "Skapa bokning"-knapp
+    // och anropar SaveAsync via @ref. IsBusy används för att låsa knappen.
+    public bool IsBusy => busy;
+
+    public async Task SaveAsync()
     {
+        if (loading || busy)
+            return;
+
         error = null;
 
         if (CustomerId is null)

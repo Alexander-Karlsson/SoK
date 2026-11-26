@@ -1,6 +1,7 @@
 ﻿@page "/invoices"
 @using Invoices.Application.Dtos
 @using SoK.Webb.Clients
+@using SoK.Webb.Components.InvoiceComponents
 @inject InvoiceApiClient InvoiceClient
 
 <PageTitle>Fakturor</PageTitle>
@@ -18,7 +19,7 @@
                         <a class="invoice-link stretched-link" href="invoices/@i.Id">
                             @i.InvoiceNumber
                         </a>
-                        <span class="invoice-status">@StatusText(i.Status)</span>
+                        <InvoiceStatusBadgeComponent Status="i.Status" Text="@i.StatusText" />
                     </div>
 
                     <div class="invoice-card-body">
@@ -49,17 +50,5 @@
     protected override async Task OnInitializedAsync()
     {
         Invoice = await InvoiceClient.GetAllAsync();
-    }
-
-    private string StatusText(object status)
-    {
-        return status.ToString() switch
-        {
-            "Draft" => "Utkast",
-            "Sent" => "Skickad",
-            "Paid" => "Betald",
-            "Overdue" => "Förfallen",
-            _ => status.ToString() ?? ""
-        };
     }
 }

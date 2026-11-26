@@ -52,22 +52,7 @@
         }
         else
         {
-            template = new CreateTemplateRequest
-            {
-                CompanyName = existing.CompanyName,
-                CompanyNumber = existing.CompanyNumber,
-                VatNumber = existing.VatNumber,
-                CompanyAddress = existing.CompanyAddress,
-                CompanyPostalCode = existing.CompanyPostalCode,
-                CompanyCity = existing.CompanyCity,
-                CompanyPhone = existing.CompanyPhone,
-                CompanyEmail = existing.CompanyEmail,
-                CompanyBankgiro = existing.CompanyBankgiro,
-                Logo = existing.Logo,
-                PrimaryColor = existing.PrimaryColor,
-                StandardText = existing.StandardText,
-                OurReference = existing.OurReference
-            };
+            template = CreateTemplateRequest.FromResponse(existing);
         }
 
         isLoading = false;

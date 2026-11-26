@@ -1,0 +1,24 @@
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    white-space: nowrap;
+    color: var(--color-text-menu);
+}
+
+.status-draft {
+    background-color: var(--color-brown);
+}
+
+.status-sent {
+    background-color: var(--color-dk-blue);
+}
+
+.status-overdue {
+    background-color: var(--color-red);
+}
+
+.status-paid {
+    background-color: var(--color-green);
+}

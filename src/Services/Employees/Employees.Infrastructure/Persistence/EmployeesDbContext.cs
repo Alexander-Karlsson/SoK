@@ -9,6 +9,7 @@ public class EmployeesDbContext(DbContextOptions<EmployeesDbContext> options) : 
     public DbSet<EmployeePayroll> EmployeePayrolls => Set<EmployeePayroll>();
     public DbSet<Absence> Absences => Set<Absence>();
     public DbSet<Schedule> Schedules => Set<Schedule>();
+    public DbSet<Payslip> Payslips => Set<Payslip>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -135,6 +136,46 @@ public class EmployeesDbContext(DbContextOptions<EmployeesDbContext> options) : 
                 .WithOne()
                 .HasForeignKey<EmployeePayroll>(p => p.EmployeeId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // Konfigurerar lönespecifikationerna
+        modelBuilder.Entity<Payslip>(entity =>
+        {
+            entity.HasKey(p => p.Id);
+
+            // En lönespec per anställd och månad
+            entity.HasIndex(p => new { p.EmployeeId, p.Year, p.Month })
+                .IsUnique();
+
+            entity.Property(p => p.BaseSalary)
+            .HasPrecision(18, 2);
+
+            entity.Property(p => p.Bonus)
+            .HasPrecision(18, 2);
+
+            entity.Property(p => p.AbsenceDeduction)
+            .HasPrecision(18, 2);
+
+            entity.Property(p => p.OtherDeductions)
+            .HasPrecision(18, 2);
+
+            entity.Property(p => p.GrossSalary)
+            .HasPrecision(18, 2);
+
+            entity.Property(p => p.TaxAmount)
+            .HasPrecision(18, 2);
+
+            entity.Property(p => p.NetSalary)
+            .HasPrecision(18, 2);
+
+            entity.Property(p => p.TaxRate)
+            .HasPrecision(5, 2);
+
+            // Lönespec får inte raderas automatiskt med den anställda
+            entity.HasOne<Employee>()
+                .WithMany()
+                .HasForeignKey(p => p.EmployeeId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

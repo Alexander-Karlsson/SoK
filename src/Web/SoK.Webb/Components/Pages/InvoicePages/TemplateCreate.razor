@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 
 @using Invoices.Application.Dtos
+@using Invoices.Application.Helpers
 @using SoK.Webb.Clients
 @using SoK.Webb.Components.InvoiceComponents
 
@@ -18,26 +19,32 @@
         <div class="alert alert-danger">@errorMessage</div>
     }
 
-    <TemplateFormComponent Model="template" ButtonText="Skapa mall" OnValidSubmit="SaveTemplate" />
+    @if (isLoading)
+    {
+        <p>Laddar</p>
+    }
+    else
+    {
+        <TemplateFormComponent Model="template" ButtonText="Skapa mall" OnValidSubmit="SaveTemplate" />
+    }
 </div>
 
 @code {
-    private CreateTemplateRequest template = new()
-    {
-        CompanyName = "Skrot & Korn AB",
-        CompanyNumber = "112233-4455",
-        VatNumber = "SE112233445501",
-        CompanyAddress = "Storgatan 1",
-        CompanyPostalCode = "111 22",
-        CompanyCity = "Örebro",
-        CompanyPhone = "070-123 12 33",
-        CompanyEmail = "faktura@sok.se",
-        CompanyBankgiro = "123-4567",
-        Logo = "images/logo.png",
-        PrimaryColor = "#1f1f1b"
-    };
-
+    private CreateTemplateRequest template = new();
+    private bool isLoading = true;
     private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var standard = await InvoiceClient.GetTemplateByIdAsync(TemplateDefaults.StandardTemplateId);
+
+        if (standard != null)
+        {
+            template = CreateTemplateRequest.FromResponse(standard);
+        }
+
+        isLoading = false;
+    }
 
     private async Task SaveTemplate()
     {

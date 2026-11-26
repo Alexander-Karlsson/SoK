@@ -26,11 +26,11 @@ public static class CustomerMapper
         };
     }
     
-    public static Customer ToEntity(CreateCustomerRequest request)
+    public static Customer ToEntity(CreateCustomerRequest request, string customerNumber)
     {
         return new Customer
         {
-            CustomerNumber = request.CustomerNumber,
+            CustomerNumber = customerNumber,
             CustomerType = request.CustomerType ?? throw new ArgumentException("Kundtyp är obligatopriskt."),
             FirstName = request.FirstName,
             LastName = request.LastName,

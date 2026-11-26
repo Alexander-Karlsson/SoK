@@ -50,3 +50,7 @@
 .invoice-footer {
     border-top: 1px solid #dee2e6;
 }
+
+.btn-status {
+    background-color: var(--color-beige-dark);
+}

@@ -129,4 +129,8 @@ public class BookingsController(BookingAppService service) : ControllerBase
             return Conflict(ex.Message);
         }
     }
+
+    [HttpGet("open")]
+    public async Task<IActionResult> GetOpenAssignments([FromQuery] string? title)
+    => Ok(await service.GetOpenAssignmentsAsync(title));
 }

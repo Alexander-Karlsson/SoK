@@ -1,4 +1,5 @@
 ﻿using Bookings.Application.Bookings.DTOs;
+using Bookings.Application.Bookings.DTOs.Response;
 using Bookings.Application.Bookings.Interfaces;
 using Bookings.Domain.Entities;
 using Bookings.Domain.Enums;
@@ -84,4 +85,16 @@ public class BookingRepository(BookingDbContext context) : IBookingRepository
         .Where(bs => bs.BookingId == bookingId && bs.ServiceId == serviceId && bs.EmployeeId == null)
         .ExecuteUpdateAsync(s => s.SetProperty(bs => bs.EmployeeId, (Guid?)employeeId)) == 1;
 
+    public async Task<IReadOnlyList<OpenAssignmentResponse>> GetOpenAssignmentsAsync(string? title, DateTime now)
+    => await (from bs in context.BookingServices
+              join b in context.Bookings on bs.BookingId equals b.Id
+              join s in context.BusinessServices on bs.ServiceId equals s.Id
+              where bs.EmployeeId == null
+                 && b.Status == BookingStatus.Booked
+                 && b.EndsAt > now
+                 && (s.RequiredTitle == null || s.RequiredTitle == title)
+              orderby b.StartsAt
+              select new OpenAssignmentResponse(b.Id, bs.ServiceId, bs.Name, bs.EstimatedHours, b.StartsAt, b.EndsAt))
+        .AsNoTracking()
+        .ToListAsync();
 }

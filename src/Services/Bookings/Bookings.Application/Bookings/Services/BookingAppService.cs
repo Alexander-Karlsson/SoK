@@ -1,6 +1,7 @@
 ﻿using Bookings.Application.Bookings.DTOs;
 using Bookings.Application.Bookings.DTOs.Invoices;
 using Bookings.Application.Bookings.DTOs.Request;
+using Bookings.Application.Bookings.DTOs.Response;
 using Bookings.Application.Bookings.Interfaces;
 using Bookings.Application.Bookings.Validation;
 using Bookings.Domain.Entities;
@@ -256,4 +257,6 @@ public class BookingAppService(IBookingRepository repo, IMachineRepository machi
         return true;
     }
 
+    public async Task<IReadOnlyList<OpenAssignmentResponse>> GetOpenAssignmentsAsync(string? title)
+    => await repo.GetOpenAssignmentsAsync(string.IsNullOrWhiteSpace(title) ? null : title.Trim(), DateTime.UtcNow);
 }

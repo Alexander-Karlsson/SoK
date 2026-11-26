@@ -94,6 +94,7 @@
     private string? description;
     private decimal pricePerHour;
     private bool isActive = true;
+    private string? requiredTitle;
 
     protected override async Task OnInitializedAsync()
     {
@@ -111,6 +112,7 @@
                 description = service.Description;
                 pricePerHour = service.PricePerHour;
                 isActive = service.IsActive;
+                requiredTitle = service.RequiredTitle;
             }
         }
 
@@ -127,7 +129,8 @@
                 Name = name,
                 Description = description,
                 PricePerHour = pricePerHour,
-                IsActive = isActive
+                IsActive = isActive,
+                RequiredTitle = requiredTitle
             })
             : await CatalogApiClient.CreateServiceAsync(new CreateBusinessServiceRequest
             {

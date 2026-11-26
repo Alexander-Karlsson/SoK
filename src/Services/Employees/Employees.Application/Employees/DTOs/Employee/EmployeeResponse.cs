@@ -20,7 +20,7 @@ public class EmployeeResponse
 
 
     public int EmployeeNumber { get; set; }
-    public string Title { get; set; } = string.Empty;
+    public JobTitle Title { get; set; } = JobTitle.Other;
     public Department Department { get; set; }
     public EmployeeType EmployeeType { get; set; }
     public DateOnly EmploymentStartDate { get; set; }

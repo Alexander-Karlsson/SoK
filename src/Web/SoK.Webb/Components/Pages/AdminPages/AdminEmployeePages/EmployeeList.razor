@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 @using Employees.Application.Employees.DTOs.Employee
 @using SoK.Webb.Clients
+@using Employees.Domain.Enums
 @inject EmployeeApiClient EmployeeClient
 @inject NavigationManager Navigation
 
@@ -48,7 +49,7 @@
                             <td>@i.LastName</td>
                             <td>@i.PhoneNumber</td>
                             <td>@i.Email</td>
-                            <td>@i.Title</td>
+                            <td>@i.Title.TranslateToSwedish()</td>
                             <td>@i.Department</td>
                             <td>
                                 <span class="admin-badge @(i.IsActive ? "admin-badge-active" : "admin-badge-inactive")">
@@ -83,7 +84,7 @@
             : Employee.Where(
                 e => $"{e.FirstName} {e.LastName}".Contains(search, StringComparison.OrdinalIgnoreCase) ||
                 e.EmployeeNumber.ToString().Contains(search) ||
-                e.Title.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                e.Title.TranslateToSwedish().Contains(search, StringComparison.OrdinalIgnoreCase) ||
                 e.Department.ToString().Contains(search, StringComparison.OrdinalIgnoreCase) ||
                 e.PhoneNumber.ToString().Contains(search));
 

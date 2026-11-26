@@ -313,3 +313,12 @@ GET {{Bookings.Api_HostAddress}}/api/bookings/open?title=Driver
 
 ### Lediga uppdrag utan titel: bara tjänster utan titelkrav
 GET {{Bookings.Api_HostAddress}}/api/bookings/open
+
+### Mina uppdrag: ska visa tagna tjänster och bokningar där admin lagt till den anställda
+GET {{Bookings.Api_HostAddress}}/api/bookings/assignments?employeeId={{employeeId}}
+
+### Mina uppdrag: bokningar där admin lagt till den anställda
+GET {{Bookings.Api_HostAddress}}/api/bookings/assignments?employeeId=11111111-1111-1111-1111-111111111111
+
+### Mina uppdrag utan employeeId: ska ge 400
+GET {{Bookings.Api_HostAddress}}/api/bookings/assignments

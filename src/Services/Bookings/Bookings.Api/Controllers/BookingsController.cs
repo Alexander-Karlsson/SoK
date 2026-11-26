@@ -133,4 +133,17 @@ public class BookingsController(BookingAppService service) : ControllerBase
     [HttpGet("open")]
     public async Task<IActionResult> GetOpenAssignments([FromQuery] string? title)
     => Ok(await service.GetOpenAssignmentsAsync(title));
+
+    [HttpGet("assignments")]
+    public async Task<IActionResult> GetAssignments([FromQuery] Guid employeeId)
+    {
+        try
+        {
+            return Ok(await service.GetAssignmentsForEmployeeAsync(employeeId));
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
 }

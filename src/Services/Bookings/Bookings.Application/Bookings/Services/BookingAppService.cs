@@ -259,4 +259,12 @@ public class BookingAppService(IBookingRepository repo, IMachineRepository machi
 
     public async Task<IReadOnlyList<OpenAssignmentResponse>> GetOpenAssignmentsAsync(string? title)
     => await repo.GetOpenAssignmentsAsync(string.IsNullOrWhiteSpace(title) ? null : title.Trim(), DateTime.UtcNow);
+
+    public async Task<IReadOnlyList<MyAssignmentResponse>> GetAssignmentsForEmployeeAsync(Guid employeeId)
+    {
+        if (employeeId == Guid.Empty)
+            throw new ArgumentException("En anställd måste anges.");
+
+        return await repo.GetAssignmentsForEmployeeAsync(employeeId);
+    }
 }

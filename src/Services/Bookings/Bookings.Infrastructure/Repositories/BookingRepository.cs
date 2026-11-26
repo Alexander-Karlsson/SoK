@@ -95,6 +95,29 @@ public class BookingRepository(BookingDbContext context) : IBookingRepository
                  && (s.RequiredTitle == null || s.RequiredTitle == title)
               orderby b.StartsAt
               select new OpenAssignmentResponse(b.Id, bs.ServiceId, bs.Name, bs.EstimatedHours, b.StartsAt, b.EndsAt))
-        .AsNoTracking()
-        .ToListAsync();
+                .AsNoTracking()
+                .ToListAsync();
+
+    public async Task<IReadOnlyList<MyAssignmentResponse>> GetAssignmentsForEmployeeAsync(Guid employeeId)
+    {
+        // Tjänsterader den anställda har tagit
+        var services = await (from bs in context.BookingServices
+                              join b in context.Bookings on bs.BookingId equals b.Id
+                              where bs.EmployeeId == employeeId
+                                 && b.Status == BookingStatus.Booked
+                              select new MyAssignmentResponse(b.Id, b.StartsAt, b.EndsAt, b.Status, bs.ServiceId, bs.Name, bs.EstimatedHours))
+                                .ToListAsync();
+
+        // Bokningar där admin har lagt till den anställda
+        var bookings = await (from be in context.BookingEmployees
+                              join b in context.Bookings on be.BookingId equals b.Id
+                              where be.EmployeeId == employeeId
+                                 && b.Status == BookingStatus.Booked
+                              select new MyAssignmentResponse(b.Id, b.StartsAt, b.EndsAt, b.Status, null, null, null))
+                                .ToListAsync();
+
+        return services.Concat(bookings)
+            .OrderBy(a => a.StartsAt)
+            .ToList();
+    }
 }

@@ -5,4 +5,6 @@ public record BusinessServiceResponse(
     string Name,
     string? Description,
     decimal PricePerHour,
-    bool IsActive);
+    bool IsActive,
+    string? RequiredTitle
+    );

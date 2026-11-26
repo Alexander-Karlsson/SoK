@@ -112,4 +112,25 @@ public class BookingsController(BookingAppService service) : ControllerBase
             return StatusCode(503, "Kunde inte nå Invoices.");
         }
     }
+
+    [HttpPost("{id:guid}/services/{serviceId:guid}/take")]
+    public async Task<IActionResult> TakeService(Guid id, Guid serviceId, [FromBody] TakeServiceRequest request)
+    {
+        try
+        {
+            return await service.TakeServiceAsync(id, serviceId, request) ? NoContent() : NotFound();
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(ex.Message);
+        }
+    }
+
+    [HttpGet("open")]
+    public async Task<IActionResult> GetOpenAssignments([FromQuery] string? title)
+    => Ok(await service.GetOpenAssignmentsAsync(title));
 }

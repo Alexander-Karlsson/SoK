@@ -8,4 +8,5 @@ public class BookingService
     public string Name { get; set; } = string.Empty;
     public decimal EstimatedHours { get; set; }
     public decimal PricePerHour { get; set; }
+    public Guid? EmployeeId { get; set; }
 }

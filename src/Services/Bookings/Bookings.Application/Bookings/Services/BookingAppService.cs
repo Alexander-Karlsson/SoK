@@ -224,5 +224,36 @@ public class BookingAppService(IBookingRepository repo, IMachineRepository machi
         return machineLines.Concat(serviceLines).ToList();
     }
 
+    public async Task<bool> TakeServiceAsync(Guid bookingId, Guid serviceId, TakeServiceRequest request)
+    {
+        if (request.EmployeeId == Guid.Empty)
+            throw new ArgumentException("En anställd måste anges.");
+
+        var details = await repo.GetBookingDetailsAsync(bookingId);
+
+        if (details is null)
+            return false;
+
+        var line = details.Services.FirstOrDefault(s => s.ServiceId == serviceId);
+
+        if (line is null)
+            return false;
+
+        if (details.Booking.Status != BookingStatus.Booked)
+            throw new InvalidOperationException("Bara bokade uppdrag kan tas.");
+
+        if (line.EmployeeId is not null)
+            throw new InvalidOperationException("Uppdraget är redan taget.");
+
+        // Samma bokning räknas inte som krock, så man kan ta flera tjänster i samma uppdrag
+        if (await repo.IsAnyEmployeeBookedAsync([request.EmployeeId], details.Booking.StartsAt, details.Booking.EndsAt, bookingId))
+            throw new InvalidOperationException("Den anställda är redan bokad under perioden.");
+
+        // Om någon hann före mellan kontrollen ovan och nu
+        if (!await repo.TryAssignServiceAsync(bookingId, serviceId, request.EmployeeId))
+            throw new InvalidOperationException("Uppdraget är redan taget.");
+
+        return true;
+    }
 
 }

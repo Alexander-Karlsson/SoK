@@ -1,6 +1,6 @@
 @Bookings.Api_HostAddress = http://localhost:5150
 @machineId = c6441d1c-e21b-4024-b785-d3837d2129a3
-@bookingId = 899b0629-e653-4323-a6da-94bf6ecf2b75
+@bookingId = 2b08590e-0a94-4429-a792-e9a3b65e1abc
 @serviceId = 311ee1a4-5683-4d17-b225-8c7cce5d198d
 @customerId = 0c3acd15-08da-4a0d-bab7-3d12eccb7231
 @templateId = da7fb875-019b-4af6-ae9c-d45b64f2a7e6
@@ -259,4 +259,36 @@ Content-Type: application/json
   "startsAt": "2027-02-04T07:00:00Z",
   "endsAt": "2027-02-05T16:00:00Z",
   "employeeIds": [ "{{employeeId}}" ]
+}
+
+### Ta uppdrag: ska ge 204
+POST {{Bookings.Api_HostAddress}}/api/bookings/{{bookingId}}/services/{{serviceId}}/take
+Content-Type: application/json
+
+{
+  "employeeId": "{{employeeId}}"
+}
+
+### Ta uppdrag igen: ska ge 409, redan taget
+POST {{Bookings.Api_HostAddress}}/api/bookings/{{bookingId}}/services/{{serviceId}}/take
+Content-Type: application/json
+
+{
+  "employeeId": "{{employeeId}}"
+}
+
+### Ta uppdrag med tjänst som inte finns i bokningen: ska ge 404
+POST {{Bookings.Api_HostAddress}}/api/bookings/{{bookingId}}/services/00000000-0000-0000-0000-000000000001/take
+Content-Type: application/json
+
+{
+  "employeeId": "{{employeeId}}"
+}
+
+### Ta uppdrag utan anställd: ska ge 400
+POST {{Bookings.Api_HostAddress}}/api/bookings/{{bookingId}}/services/{{serviceId}}/take
+Content-Type: application/json
+
+{
+  "employeeId": "00000000-0000-0000-0000-000000000000"
 }

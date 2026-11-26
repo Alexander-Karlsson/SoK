@@ -76,6 +76,12 @@ public class BookingRepository(BookingDbContext context) : IBookingRepository
         b.Status != BookingStatus.Completed &&
         b.StartsAt < endsAt &&
         b.EndsAt > startsAt &&
-        context.BookingEmployees.Any(be => be.BookingId == b.Id && employeeIds.Contains(be.EmployeeId)));
+        (context.BookingEmployees.Any(be => be.BookingId == b.Id && employeeIds.Contains(be.EmployeeId)) ||
+         context.BookingServices.Any(bs => bs.BookingId == b.Id && bs.EmployeeId != null && employeeIds.Contains(bs.EmployeeId.Value))));
+
+    public async Task<bool> TryAssignServiceAsync(Guid bookingId, Guid serviceId, Guid employeeId)
+    => await context.BookingServices
+        .Where(bs => bs.BookingId == bookingId && bs.ServiceId == serviceId && bs.EmployeeId == null)
+        .ExecuteUpdateAsync(s => s.SetProperty(bs => bs.EmployeeId, (Guid?)employeeId)) == 1;
 
 }

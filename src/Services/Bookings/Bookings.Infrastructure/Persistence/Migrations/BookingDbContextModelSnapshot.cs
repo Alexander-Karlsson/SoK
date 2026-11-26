@@ -122,6 +122,9 @@ namespace Bookings.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("BookingId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("EmployeeId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<decimal>("EstimatedHours")
                         .HasPrecision(10, 2)
                         .HasColumnType("decimal(10,2)");

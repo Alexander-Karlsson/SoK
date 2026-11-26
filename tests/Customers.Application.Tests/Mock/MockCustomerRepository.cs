@@ -8,6 +8,7 @@ public class MockCustomerRepository : ICustomerRepository
     public List<Customer> Customers { get; } = new();
     public Customer? ExistingCustomer { get; set; }
     public List<Customer> SearchResults { get; } = new();
+    private long _nextCustomerNumber = 10001;
 
     public Task<Customer> AddAsync(Customer customer) 
         => Task.FromResult(customer);
@@ -51,5 +52,10 @@ public class MockCustomerRepository : ICustomerRepository
         Customers.Remove(customer);
 
         return Task.FromResult(true);
+    }
+    
+    public Task<long> GetNextCustomerNumberAsync()
+    {
+        return Task.FromResult(_nextCustomerNumber++);
     }
 }

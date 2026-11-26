@@ -26,11 +26,6 @@ public static class CustomerValidator
             request.City,
             request.Phone,
             request.Email);
-        
-        if (string.IsNullOrWhiteSpace(request.CustomerNumber))
-            throw new ArgumentException("Kundnummer är obligatoriskt.");
-
-        ValidateMaxLength(request.CustomerNumber, 20, "Kundnummer");
     }
     
     public static void ValidateUpdate(Customer existing, UpdateCustomerRequest request)

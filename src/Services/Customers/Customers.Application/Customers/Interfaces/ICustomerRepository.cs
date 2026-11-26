@@ -14,5 +14,6 @@ namespace Customers.Application.Customers.Interfaces
         Task<Customer?> GetByCustomerNumberAsync(string customerNumber);
         Task<Customer> UpdateAsync(Customer customer);
         Task<bool> DeleteAsync(Guid id);
+        Task<long> GetNextCustomerNumberAsync();
     }
 }

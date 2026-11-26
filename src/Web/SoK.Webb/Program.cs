@@ -49,6 +49,10 @@ public class Program
         {
             client.BaseAddress = new Uri(builder.Configuration["ApiUrls:Employees"]!);
         });
+        builder.Services.AddHttpClient<PayslipApiClient>(client =>
+        {
+            client.BaseAddress = new Uri(builder.Configuration["ApiUrls:Employees"]!);
+        });
 
         builder.Services.AddCascadingAuthenticationState();
         builder.Services.AddScoped<IdentityRedirectManager>();

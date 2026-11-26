@@ -1,0 +1,41 @@
+﻿@page "/invoices"
+@using Invoices.Application.Dtos
+@using SoK.Webb.Clients
+@inject InvoiceApiClient InvoiceClient
+
+<PageTitle>Fakturor</PageTitle>
+
+<h1>Fakturor</h1>
+
+<table>
+    <thead>
+        <tr>
+            <th>Fakturanummer</th>
+            <th>Fakturadatum</th>
+            <th>Förfallodatum</th>
+            <th>Att betala</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var i in Invoice)
+        {
+            <tr>
+                <td>@i.InvoiceNumber</td>
+                <td>@i.InvoiceDate</td>
+                <td>@i.DueDate</td>
+                <td>@i.TotalAmount SEK</td>
+                <td>@i.Status</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<InvoiceResponse> Invoice { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Invoice = await InvoiceClient.GetAllAsync();
+    }
+}

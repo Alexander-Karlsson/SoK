@@ -8,17 +8,15 @@ namespace Customers.Application.Customers.Services
 {
     public class CustomerService(ICustomerRepository repo)
     {
-        public async Task<CustomerResponseDto> CreateCustomerAsync(CreateCustomerRequest request)
+        public async Task<CustomerResponseDto> CreateCustomerAsync(
+            CreateCustomerRequest request)
         {
             CustomerValidator.ValidateCreate(request);
-            
-            var existing = await repo.GetByCustomerNumberAsync(request.CustomerNumber);
 
-            if (existing is not null) 
-                throw new CustomerAlreadyExistsException(request.CustomerNumber);
-            
-            var customer = CustomerMapper.ToEntity(request);
-            
+            var nextNumber = await repo.GetNextCustomerNumberAsync();
+            var customerNumber = $"CUST-{nextNumber}";
+
+            var customer = CustomerMapper.ToEntity(request, customerNumber);
             var created = await repo.AddAsync(customer);
 
             return CustomerMapper.ToResponseDto(created);

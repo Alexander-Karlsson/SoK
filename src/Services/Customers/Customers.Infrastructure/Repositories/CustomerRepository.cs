@@ -67,6 +67,15 @@ namespace Customers.Infrastructure.Repositories
             return true;
         }
 
+        public async Task<long> GetNextCustomerNumberAsync()
+        {
+            var result = await context.Database
+                .SqlQueryRaw<long>(
+                    "SELECT NEXT VALUE FOR CustomerNumberSequence AS Value")
+                .ToListAsync();
+
+            return result.Single();
+        }
 
     }
 }

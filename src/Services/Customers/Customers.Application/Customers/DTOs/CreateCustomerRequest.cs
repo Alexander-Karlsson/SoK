@@ -5,8 +5,6 @@ namespace Customers.Application.Customers.DTOs
 {
     public class CreateCustomerRequest
     {
-        public required string CustomerNumber { get; set; }
-        
         [Required]
         public CustomerType? CustomerType { get; set; }
 

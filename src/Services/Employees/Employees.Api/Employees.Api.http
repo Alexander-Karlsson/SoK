@@ -1,11 +1,12 @@
 @host = https://localhost:7020
 @employeeId = 20f3772f-44b8-4a96-ac66-b6d4c37f2b94
 @employeeId2 = 9a7ff8e3-14f1-4976-bc32-f55ce0f97933
+@employeeId3 = 1a442122-8596-4fec-a087-95eca528f5ef
 @missingId = 00000000-0000-0000-0000-000000000001
 
 ### ANSTÄLLD
 
-### A1. Anställd – skapa (förväntat: 201 Created)
+### A1a. Anställd – skapa (förväntat: 201 Created)
 POST {{host}}/api/employees
 Content-Type: application/json
 
@@ -25,6 +26,28 @@ Content-Type: application/json
   "department": "IT",
   "employeeType": "Permanent",
   "employmentStartDate": "2026-01-01",
+  "employeeRate": 100
+}
+### A1b. Anställd – skapa (förväntat: 201 Created)
+POST {{host}}/api/employees
+Content-Type: application/json
+
+{
+  "firstName": "Sanna",
+  "lastName": "Nilsen",
+  "personalNumber": "19890302-1324",
+  "email": "sanna@test.se",
+  "phoneNumber": "0701765567",
+  "address": "Storgatan 13",
+  "zipcode": "123 12",
+  "city": "Stockholm",
+  "emergencyContactName": "Adam Andersson",
+  "emergencyContactNumber": "0708274543",
+  "relationship": "Partner",
+  "title": "Testare",
+  "department": "IT",
+  "employeeType": "Permanent",
+  "employmentStartDate": "2026-05-01",
   "employeeRate": 100
 }
 
@@ -259,3 +282,90 @@ DELETE {{host}}/api/schedules/{{createSchedule.response.body.$.id}}
 
 ### X1. Anställd – ta bort (förväntat: 204)
 DELETE {{host}}/api/employees/{{employeeId}}
+
+### LÖNESPEC
+
+### P1. Lönespec – skapa för november (förväntat: 201, se facit nedan)
+# Kräver: lön 35 000 / 30 % (kör L1 först om du har kört L6/L7) och F15
+# Facit: absenceDeduction 2333.33, grossSalary 32666.67, taxAmount 9800.00, netSalary 22866.67
+# @name createPayslip
+POST {{host}}/api/employees/{{employeeId}}/payslips
+Content-Type: application/json
+
+{
+  "year": 2026,
+  "month": 11,
+  "bonus": 0,
+  "otherDeductions": 0
+}
+
+### P2. Lönespec – samma månad igen (förväntat: 409 Conflict)
+POST {{host}}/api/employees/{{employeeId}}/payslips
+Content-Type: application/json
+
+{
+  "year": 2026,
+  "month": 11,
+  "bonus": 0,
+  "otherDeductions": 0
+}
+
+### P3. Lönespec – oktober med bonus, ingen frånvaro (förväntat: 201)
+# Facit: absenceDeduction 0, grossSalary 37000.00, taxAmount 11100.00, netSalary 25900.00
+POST {{host}}/api/employees/{{employeeId}}/payslips
+Content-Type: application/json
+
+{
+  "year": 2026,
+  "month": 10,
+  "bonus": 2000,
+  "otherDeductions": 0
+}
+
+### P4. Lönespec – lista (förväntat: 200, november före oktober)
+GET {{host}}/api/employees/{{employeeId}}/payslips
+
+### P5. Lönespec – hämta P1 (förväntat: 200)
+GET {{host}}/api/employees/{{employeeId}}/payslips/{{createPayslip.response.body.$.id}}
+
+### P6. Lönespec – hämta P1 via FEL anställd (förväntat: 404)
+GET {{host}}/api/employees/{{employeeId2}}/payslips/{{createPayslip.response.body.$.id}}
+
+### P7. Lönespec – anställd utan lönevillkor (förväntat: 400 "saknar lönevillkor")
+POST {{host}}/api/employees/{{employeeId3}}/payslips
+Content-Type: application/json
+
+{
+  "year": 2026,
+  "month": 11,
+  "bonus": 0,
+  "otherDeductions": 0
+}
+
+### P8. Lönespec – anställd som inte finns (förväntat: 404)
+POST {{host}}/api/employees/{{missingId}}/payslips
+Content-Type: application/json
+
+{
+  "year": 2026,
+  "month": 11,
+  "bonus": 0,
+  "otherDeductions": 0
+}
+
+### P9. Lönespec – ogiltig månad (förväntat: 400 "Månad måste vara mellan 1 och 12.")
+POST {{host}}/api/employees/{{employeeId}}/payslips
+Content-Type: application/json
+
+{
+  "year": 2026,
+  "month": 13,
+  "bonus": 0,
+  "otherDeductions": 0
+}
+
+### P10. Lönespec – ta bort P1 (förväntat: 204)
+DELETE {{host}}/api/employees/{{employeeId}}/payslips/{{createPayslip.response.body.$.id}}
+
+### P11. Lönespec – ta bort P1 igen (förväntat: 404)
+DELETE {{host}}/api/employees/{{employeeId}}/payslips/{{createPayslip.response.body.$.id}}

@@ -17,4 +17,6 @@ public interface IBookingRepository
     Task<bool> TryAssignServiceAsync(Guid bookingId, Guid serviceId, Guid employeeId);
     Task<IReadOnlyList<OpenAssignmentResponse>> GetOpenAssignmentsAsync(string? title, DateTime now);
     Task<IReadOnlyList<MyAssignmentResponse>> GetAssignmentsForEmployeeAsync(Guid employeeId);
+    Task AddTimeEntryAsync(TimeEntry entry);
+    Task<decimal> GetReportedHoursAsync(Guid employeeId, DateOnly workDate);
 }

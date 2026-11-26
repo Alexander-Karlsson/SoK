@@ -7,6 +7,7 @@ public static class BookingValidation
     public const int MinRentalDays = 1;
     public const int MaxRentalDays = 30;
     public const int HoursPerDay = 8;
+    public const decimal MaxHoursPerDay = 24;
 
     public static void ValidateCreate(CreateBookingRequest request)
     {

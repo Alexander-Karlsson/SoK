@@ -120,4 +120,15 @@ public class BookingRepository(BookingDbContext context) : IBookingRepository
             .OrderBy(a => a.StartsAt)
             .ToList();
     }
+
+    public async Task AddTimeEntryAsync(TimeEntry entry)
+    {
+        context.TimeEntries.Add(entry);
+        await context.SaveChangesAsync();
+    }
+
+    public async Task<decimal> GetReportedHoursAsync(Guid employeeId, DateOnly workDate)
+        => await context.TimeEntries
+            .Where(t => t.EmployeeId == employeeId && t.WorkDate == workDate)
+            .SumAsync(t => t.Hours);
 }

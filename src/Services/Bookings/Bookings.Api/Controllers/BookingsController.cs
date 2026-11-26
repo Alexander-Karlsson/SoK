@@ -146,4 +146,22 @@ public class BookingsController(BookingAppService service) : ControllerBase
             return BadRequest(ex.Message);
         }
     }
+
+    [HttpPost("{id:guid}/services/{serviceId:guid}/time")]
+    public async Task<IActionResult> ReportTime(Guid id, Guid serviceId, [FromBody] ReportTimeRequest request)
+    {
+        try
+        {
+            var entry = await service.ReportTimeAsync(id, serviceId, request);
+            return entry is not null ? Ok(entry) : NotFound();
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(ex.Message);
+        }
+    }
 }

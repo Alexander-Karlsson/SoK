@@ -373,3 +373,9 @@ Content-Type: application/json
   "workDate": "2026-11-26",
   "hours": 2
 }
+
+### Rapporterad tid för bokningen: Schaktning med raderna du rapporterat
+GET {{Bookings.Api_HostAddress}}/api/bookings/{{bookingId}}/time
+
+### Rapporterad tid för bokning som inte finns: ska ge 404
+GET {{Bookings.Api_HostAddress}}/api/bookings/00000000-0000-0000-0000-000000000001/time

@@ -3,6 +3,7 @@ using Bookings.Application.Bookings.DTOs.Invoices;
 using Bookings.Application.Bookings.DTOs.Request;
 using Bookings.Application.Bookings.DTOs.Response;
 using Bookings.Application.Bookings.Interfaces;
+using Bookings.Application.Bookings.Mappings;
 using Bookings.Application.Bookings.Validation;
 using Bookings.Domain.Entities;
 using Bookings.Domain.Enums;
@@ -325,7 +326,34 @@ public class BookingAppService(IBookingRepository repo, IMachineRepository machi
 
         await repo.AddTimeEntryAsync(entry);
 
-        return new TimeEntryResponse(entry.Id, entry.BookingServiceId, entry.EmployeeId,
-            entry.WorkDate, entry.Hours, entry.Note, entry.CreatedAt);
+        return entry.ToResponse();
+    }
+
+    public async Task<IReadOnlyList<ServiceTimeResponse>?> GetReportedTimeAsync(Guid bookingId)
+    {
+        var details = await repo.GetBookingDetailsAsync(bookingId);
+
+        if (details is null)
+            return null;
+
+        var entries = await repo.GetTimeEntriesForBookingAsync(bookingId);
+
+        return details.Services
+            .Select(line =>
+            {
+                var lineEntries = entries
+                    .Where(t => t.BookingServiceId == line.Id)
+                    .Select(t => t.ToResponse())
+                    .ToList();
+
+                return new ServiceTimeResponse(
+                    line.ServiceId,
+                    line.Name,
+                    line.EmployeeId,
+                    line.EstimatedHours,
+                    lineEntries.Sum(t => t.Hours),
+                    lineEntries);
+            })
+            .ToList();
     }
 }

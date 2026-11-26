@@ -131,4 +131,13 @@ public class BookingRepository(BookingDbContext context) : IBookingRepository
         => await context.TimeEntries
             .Where(t => t.EmployeeId == employeeId && t.WorkDate == workDate)
             .SumAsync(t => t.Hours);
+
+    public async Task<IReadOnlyList<TimeEntry>> GetTimeEntriesForBookingAsync(Guid bookingId)
+        => await (from t in context.TimeEntries
+                  join bs in context.BookingServices on t.BookingServiceId equals bs.Id
+                  where bs.BookingId == bookingId
+                  orderby t.WorkDate, t.CreatedAt
+                  select t)
+            .AsNoTracking()
+            .ToListAsync();
 }

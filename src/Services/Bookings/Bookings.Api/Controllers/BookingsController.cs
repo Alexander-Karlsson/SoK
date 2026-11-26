@@ -164,4 +164,11 @@ public class BookingsController(BookingAppService service) : ControllerBase
             return Conflict(ex.Message);
         }
     }
+
+    [HttpGet("{id:guid}/time")]
+    public async Task<IActionResult> GetReportedTime(Guid id)
+    {
+        var time = await service.GetReportedTimeAsync(id);
+        return time is not null ? Ok(time) : NotFound();
+    }
 }

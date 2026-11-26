@@ -1,4 +1,5 @@
-﻿using Invoices.Domain.Entities;
+﻿using Invoices.Application.Helpers;
+using Invoices.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Invoices.Infrastructure.Persistence;
@@ -13,7 +14,6 @@ public class InvoiceDbContext(DbContextOptions<InvoiceDbContext> options) : DbCo
     {
         base.OnModelCreating(modelBuilder);
 
-
         modelBuilder.Entity<Invoice>(entity =>
         {
             entity.HasIndex(i => i.InvoiceNumber).IsUnique();
@@ -26,7 +26,6 @@ public class InvoiceDbContext(DbContextOptions<InvoiceDbContext> options) : DbCo
             entity.HasOne<InvoiceTemplate>()
             .WithMany()
             .HasForeignKey(i => i.TemplateId);
-
         });
 
         modelBuilder.Entity<InvoiceLine>(entity =>
@@ -44,7 +43,7 @@ public class InvoiceDbContext(DbContextOptions<InvoiceDbContext> options) : DbCo
 
         modelBuilder.Entity<InvoiceTemplate>().HasData(new InvoiceTemplate
         {
-            Id = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            Id = TemplateDefaults.StandardTemplateId,
             CompanyName = "Skrot & Korn AB",
             CompanyNumber = "112233-4455",
             VatNumber = "SE112233445501",

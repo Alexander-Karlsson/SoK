@@ -68,7 +68,8 @@ public class EmployeesDbContext(DbContextOptions<EmployeesDbContext> options) : 
             .HasMaxLength(20);
 
             entity.Property(e => e.Title)
-            .HasMaxLength(100);
+            .HasConversion<string>()
+            .HasMaxLength(50);
 
             // Genererar automatiskt ett unikt anställningsnummer via SQL-sekvens vid skapande av ny post
             entity.Property(entity => entity.EmployeeNumber)

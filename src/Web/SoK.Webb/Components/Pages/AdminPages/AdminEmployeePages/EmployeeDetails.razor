@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 @using Employees.Application.Employees.DTOs.Employee
 @using SoK.Webb.Clients
+@using Employees.Domain.Enums
 @using SoK.Webb.Components.Pages.AdminPages.AdminEmployeePayrollPages
 @using SoK.Webb.Components.Pages.AdminPages.AdminEmployeeAbsencePages
 @using SoK.Webb.Components.Pages.AdminPages.AdminEmployeePayslipPages
@@ -49,7 +50,7 @@
             <section class="admin-card">
                 <h4>Anställning</h4>
                 <dl>
-                    <div><dt>Titel</dt><dd>@employee.Title</dd></div>
+                    <div><dt>Titel</dt><dd>@employee.Title.TranslateToSwedish()</dd></div>
                     <div><dt>Avdelning</dt><dd>@employee.Department</dd></div>
                     <div><dt>Sysselsättningsgrad</dt><dd>@employee.EmployeeRate %</dd></div>
                     <div><dt>Anställningsform</dt><dd>@employee.EmployeeType</dd></div>
@@ -92,6 +93,7 @@
                 <p class="admin-alert admin-alert-error">@message</p>
             }
         </section>
+        
         <EmployeePayslipSection EmployeeId="Id" />
         <EmployeeAbsenceSection EmployeeId="Id" />
     }

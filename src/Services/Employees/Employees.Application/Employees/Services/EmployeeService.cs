@@ -26,7 +26,7 @@ public class EmployeeService(IEmployeeRepository repository)
             EmergencyContactNumber = request.EmergencyContactNumber.Trim(),
             Relationship = request.Relationship.Trim(),
 
-            Title = request.Title.Trim(),
+            Title = request.Title,
             Department = request.Department,
             EmployeeType = request.EmployeeType,
             EmploymentDate = request.EmploymentStartDate.ToDateTime(TimeOnly.MinValue),
@@ -78,7 +78,7 @@ public class EmployeeService(IEmployeeRepository repository)
         employee.EmergencyContactNumber = request.EmergencyContactNumber.Trim();
         employee.Relationship = request.Relationship.Trim();
 
-        employee.Title = request.Title.Trim();
+        employee.Title = request.Title;
         employee.Department = request.Department;
         employee.EmployeeType = request.EmployeeType;
         employee.EmploymentDate = request.EmploymentStartDate.ToDateTime(TimeOnly.MinValue);

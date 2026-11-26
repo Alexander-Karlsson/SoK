@@ -124,7 +124,12 @@
                 <div class="admin-form-field">
                     <label>
                         Titel
-                        <InputText @bind-Value="employee.Title" />
+                        <InputSelect @bind-Value="employee.Title">
+                            @foreach (var i in Enum.GetValues<JobTitle>())
+                            {
+                                <option value="@i">@i.TranslateToSwedish()</option>
+                            }
+                        </InputSelect>
                     </label>
                     <ValidationMessage For="() => employee.Title" />
                 </div>

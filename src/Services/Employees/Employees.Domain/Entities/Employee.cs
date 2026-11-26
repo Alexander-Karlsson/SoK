@@ -25,7 +25,7 @@ public class Employee
     
     public DateTime EmploymentDate { get; set; }
     public DateTime? EmploymentEndDate { get; set; }
-    public string Title { get; set; } = string.Empty;
+    public JobTitle Title { get; set; } = JobTitle.Other;
     public decimal EmployeeRate { get; set; } = 100;
     public int VacationDaysPerYear { get; set; } = 25;
     public bool IsActive { get; set; }

@@ -43,10 +43,11 @@ public class UpdateEmployeeRequest
     [StringLength(20, ErrorMessage = "Får inte vara längre än 20 tecken")]
     public string Relationship { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "Titel måste fyllas i")]
-    [StringLength(100, ErrorMessage = "Får inte vara längre än 100 tecken")]
-    public string Title { get; set; } = string.Empty;
+    [EnumDataType(typeof(JobTitle), ErrorMessage ="Måste ange titel")]
+    public JobTitle Title { get; set; } = JobTitle.Other;
+    [EnumDataType(typeof(Department), ErrorMessage = "Måste ange avdelning")]
     public Department Department { get; set; } = Department.Operations;
+    [EnumDataType(typeof(EmployeeType), ErrorMessage = "Måste ange anställningsavtal")]
     public EmployeeType EmployeeType { get; set; } = EmployeeType.Permanent;
     public DateOnly EmploymentStartDate { get; set; } = DateOnly.FromDateTime(DateTime.Today);
     public DateOnly? EmploymentEndDate { get; set; }

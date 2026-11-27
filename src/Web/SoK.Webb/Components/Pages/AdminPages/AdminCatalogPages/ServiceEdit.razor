@@ -2,6 +2,7 @@
 @page "/serviceedit/{Id:guid}"
 @rendermode InteractiveServer
 @using Bookings.Application.Bookings.DTOs.Request
+@using Employees.Domain.Enums
 @using SoK.Webb.Clients
 @inject CatalogApiClient CatalogApiClient
 @inject NavigationManager Navigation
@@ -43,6 +44,17 @@
             <label class="catalog-field">
                 Pris per timme (kr)
                 <input type="number" min="0" step="1" @bind="pricePerHour" />
+            </label>
+
+            <label class="catalog-field">
+                Krav på titel
+                <select @bind="requiredTitle">
+                    <option value="">Alla anställda</option>
+                    @foreach (var title in Titles)
+                    {
+                        <option value="@title.ToString()">@title.TranslateToSwedish()</option>
+                    }
+                </select>
             </label>
 
             @if (IsEdit)
@@ -96,6 +108,11 @@
     private bool isActive = true;
     private string? requiredTitle;
 
+    private static readonly JobTitle[] Titles = Enum.GetValues<JobTitle>()
+        .Where(t => t != JobTitle.Other)
+        .OrderBy(t => t.TranslateToSwedish())
+        .ToArray();
+
     protected override async Task OnInitializedAsync()
     {
         if (IsEdit)
@@ -136,7 +153,8 @@
             {
                 Name = name,
                 Description = description,
-                PricePerHour = pricePerHour
+                PricePerHour = pricePerHour,
+                RequiredTitle = requiredTitle
             });
 
         busy = false;

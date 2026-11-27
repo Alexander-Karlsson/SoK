@@ -1,0 +1,16 @@
+﻿.my-pages-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.my-pages-card {
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.1s;
+}
+
+    .my-pages-card:hover {
+        transform: translateY(-2px);
+    }

@@ -2,9 +2,14 @@
 @rendermode InteractiveServer
 @using Employees.Application.Employees.DTOs.Employee
 @using Employees.Domain.Enums
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
 @using SoK.Webb.Clients
+@using SoK.Webb.Data
+@* @attribute [Authorize(Roles = "Admin")] *@
 @inject EmployeeApiClient EmployeeClient
 @inject NavigationManager Navigation
+@inject UserManager<ApplicationUser> UserManager
 
 <PageTitle>Skapa ny anställd</PageTitle>
 
@@ -55,6 +60,13 @@
                         <InputText @bind-Value="employee.Email" />
                     </label>
                     <ValidationMessage For="() => employee.Email" />
+                </div>
+
+                <div class="admin-form-field">
+                    <label>
+                        Startlösenord
+                        <InputText type="password" @bind-Value="startPassword" />
+                    </label>
                 </div>
 
                 <div class="admin-form-field">
@@ -199,6 +211,7 @@
 
 @code {
     private CreateEmployeeRequest employee = new();
+    private string? startPassword;
 
     private string? message;
 
@@ -213,16 +226,46 @@
             return;
         }
 
+        if (await UserManager.FindByEmailAsync(employee.Email) is not null)
+        {
+            message = "Det finns redan ett konto kopplat till denna mail";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(startPassword))
+        {
+            message = "Du måste ange ett lösenord";
+            return;
+        }
+
         var (created, error) = await EmployeeClient.CreateAsync(employee);
 
-        if (created is not null)
-        {
-            Navigation.NavigateTo($"/employeedetails/{created.Id}");
-        }
-        else
+        if (created is null)
         {
             message = error;
+            return;
         }
+
+        var user = new ApplicationUser
+            {
+                UserName = employee.Email,
+                Email = employee.Email,
+                EmailConfirmed = true,
+                EmployeeId = created.Id
+            };
+
+        var result = await UserManager.CreateAsync(user, startPassword);
+
+        if (!result.Succeeded)
+        {
+            message = "Den anställda skapades, men inte kontot: "
+                  + string.Join(" ", result.Errors.Select(e => e.Description));
+            return;
+        }
+
+        await UserManager.AddToRoleAsync(user, "Employee");
+
+        Navigation.NavigateTo($"/employeedetails/{created.Id}");
     }
 
     private void WhenEmployeeTypeChanged()

@@ -1,6 +1,8 @@
 ﻿@using Employees.Application.Employees.DTOs.Absence
 @using Employees.Domain.Enums
+@using Microsoft.AspNetCore.Authorization
 @using SoK.Webb.Clients
+@* @attribute [Authorize(Roles = "Admin")] *@
 @inject AbsenceApiClient AbsenceClient
 
 <section class="admin-card">

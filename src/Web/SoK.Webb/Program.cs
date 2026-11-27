@@ -81,6 +81,7 @@ public class Program
             {
                 options.SignIn.RequireConfirmedAccount = true;
                 options.Stores.SchemaVersion = IdentitySchemaVersions.Version3;
+                options.User.AllowedUserNameCharacters += "åÅäÄöÖ";
             })
             .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>()

@@ -1,6 +1,8 @@
 ﻿@using System.Globalization
 @using Employees.Application.Employees.DTOs.Payslip
+@using Microsoft.AspNetCore.Authorization
 @using SoK.Webb.Clients
+@* @attribute [Authorize(Roles = "Admin")] *@
 @inject PayslipApiClient PayslipClient
 
 <section class="admin-card">

@@ -1,6 +1,6 @@
 ﻿@page "/mina-sidor/franvaro"
 @rendermode InteractiveServer
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Employee")]
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Identity
 @using SoK.Webb.Data

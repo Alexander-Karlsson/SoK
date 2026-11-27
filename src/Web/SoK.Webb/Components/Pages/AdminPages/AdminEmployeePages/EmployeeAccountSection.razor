@@ -1,5 +1,7 @@
-﻿@using Microsoft.AspNetCore.Identity
+﻿@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
 @using SoK.Webb.Data
+@* @attribute [Authorize(Roles = "Admin")] *@
 @inject UserManager<ApplicationUser> UserManager
 
 <section class="admin-card">

@@ -1,8 +1,10 @@
 ﻿@page "/employeelist"
 @rendermode InteractiveServer
 @using Employees.Application.Employees.DTOs.Employee
-@using SoK.Webb.Clients
 @using Employees.Domain.Enums
+@using Microsoft.AspNetCore.Authorization
+@using SoK.Webb.Clients
+@* @attribute [Authorize(Roles = "Admin")] *@
 @inject EmployeeApiClient EmployeeClient
 @inject NavigationManager Navigation
 

@@ -1,10 +1,12 @@
 ﻿@page "/createemployee"
 @rendermode InteractiveServer
-@using Microsoft.AspNetCore.Identity
-@using SoK.Webb.Data
 @using Employees.Application.Employees.DTOs.Employee
 @using Employees.Domain.Enums
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
 @using SoK.Webb.Clients
+@using SoK.Webb.Data
+@* @attribute [Authorize(Roles = "Admin")] *@
 @inject EmployeeApiClient EmployeeClient
 @inject NavigationManager Navigation
 @inject UserManager<ApplicationUser> UserManager
@@ -258,6 +260,10 @@
                   + string.Join(" ", result.Errors.Select(e => e.Description));
             return;
         }
+
+        await UserManager.AddToRoleAsync(user, "Employee");
+
+        Navigation.NavigateTo($"/employeedetails/{created.Id}");
         
             Navigation.NavigateTo($"/employeedetails/{created.Id}");
     }

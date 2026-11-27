@@ -30,9 +30,16 @@ public class InvoicesController (InvoiceService service) : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var invoices = await service.GetAllAsync();
+        try
+        {
+            var invoices = await service.GetAllAsync();
 
-        return Ok(invoices);
+            return Ok(invoices);
+        }
+        catch (HttpRequestException)
+        {
+            return StatusCode(503, "Kunde inte nå kundregister");
+        }
     }
 
     [HttpGet]

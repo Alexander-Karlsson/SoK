@@ -16,6 +16,7 @@ public partial class BookingForm
 
     private bool loading = true;
     private bool busy;
+    public bool IsBusy => busy;
     private string? error;
     private List<MachineResponse> machines = [];
     private List<BusinessServiceResponse> services = [];
@@ -79,9 +80,7 @@ public partial class BookingForm
         else selectedEmployees.Remove(id);
     }
 
-    // Sidan som använder formuläret lägger själv sin "Skapa bokning"-knapp
-    // och anropar SaveAsync via @ref. IsBusy används för att låsa knappen.
-    public bool IsBusy => busy;
+    
 
     public async Task SaveAsync()
     {

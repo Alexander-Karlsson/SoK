@@ -21,6 +21,14 @@ public class InvoiceApiClient(HttpClient httpClient)
         return invoices ?? new();
     }
 
+    // Hämtar bara en kunds fakturor, ger en tom lista om kunden inte har några
+    public async Task<List<InvoiceResponse>> GetByCustomerAsync(Guid customerId)
+    {
+        var invoices = await httpClient.GetFromJsonAsync<List<InvoiceResponse>>($"api/invoices/customer/{customerId}", jsonOptions);
+
+        return invoices ?? new();
+    }
+
     // Hämtar en faktura med rader, kund och mall, ger null om den inte finns
     public async Task<InvoiceResponse?> GetByIdAsync(Guid id)
     {

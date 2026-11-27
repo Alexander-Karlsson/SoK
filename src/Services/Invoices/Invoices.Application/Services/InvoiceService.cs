@@ -155,6 +155,13 @@ public class InvoiceService(IInvoiceRepository repo, ITemplateRepository templat
         return responses;
     }
 
+    public async Task<List<InvoiceResponse>> GetByCustomerAsync(Guid customerId)
+    {
+        var invoices = await repo.GetByCustomerAsync(customerId);
+
+        return invoices.Select(i => ToResponse(i, [])).ToList();
+    }
+
     private static bool IsAllowedStatusChange(InvoiceStatus current, InvoiceStatus next)
     {
         // Utkast till skickad

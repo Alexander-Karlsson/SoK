@@ -1,0 +1,111 @@
+﻿@page "/mina-sidor/uppdrag"
+@rendermode InteractiveServer
+@attribute [Authorize(Roles = "Employee")]
+@using Bookings.Application.Bookings.DTOs.Response
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
+@using SoK.Webb.Clients
+@using SoK.Webb.Components.AssignmentComponents
+@using SoK.Webb.Data
+@inject UserManager<ApplicationUser> UserManager
+@inject AssignmentApiClient AssignmentApiClient
+
+<PageTitle>Mina uppdrag</PageTitle>
+
+<div class="admin-page">
+    <div class="admin-page-header">
+        <h2>Mina uppdrag</h2>
+    </div>
+
+    @if (loading)
+    {
+        <p class="empty">Laddar...</p>
+    }
+    else if (employeeId is null)
+    {
+        <p class="empty">Ditt konto är inte kopplat till en anställd. Kontakta admin.</p>
+    }
+    else
+    {
+        @if (error is not null)
+        {
+            <p class="admin-alert admin-alert-error">@error</p>
+        }
+
+        @if (assignments is { Count: 0 })
+        {
+            <p class="empty">Du har inga uppdrag just nu.</p>
+        }
+        else if (assignments is not null)
+        {
+            @foreach (var a in assignments)
+            {
+                <AssignmentCard @key="(a.BookingId, a.ServiceId)"
+                                Assignment="a"
+                                Time="TimeFor(a)"
+                                EmployeeId="employeeId.Value"
+                                OnReported="LoadAsync" />
+            }
+        }
+    }
+</div>
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthState { get; set; } = default!;
+
+    private Guid? employeeId;
+    private bool loading = true;
+    private string? error;
+    private List<MyAssignmentResponse>? assignments;
+
+    // Rapporterad tid per tjänsterad, nyckel: (bokning, tjänst)
+    private Dictionary<(Guid BookingId, Guid ServiceId), ServiceTimeResponse> time = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthState;
+        var user = await UserManager.GetUserAsync(state.User);
+        employeeId = user?.EmployeeId;
+
+        if (employeeId is not null)
+            await LoadAsync();
+
+        loading = false;
+    }
+
+    private async Task LoadAsync()
+    {
+        error = null;
+
+        try
+        {
+            assignments = await AssignmentApiClient.GetAssignmentsAsync(employeeId!.Value);
+
+            // Hämta tiden en gång per bokning, inte per tjänst
+            time.Clear();
+            var bookingIds = assignments
+                .Where(a => a.ServiceId is not null)
+                .Select(a => a.BookingId)
+                .Distinct();
+
+            foreach (var bookingId in bookingIds)
+            {
+                var lines = await AssignmentApiClient.GetReportedTimeAsync(bookingId) ?? [];
+
+                foreach (var line in lines)
+                    time[(bookingId, line.ServiceId)] = line;
+            }
+        }
+        catch (HttpRequestException)
+        {
+            assignments ??= [];
+            error = "Kunde inte hämta dina uppdrag. Försök igen senare.";
+        }
+    }
+
+    private ServiceTimeResponse? TimeFor(MyAssignmentResponse a)
+        => a.ServiceId is Guid serviceId
+            ? time.GetValueOrDefault((a.BookingId, serviceId))
+            : null;
+}

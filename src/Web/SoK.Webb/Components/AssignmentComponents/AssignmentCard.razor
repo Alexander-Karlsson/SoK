@@ -1,0 +1,126 @@
+﻿@using Bookings.Application.Bookings.DTOs.Request
+@using Bookings.Application.Bookings.DTOs.Response
+@using SoK.Webb.Clients
+@inject AssignmentApiClient AssignmentApiClient
+
+<section class="admin-card assignment-card">
+    <div class="assignment-card-header">
+        <h4>@(Assignment.ServiceName ?? "Bokning")</h4>
+        <span class="assignment-period">
+            @Assignment.StartsAt.ToString("yyyy-MM-dd") – @Assignment.EndsAt.ToString("yyyy-MM-dd")
+        </span>
+    </div>
+
+    @if (Assignment.ServiceId is null)
+    {
+        <p class="empty">Du är tillagd på bokningen av admin. Tid rapporteras på tjänster du har tagit.</p>
+    }
+    else
+    {
+        <p class="assignment-hours">
+            Rapporterat <strong>@ReportedHours.ToString("0.##")</strong> av @Assignment.EstimatedHours?.ToString("0.##") h
+        </p>
+
+        @if (Time is { Entries.Count: > 0 })
+        {
+            <ul class="assignment-entries">
+                @foreach (var t in Time.Entries)
+                {
+                    <li>
+                        <span>@t.WorkDate.ToString("yyyy-MM-dd")</span>
+                        <span>@t.Hours.ToString("0.##") h</span>
+                        <span class="assignment-note">@t.Note</span>
+                    </li>
+                }
+            </ul>
+        }
+
+        @if (error is not null)
+        {
+            <p class="admin-alert admin-alert-error">@error</p>
+        }
+
+        @if (HasStarted)
+        {
+            <div class="assignment-report">
+                <label>
+                    Datum
+                    <input type="date" @bind="workDate"
+                           min="@FirstDay.ToString("yyyy-MM-dd")"
+                           max="@LastReportDay.ToString("yyyy-MM-dd")" />
+                </label>
+                <label>
+                    Timmar
+                    <input type="number" min="0.5" max="24" step="0.5" @bind="hours" />
+                </label>
+                <label class="assignment-report-note">
+                    Anteckning (valfri)
+                    <input maxlength="500" @bind="note" />
+                </label>
+                <button class="admin-btn admin-btn-primary" @onclick="ReportAsync" disabled="@busy">
+                    Rapportera
+                </button>
+            </div>
+        }
+        else
+        {
+            <p class="empty">Uppdraget har inte börjat. Du kan rapportera tid från @FirstDay.ToString("yyyy-MM-dd").</p>
+        }
+    }
+</section>
+
+@code {
+    [Parameter, EditorRequired] public MyAssignmentResponse Assignment { get; set; } = default!;
+    [Parameter] public ServiceTimeResponse? Time { get; set; }
+    [Parameter] public Guid EmployeeId { get; set; }
+    [Parameter] public EventCallback OnReported { get; set; }
+
+    private DateOnly workDate;
+    private decimal hours;
+    private string? note;
+    private bool busy;
+    private string? error;
+
+    private static DateOnly Today => DateOnly.FromDateTime(DateTime.Today);
+    private DateOnly FirstDay => DateOnly.FromDateTime(Assignment.StartsAt);
+    private DateOnly LastDay => DateOnly.FromDateTime(Assignment.EndsAt);
+
+    // Sista dagen man kan rapportera: idag, eller bokningens slut om den redan är förbi
+    private DateOnly LastReportDay => LastDay < Today ? LastDay : Today;
+    private bool HasStarted => FirstDay <= Today;
+    private decimal ReportedHours => Time?.ReportedHours ?? 0;
+
+    protected override void OnInitialized()
+    {
+        workDate = HasStarted ? LastReportDay : FirstDay;
+    }
+
+    private async Task ReportAsync()
+    {
+        if (hours <= 0)
+        {
+            error = "Ange antal timmar.";
+            return;
+        }
+
+        busy = true;
+        error = await AssignmentApiClient.ReportTimeAsync(
+            Assignment.BookingId,
+            Assignment.ServiceId!.Value,
+            new ReportTimeRequest
+            {
+                EmployeeId = EmployeeId,
+                WorkDate = workDate,
+                Hours = hours,
+                Note = note
+            });
+        busy = false;
+
+        if (error is null)
+        {
+            hours = 0;
+            note = null;
+            await OnReported.InvokeAsync();
+        }
+    }
+}

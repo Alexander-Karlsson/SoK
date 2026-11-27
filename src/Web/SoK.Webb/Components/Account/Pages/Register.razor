@@ -6,6 +6,7 @@
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.WebUtilities
 @using SoK.Webb.Data
+@using SoK.Webb.Services.Customers.Enums
 
 @inject UserManager<ApplicationUser> UserManager
 @inject IUserStore<ApplicationUser> UserStore
@@ -130,23 +131,66 @@
         }
         return (IUserEmailStore<ApplicationUser>)UserStore;
     }
-
+    
     private sealed class InputModel
     {
         [Required]
+        [Display(Name = "Kundtyp")]
+        public CustomerType CustomerType { get; set; }
+            = CustomerType.PrivatePerson;
+
+        [StringLength(200)]
+        public string? FirstName { get; set; }
+
+        [StringLength(100)]
+        public string? LastName { get; set; }
+
+        [StringLength(200)]
+        public string? CompanyName { get; set; }
+
+        [StringLength(20)]
+        public string? OrganisationNumber { get; set; }
+
+        [StringLength(200)]
+        public string? ContactPerson { get; set; }
+
+        [Required]
+        [StringLength(100)]
+        public string Address { get; set; } = "";
+
+        [Required]
+        [StringLength(20)]
+        public string PostalCode { get; set; } = "";
+
+        [Required]
+        [StringLength(100)]
+        public string City { get; set; } = "";
+
+        [Required]
+        [Phone]
+        [StringLength(30)]
+        public string Phone { get; set; } = "";
+
+        [Required]
         [EmailAddress]
-        [Display(Name = "Email")]
+        [StringLength(200)]
+        [Display(Name = "E-post")]
         public string Email { get; set; } = "";
 
         [Required]
-        [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+        [StringLength(100, 
+            ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.",
+            MinimumLength = 6)]
         [DataType(DataType.Password)]
-        [Display(Name = "Password")]
+        [Display(Name = "Lösenord")]
         public string Password { get; set; } = "";
 
         [DataType(DataType.Password)]
-        [Display(Name = "Confirm password")]
-        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+        [Display(Name = "Bekräfta lösenord")]
+        [Compare("Password", 
+            ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; } = "";
     }
+
+    
 }

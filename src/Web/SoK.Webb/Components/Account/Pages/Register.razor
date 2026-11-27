@@ -29,18 +29,127 @@
             <hr />
             <ValidationSummary class="text-danger" role="alert" />
             <div class="form-floating mb-3">
+                <InputSelect @bind-Value="Input.CustomerType"
+                             id="Input.CustomerType"
+                             class="form-select">
+                    <option value="@CustomerType.PrivatePerson">Privatperson</option>
+                    <option value="@CustomerType.Company">Företag</option>
+                </InputSelect>
+
+                <label for="Input.CustomerType">Kundtyp</label>
+
+                <ValidationMessage For="() => Input.CustomerType"
+                                   class="text-danger" />
+            </div>
+            <div id="privatePersonFields">
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="Input.FirstName"
+                               id="Input.FirstName"
+                               class="form-control"
+                               placeholder="Förnamn" />
+                    <label for="Input.FirstName">Förnamn</label>
+                    <ValidationMessage For="() => Input.FirstName"
+                                       class="text-danger" />
+                </div>
+
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="Input.LastName"
+                               id="Input.LastName"
+                               class="form-control"
+                               placeholder="Efternamn" />
+                    <label for="Input.LastName">Efternamn</label>
+                    <ValidationMessage For="() => Input.LastName"
+                                       class="text-danger" />
+                </div>
+            </div>
+            <div id="companyFields">
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="Input.CompanyName"
+                               id="Input.CompanyName"
+                               class="form-control"
+                               placeholder="Företagsnamn" />
+                    <label for="Input.CompanyName">Företagsnamn</label>
+                    <ValidationMessage For="() => Input.CompanyName"
+                                       class="text-danger" />
+                </div>
+
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="Input.OrganisationNumber"
+                               id="Input.OrganisationNumber"
+                               class="form-control"
+                               placeholder="Organisationsnummer" />
+                    <label for="Input.OrganisationNumber">
+                        Organisationsnummer
+                    </label>
+                    <ValidationMessage For="() => Input.OrganisationNumber"
+                                       class="text-danger" />
+                </div>
+
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="Input.ContactPerson"
+                               id="Input.ContactPerson"
+                               class="form-control"
+                               placeholder="Kontaktperson" />
+                    <label for="Input.ContactPerson">Kontaktperson</label>
+                    <ValidationMessage For="() => Input.ContactPerson"
+                                       class="text-danger" />
+                </div>
+            </div>
+            <div id="contactFields">
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="Input.Address"
+                               id="Input.Address"
+                               class="form-control"
+                               placeholder="Adress" />
+                    <label for="Input.Address">Adress</label>
+                    <ValidationMessage For="() => Input.Address"
+                                       class="text-danger" />
+                </div>
+
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="Input.PostalCode"
+                               id="Input.PostalCode"
+                               class="form-control"
+                               placeholder="Postnummer" />
+                    <label for="Input.PostalCode">Postnummer</label>
+                    <ValidationMessage For="() => Input.PostalCode"
+                                       class="text-danger" />
+                </div>
+
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="Input.City"
+                               id="Input.City"
+                               class="form-control"
+                               placeholder="Stad" />
+                    <label for="Input.City">Stad</label>
+                    <ValidationMessage For="() => Input.City"
+                                       class="text-danger" />
+                </div>
+
+                <div class="form-floating mb-3">
+                    <InputText type="tel"
+                               @bind-Value="Input.Phone"
+                               id="Input.Phone"
+                               class="form-control"
+                               placeholder="Telefonnummer" />
+                    <label for="Input.Phone">Telefonnummer</label>
+                    <ValidationMessage For="() => Input.Phone"
+                                       class="text-danger" />
+                </div>
+            </div>
+            <div class="form-floating mb-3">
                 <InputText @bind-Value="Input.Email" id="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                <label for="Input.Email">Email</label>
+                <label for="Input.Email">E-post</label>
                 <ValidationMessage For="() => Input.Email" class="text-danger" />
             </div>
             <div class="form-floating mb-3">
                 <InputText type="password" @bind-Value="Input.Password" id="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <label for="Input.Password">Password</label>
+                <label for="Input.Password">Lösenord</label>
                 <ValidationMessage For="() => Input.Password" class="text-danger" />
             </div>
             <div class="form-floating mb-3">
                 <InputText type="password" @bind-Value="Input.ConfirmPassword" id="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <label for="Input.ConfirmPassword">Confirm Password</label>
+                <label for="Input.ConfirmPassword">Bekräfta lösenord</label>
                 <ValidationMessage For="() => Input.ConfirmPassword" class="text-danger" />
             </div>
             <button type="submit" class="w-100 btn btn-lg btn-primary">Register</button>

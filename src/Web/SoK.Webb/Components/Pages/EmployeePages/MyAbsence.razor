@@ -1,0 +1,44 @@
+﻿@page "/mina-sidor/franvaro"
+@rendermode InteractiveServer
+@attribute [Authorize]
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
+@using SoK.Webb.Data
+@using SoK.Webb.Components.Pages.AdminPages.AdminEmployeeAbsencePages
+@inject UserManager<ApplicationUser> UserManager
+
+<PageTitle>Min frånvaro</PageTitle>
+
+<div class="admin-page">
+    <h3>Min frånvaro</h3>
+
+    @if (isLoading)
+    {
+        <p>Laddar...</p>
+    }
+    else if (employeeId is null)
+    {
+        <p>Ditt konto är inte kopplat till någon anställd. Kontakta administratören.</p>
+    }
+    else
+    {
+        <EmployeeAbsenceSection EmployeeId="employeeId.Value" />
+    }
+</div>
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthState { get; set; } = default!;
+
+    private Guid? employeeId;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthState;
+        var user = await UserManager.GetUserAsync(state.User);
+
+        employeeId = user?.EmployeeId;
+        isLoading = false;
+    }
+}

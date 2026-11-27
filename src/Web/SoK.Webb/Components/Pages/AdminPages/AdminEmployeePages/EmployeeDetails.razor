@@ -6,6 +6,7 @@
 @using SoK.Webb.Components.Pages.AdminPages.AdminEmployeePayrollPages
 @using SoK.Webb.Components.Pages.AdminPages.AdminEmployeeAbsencePages
 @using SoK.Webb.Components.Pages.AdminPages.AdminEmployeePayslipPages
+@using SoK.Webb.Components.Pages.AdminPages.AdminEmployeePages
 @inject EmployeeApiClient EmployeeClient
 @inject NavigationManager Navigation
 
@@ -93,7 +94,7 @@
                 <p class="admin-alert admin-alert-error">@message</p>
             }
         </section>
-        
+        <EmployeeAccountSection EmployeeId="Id" />
         <EmployeePayslipSection EmployeeId="Id" />
         <EmployeeAbsenceSection EmployeeId="Id" />
     }

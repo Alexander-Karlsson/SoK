@@ -3,6 +3,7 @@ using Bookings.Application.Bookings.DTOs.Invoices;
 using Bookings.Application.Bookings.DTOs.Request;
 using Bookings.Application.Bookings.DTOs.Response;
 using Bookings.Application.Bookings.Interfaces;
+using Bookings.Application.Bookings.Mappings;
 using Bookings.Application.Bookings.Validation;
 using Bookings.Domain.Entities;
 using Bookings.Domain.Enums;
@@ -11,6 +12,7 @@ namespace Bookings.Application.Bookings.Services;
 
 public class BookingAppService(IBookingRepository repo, IMachineRepository machineRepo, IBusinessServiceRepository serviceRepo, IInvoiceClient invoiceClient)
 {
+
     public async Task<BookingDetails> CreateBookingAsync(CreateBookingRequest request)
     {
         BookingValidation.ValidateCreate(request);
@@ -259,4 +261,99 @@ public class BookingAppService(IBookingRepository repo, IMachineRepository machi
 
     public async Task<IReadOnlyList<OpenAssignmentResponse>> GetOpenAssignmentsAsync(string? title)
     => await repo.GetOpenAssignmentsAsync(string.IsNullOrWhiteSpace(title) ? null : title.Trim(), DateTime.UtcNow);
+
+    public async Task<IReadOnlyList<MyAssignmentResponse>> GetAssignmentsForEmployeeAsync(Guid employeeId)
+    {
+        if (employeeId == Guid.Empty)
+            throw new ArgumentException("En anställd måste anges.");
+
+        return await repo.GetAssignmentsForEmployeeAsync(employeeId);
+    }
+
+    public async Task<TimeEntryResponse?> ReportTimeAsync(Guid bookingId, Guid serviceId, ReportTimeRequest request)
+    {
+        if (request.EmployeeId == Guid.Empty)
+            throw new ArgumentException("En anställd måste anges.");
+
+        if (request.Hours <= 0 || request.Hours > BookingValidation.MaxHoursPerDay)
+            throw new ArgumentException($"Timmar måste vara mellan 0 och {BookingValidation.MaxHoursPerDay}.");
+
+        var note = string.IsNullOrWhiteSpace(request.Note) ? null : request.Note.Trim();
+
+        if (note?.Length > 500)
+            throw new ArgumentException("Anteckningen får vara högst 500 tecken.");
+
+        var details = await repo.GetBookingDetailsAsync(bookingId);
+
+        if (details is null)
+            return null;
+
+        var line = details.Services.FirstOrDefault(s => s.ServiceId == serviceId);
+
+        if (line is null)
+            return null;
+
+        if (details.Booking.Status != BookingStatus.Booked)
+            throw new InvalidOperationException("Tid kan bara rapporteras på bokade uppdrag.");
+
+        if (line.EmployeeId != request.EmployeeId)
+            throw new InvalidOperationException("Bara den som har tagit uppdraget kan rapportera tid.");
+
+        var firstDay = DateOnly.FromDateTime(details.Booking.StartsAt);
+        var lastDay = DateOnly.FromDateTime(details.Booking.EndsAt);
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+
+        if (request.WorkDate < firstDay || request.WorkDate > lastDay)
+            throw new ArgumentException("Datumet ligger utanför bokningens period.");
+
+        if (request.WorkDate > today)
+            throw new ArgumentException("Det går inte att rapportera tid i förväg.");
+
+        var alreadyReported = await repo.GetReportedHoursAsync(request.EmployeeId, request.WorkDate);
+
+        if (alreadyReported + request.Hours > BookingValidation.MaxHoursPerDay)
+            throw new InvalidOperationException($"Den anställda har redan rapporterat {alreadyReported} timmar den dagen.");
+
+        var entry = new TimeEntry
+        {
+            BookingServiceId = line.Id,
+            EmployeeId = request.EmployeeId,
+            WorkDate = request.WorkDate,
+            Hours = request.Hours,
+            Note = note,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        await repo.AddTimeEntryAsync(entry);
+
+        return entry.ToResponse();
+    }
+
+    public async Task<IReadOnlyList<ServiceTimeResponse>?> GetReportedTimeAsync(Guid bookingId)
+    {
+        var details = await repo.GetBookingDetailsAsync(bookingId);
+
+        if (details is null)
+            return null;
+
+        var entries = await repo.GetTimeEntriesForBookingAsync(bookingId);
+
+        return details.Services
+            .Select(line =>
+            {
+                var lineEntries = entries
+                    .Where(t => t.BookingServiceId == line.Id)
+                    .Select(t => t.ToResponse())
+                    .ToList();
+
+                return new ServiceTimeResponse(
+                    line.ServiceId,
+                    line.Name,
+                    line.EmployeeId,
+                    line.EstimatedHours,
+                    lineEntries.Sum(t => t.Hours),
+                    lineEntries);
+            })
+            .ToList();
+    }
 }

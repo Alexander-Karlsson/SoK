@@ -10,6 +10,11 @@
     <div class="container">
         <h1 class="mb-4">Fakturor</h1>
 
+        @if (errorMessage != null)
+        {
+            <div class="alert alert-danger">@errorMessage</div>
+        }
+
         <div class="invoice-grid">
             @foreach (var i in Invoice)
             {
@@ -23,6 +28,10 @@
                     </div>
 
                     <div class="invoice-card-body">
+                        <div class="invoice-row">
+                            <span class="invoice-label">Kund</span>
+                            <span>@CustomerName(i.Customer)</span>
+                        </div>
                         <div class="invoice-row">
                             <span class="invoice-label">Fakturadatum</span>
                             <span>@i.InvoiceDate.ToString("yyyy-MM-dd")</span>
@@ -46,9 +55,32 @@
 
 @code {
     private List<InvoiceResponse> Invoice { get; set; } = new();
+    private string? errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
-        Invoice = await InvoiceClient.GetAllAsync();
+        try
+        {
+            Invoice = await InvoiceClient.GetAllAsync();
+        }
+        catch (HttpRequestException)
+        {
+            errorMessage = "Kunde inte hämta fakturor.";
+        }
+    }
+
+    private static string CustomerName(CustomerInfo? customer)
+    {
+        if (customer == null)
+        {
+            return "Okänd kund";
+        }
+
+        if (!string.IsNullOrWhiteSpace(customer.CompanyName))
+        {
+            return customer.CompanyName;
+        }
+
+        return $"{customer.FirstName} {customer.LastName}";
     }
 }

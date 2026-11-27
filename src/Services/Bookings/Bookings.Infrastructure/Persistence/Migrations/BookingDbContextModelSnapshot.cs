@@ -218,6 +218,41 @@ namespace Bookings.Infrastructure.Persistence.Migrations
                     b.ToTable("Machines");
                 });
 
+            modelBuilder.Entity("Bookings.Domain.Entities.TimeEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BookingServiceId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Hours")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateOnly>("WorkDate")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookingServiceId");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.ToTable("TimeEntries");
+                });
+
             modelBuilder.Entity("Bookings.Domain.Entities.BookingEmployee", b =>
                 {
                     b.HasOne("Bookings.Domain.Entities.Booking", null)
@@ -254,6 +289,15 @@ namespace Bookings.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("ServiceId")
                         .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Bookings.Domain.Entities.TimeEntry", b =>
+                {
+                    b.HasOne("Bookings.Domain.Entities.BookingService", null)
+                        .WithMany()
+                        .HasForeignKey("BookingServiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 #pragma warning restore 612, 618

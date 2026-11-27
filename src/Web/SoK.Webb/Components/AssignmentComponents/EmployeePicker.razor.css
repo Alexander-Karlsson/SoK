@@ -1,0 +1,27 @@
+/* CSS for EmployeePicker component */
+.picker-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    max-width: 420px;
+    margin-bottom: 1.5rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #6b665e;
+}
+
+    .picker-field select {
+        padding: 0.6rem 0.75rem;
+        border: 1px solid #d6d0c8;
+        border-radius: 6px;
+        font-size: 1rem;
+        font-weight: 400;
+        color: var(--color-text);
+        background: #ffffff;
+    }
+
+        .picker-field select:focus {
+            outline: none;
+            border-color: var(--color-yellow);
+            box-shadow: 0 0 0 3px rgba(184, 137, 26, 0.25);
+        }

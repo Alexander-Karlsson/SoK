@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -18,7 +18,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Services\Bookings\Bookings.Application\Bookings.Application.csproj" />
     <ProjectReference Include="..\..\Services\Invoices\Invoices.Application\Invoices.Application.csproj" />
+	  <ProjectReference Include="..\..\Services\Employees\Employees.Application\Employees.Application.csproj" />
   </ItemGroup>
 
 </Project>

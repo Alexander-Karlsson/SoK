@@ -1,0 +1,160 @@
+﻿.admin-card {
+    margin-top: 1.5rem;
+}
+
+.admin-payslip-list {
+    list-style: none;
+    margin: 0 0 1.25rem;
+    padding: 0;
+}
+
+    .admin-payslip-list li {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #eee8df;
+    }
+
+        .admin-payslip-list li:last-child {
+            border-bottom: none;
+        }
+
+.admin-payslip-row {
+    all: unset;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    cursor: pointer;
+}
+
+    .admin-payslip-row span {
+        font-size: 0.9rem;
+        color: #6b665e;
+    }
+
+    .admin-payslip-row:hover strong {
+        color: var(--color-yellow);
+    }
+
+    .admin-payslip-row:focus-visible {
+        outline: 3px solid var(--color-yellow);
+        outline-offset: 2px;
+        border-radius: 4px;
+    }
+
+.admin-payslip-details {
+    margin-top: 0.75rem;
+    padding: 1rem;
+    background: #faf8f5;
+    border-radius: 6px;
+}
+
+.admin-payslip-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.admin-payslip-form-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 1rem;
+    color: var(--color-dark);
+}
+
+.admin-payslip-hint {
+    font-size: 0.85rem;
+    color: #6b665e;
+    margin: 0;
+}
+
+dl {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin: 0 0 1rem;
+}
+
+    dl > div {
+        display: grid;
+        grid-template-columns: 40% 1fr;
+        gap: 0.75rem;
+    }
+
+dt {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #6b665e;
+}
+
+dd {
+    margin: 0;
+    color: var(--color-text);
+}
+
+/* Nettolönen: linje ovanför och fet text */
+.admin-payslip-net {
+    padding-top: 0.6rem;
+    border-top: 1px solid #d6d0c8;
+}
+
+    .admin-payslip-net dt,
+    .admin-payslip-net dd {
+        font-weight: 700;
+        color: var(--color-dark);
+    }
+
+.admin-form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    margin-bottom: 1rem;
+}
+
+    .admin-form-field label {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #6b665e;
+    }
+
+::deep input,
+::deep select {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid #d6d0c8;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--color-text);
+    background: #ffffff;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+    ::deep input:focus,
+    ::deep select:focus {
+        outline: none;
+        border-color: var(--color-yellow);
+        box-shadow: 0 0 0 3px rgba(184, 137, 26, 0.25);
+    }
+
+::deep .invalid {
+    border-color: #b32121;
+    outline: none;
+}
+
+::deep .validation-message {
+    font-size: 0.8rem;
+}
+
+.admin-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.admin-alert {
+    margin: 1rem 0 0;
+}

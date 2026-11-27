@@ -1,0 +1,59 @@
+﻿@page "/templates"
+@using Invoices.Application.Dtos
+@using Invoices.Application.Helpers
+@using SoK.Webb.Clients
+@inject InvoiceApiClient InvoiceClient
+
+<PageTitle>Fakturamallar</PageTitle>
+
+<div class="container py-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="template-title">Fakturamallar</h1>
+        <a href="/templates/create" class="btn btn-create">Skapa ny mall</a>
+    </div>
+
+    @if (templates.Count == 0)
+    {
+        <p>Inga mallar hittades!</p>
+    }
+
+    <div class="row">
+        @foreach (var t in templates)
+        {
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="template-card">
+
+                    <div class="template-card-header" style="background-color: @t.PrimaryColor;">
+                        <img src="@t.Logo" alt="@t.CompanyName" class="template-logo" />
+
+                        @if (t.Id == TemplateDefaults.StandardTemplateId)
+                        {
+                            <span class="template-badge">Standard</span>
+                        }
+                    </div>
+
+                    <div class="template-card-body">
+                        <div class="fw-bold">@t.CompanyName</div>
+                        <div class="small">Vår referens: @t.OurReference</div>
+                        <p class="small mt-2 mb-0">@t.StandardText</p>
+                    </div>
+
+                    <div class="template-card-footer">
+                        <a href="/templates/edit/@t.Id" class="btn btn-edit">Ändra</a>
+                    </div>
+
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private List<TemplateResponse> templates = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        templates = await InvoiceClient.GetTemplatesAsync();
+    }
+}

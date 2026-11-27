@@ -1,0 +1,69 @@
+﻿@page "/bookinglist"
+@rendermode InteractiveServer
+@using Bookings.Application.Bookings.DTOs.Response
+@using Bookings.Domain.Enums
+@using SoK.Webb.Clients
+
+@inject BookingApiClient BookingApiClient
+@inject NavigationManager Navigation
+
+<PageTitle>Bokningar</PageTitle>
+
+<div class="admin-page">
+    <div class="admin-page-header">
+        <h2>Bokningar</h2>
+        <a class="admin-btn admin-btn-primary" href="/createbooking">+ Ny bokning</a>
+    </div>
+
+    @if (bookings is null)
+    {
+        <p class="empty">Laddar...</p>
+    }
+    else if (bookings.Count == 0)
+    {
+        <p class="empty">Det finns inga bokningar.</p>
+    }
+    else
+    {
+        <div class="booking-table-wrapper">
+            <table class="booking-table">
+                <thead>
+                    <tr>
+                        <th>Start</th>
+                        <th>Slut</th>
+                        <th>Status</th>
+                        <th>Kund</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var b in bookings)
+                    {
+                        <tr @onclick="() => OpenDetails(b.Id)">
+                            <td>@b.StartsAt.ToString("yyyy-MM-dd HH:mm")</td>
+                            <td>@b.EndsAt?.ToString("yyyy-MM-dd HH:mm")</td>
+                            <td>
+                                <span class="admin-badge @b.Status.ToBadgeClass()">
+                                    @b.Status.ToSwedish()
+                                </span>
+                            </td>
+                            <td>@b.CustomerId</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code
+{
+    private List<BookingSummaryResponse>? bookings;
+
+    protected override async Task OnInitializedAsync()
+    {
+        bookings = await BookingApiClient.GetAllAsync();
+    }
+
+    private void OpenDetails(Guid id) => Navigation.NavigateTo($"/bookingdetails/{id}");
+    
+}

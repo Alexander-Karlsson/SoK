@@ -1,48 +1,38 @@
-﻿using Employees.Application.Employees.DTOs.EmployeePayrol;
+﻿using Employees.Application.Employees.DTOs;
 using Employees.Application.Employees.DTOs.EmployeePayroll;
 using Employees.Application.Employees.Services;
-using Employees.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Employees.Api.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/employees/{employeeId:guid}/payroll")]
 public class EmployeePayrollsController(EmployeePayrollService service) : ControllerBase
 {
     [HttpPost]
-    public async Task<IActionResult> CreatePayroll([FromBody] CreateEmployeePayrollRequest request)
+    public async Task<IActionResult> CreatePayroll(Guid employeeId, [FromBody] CreateEmployeePayrollRequest request)
     {
-        var payroll = await service.CreatePayrollAsync(request);
-        return Ok(payroll);
-    }
+        var (result, payroll) = await service.CreatePayrollAsync(employeeId, request);
 
-    [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetPayrollById(Guid id)
-    {
-        var payroll = await service.GetPayrollByIdAsync(id);
-
-        if (payroll == null)
+        if (result == PayrollResult.EmployeeNotFound)
         {
             return NotFound();
         }
 
-        return Ok(payroll);
+        if (result == PayrollResult.AlreadyExists)
+        {
+            return Conflict(new ErrorResponse("Den anställda har redan lönevillkor."));
+        }
+
+        return CreatedAtAction(nameof(GetPayroll), new { employeeId }, payroll);
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetPayrollsByEmployee([FromQuery] Guid employeeId)
+    public async Task<IActionResult> GetPayroll(Guid employeeId)
     {
-        var payrolls = await service.GetPayrollsByEmployeeIdAsync(employeeId);
-        return Ok(payrolls);
-    }
+        var payroll = await service.GetPayrollAsync(employeeId);
 
-    [HttpPut("{id:guid}")]
-    public async Task<IActionResult> UpdatePayroll(Guid id, [FromBody] UpdateEmployeePayrollRequest request)
-    {
-        var payroll = await service.UpdatePayrollAsync(id, request);
-
-        if (payroll == null)
+        if (payroll is null)
         {
             return NotFound();
         }
@@ -50,10 +40,29 @@ public class EmployeePayrollsController(EmployeePayrollService service) : Contro
         return Ok(payroll);
     }
 
-    [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> DeletePayroll(Guid id)
+    [HttpPut]
+    public async Task<IActionResult> UpdatePayroll(Guid employeeId, [FromBody] UpdateEmployeePayrollRequest request)
     {
-        await service.DeletePayrollAsync(id);
+        var payroll = await service.UpdatePayrollAsync(employeeId, request);
+
+        if (payroll is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(payroll);
+    }
+
+    [HttpDelete]
+    public async Task<IActionResult> DeletePayroll(Guid employeeId)
+    {
+        var deleted = await service.DeletePayrollAsync(employeeId);
+
+        if (!deleted)
+        {
+            return NotFound();
+        }
+
         return NoContent();
     }
 }

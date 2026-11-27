@@ -11,7 +11,7 @@ namespace SoK.Webb;
 
 public class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
@@ -28,9 +28,47 @@ public class Program
                         "Customers API address is missing."));
             });
 
+        // Add HttpClient services for API clients
+        //Invoices
         builder.Services.AddHttpClient<InvoiceApiClient>(client =>
         {
             client.BaseAddress = new Uri(builder.Configuration["ApiUrls:Invoices"]!);
+        });
+        //Bookings
+        builder.Services.AddHttpClient<BookingApiClient>(client =>
+        {
+            client.BaseAddress = new Uri(builder.Configuration["ApiUrls:Bookings"]!);
+        });
+        //Employees
+        builder.Services.AddHttpClient<EmployeeApiClient>(client =>
+        {
+            client.BaseAddress = new Uri(builder.Configuration["ApiUrls:Employees"]!);
+        });
+        //Catalog
+        builder.Services.AddHttpClient<CatalogApiClient>(client =>
+        {
+            client.BaseAddress = new Uri(builder.Configuration["ApiUrls:Bookings"]!);
+        });
+
+        //Assignment
+        builder.Services.AddHttpClient<AssignmentApiClient>(client =>
+        {
+            client.BaseAddress = new Uri(builder.Configuration["ApiUrls:Bookings"]!);
+        });
+        //Payroll
+        builder.Services.AddHttpClient<EmployeePayrollApiClient>(client =>
+        {
+            client.BaseAddress = new Uri(builder.Configuration["ApiUrls:Employees"]!);
+        });
+        //Absence
+        builder.Services.AddHttpClient<AbsenceApiClient>(client =>
+        {
+            client.BaseAddress = new Uri(builder.Configuration["ApiUrls:Employees"]!);
+        });
+        //Payslip
+        builder.Services.AddHttpClient<PayslipApiClient>(client =>
+        {
+            client.BaseAddress = new Uri(builder.Configuration["ApiUrls:Employees"]!);
         });
 
         builder.Services.AddCascadingAuthenticationState();
@@ -53,7 +91,9 @@ public class Program
             {
                 options.SignIn.RequireConfirmedAccount = true;
                 options.Stores.SchemaVersion = IdentitySchemaVersions.Version3;
+                options.User.AllowedUserNameCharacters += "åÅäÄöÖ";
             })
+            .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddSignInManager()
             .AddDefaultTokenProviders();
@@ -61,6 +101,17 @@ public class Program
         builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
         var app = builder.Build();
+
+        using (var scope = app.Services.CreateScope())
+        {
+            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+            foreach (var role in new[] { "Admin", "Employee", "Customer" })
+            {
+                if (!await roleManager.RoleExistsAsync(role))
+                    await roleManager.CreateAsync(new IdentityRole(role));
+            }
+        }
 
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())

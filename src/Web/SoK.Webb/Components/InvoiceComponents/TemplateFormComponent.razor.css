@@ -1,0 +1,13 @@
+label {
+    font-weight: bold;
+}
+
+.btn-back {
+    background-color: var(--color-beige-dark);
+}
+
+.btn-save {
+    background-color: var(--color-yellow);
+    font-family: var(--font-heading);
+    font-size: 1.2rem;
+}

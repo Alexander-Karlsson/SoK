@@ -1,0 +1,194 @@
+﻿@using System.Globalization
+@using Employees.Application.Employees.DTOs.Payslip
+@using Microsoft.AspNetCore.Authorization
+@using SoK.Webb.Clients
+@* @attribute [Authorize(Roles = "Admin")] *@
+@inject PayslipApiClient PayslipClient
+
+<section class="admin-card">
+    <h4>Lönespecifikationer</h4>
+
+    @if (isLoading)
+    {
+        <p>Laddar...</p>
+    }
+    else
+    {
+        @if (payslips.Count == 0)
+        {
+            <p class="empty">Inga lönespecifikationer skapade.</p>
+        }
+        else
+        {
+            <ul class="admin-payslip-list">
+                @foreach (var p in payslips)
+                {
+                    <li>
+                        <button type="button" class="admin-payslip-row" @onclick="() => Toggle(p.Id)">
+                            <strong>@MonthNames[p.Month - 1] @p.Year</strong>
+                            <span>Netto @SumAmount(p.NetSalary)</span>
+                        </button>
+
+                        @if (selectedId == p.Id)
+                        {
+                            <div class="admin-payslip-details">
+                                <dl>
+                                    <div><dt>Utbetalas</dt><dd>@p.PaymentDate</dd></div>
+                                    <div><dt>Grundlön</dt><dd>@SumAmount(p.BaseSalary)</dd></div>
+                                    <div><dt>Bonus</dt><dd>@SumAmount(p.Bonus)</dd></div>
+                                    <div><dt>Frånvaroavdrag</dt><dd>− @SumAmount(p.AbsenceDeduction)</dd></div>
+                                    <div><dt>Övriga avdrag</dt><dd>− @SumAmount(p.OtherDeductions)</dd></div>
+                                    <div><dt>Bruttolön</dt><dd>@SumAmount(p.GrossSalary)</dd></div>
+                                    <div><dt>Skatt (@p.TaxRate %)</dt><dd>− @SumAmount(p.TaxAmount)</dd></div>
+                                    <div class="admin-payslip-net"><dt>Nettolön</dt><dd>@SumAmount(p.NetSalary)</dd></div>
+                                </dl>
+                            </div>
+                        }
+                    </li>
+                }
+            </ul>
+        }
+        @if (!ReadOnly)
+        {
+            @if (isFormOpen)
+            {
+                <EditForm Model="form" OnValidSubmit="Save">
+                    <h5 class="admin-payslip-form-title">Ny lönespecifikation</h5>
+                    <DataAnnotationsValidator />
+
+                    <div class="admin-form-field">
+                        <label>
+                            År
+                            <InputNumber @bind-Value="form.Year" ParsingErrorMessage="Ange ett giltigt år." />
+                        </label>
+                        <ValidationMessage For="() => form.Year" />
+                    </div>
+
+                    <div class="admin-form-field">
+                        <label>
+                            Månad
+                            <InputSelect @bind-Value="form.Month">
+                                @for (var m = 1; m <= 12; m++)
+                                {
+                                    <option value="@m">@MonthNames[m - 1]</option>
+                                }
+                            </InputSelect>
+                        </label>
+                        <ValidationMessage For="() => form.Month" />
+                    </div>
+
+                    <div class="admin-form-field">
+                        <label>
+                            Bonus (kr)
+                            <InputNumber @bind-Value="form.Bonus" ParsingErrorMessage="Bonus måste vara ett tal." />
+                        </label>
+                        <ValidationMessage For="() => form.Bonus" />
+                    </div>
+
+                    <div class="admin-form-field">
+                        <label>
+                            Övriga avdrag (kr)
+                            <InputNumber @bind-Value="form.OtherDeductions" ParsingErrorMessage="Avdrag måste vara ett tal." />
+                        </label>
+                        <ValidationMessage For="() => form.OtherDeductions" />
+                    </div>
+
+                    <p class="admin-payslip-hint">Frånvaroavdrag och skatt räknas ut automatiskt.</p>
+
+                    <div class="admin-form-actions">
+                        <button type="button" class="admin-btn admin-btn-secondary" @onclick="Cancel">Avbryt</button>
+                        <button type="submit" class="admin-btn admin-btn-primary">Skapa</button>
+                    </div>
+                </EditForm>
+            }
+            else
+            {
+                <button class="admin-btn admin-btn-primary" @onclick="StartAdd">Skapa lönespecifikation</button>
+            }
+        }
+    }
+
+    @if (message is not null)
+    {
+        <p class="admin-alert admin-alert-error">@message</p>
+    }
+</section>
+
+@code {
+    [Parameter, EditorRequired]
+    public Guid EmployeeId { get; set; }
+    [Parameter]
+    public bool ReadOnly { get; set; }
+
+    private static readonly string[] MonthNames =
+    {
+        "Januari", "Februari", "Mars", "April", "Maj", "Juni",
+        "Juli", "Augusti", "September", "Oktober", "November", "December"
+    };
+
+    private static readonly CultureInfo Swedish = new("sv-SE");
+
+    private List<PayslipResponse> payslips = new();
+    private CreatePayslipRequest form = new();
+    private bool isLoading = true;
+    private bool isFormOpen;
+    private Guid? selectedId;
+    private string? message;
+
+    protected override async Task OnInitializedAsync()
+    {
+        payslips = await PayslipClient.GetAllAsync(EmployeeId);
+        isLoading = false;
+    }
+
+    private void Toggle(Guid id)
+    {
+        selectedId = selectedId == id ? null : id;
+    }
+
+    private void StartAdd()
+    {
+        message = null;
+        form = new CreatePayslipRequest();
+        isFormOpen = true;
+    }
+
+    private void Cancel()
+    {
+        isFormOpen = false;
+        message = null;
+    }
+
+    private async Task Save()
+    {
+        message = null;
+
+        var (created, error) = await PayslipClient.CreateAsync(EmployeeId, form);
+
+        if (created is null)
+        {
+            message = error;
+            return;
+        }
+
+        payslips = await PayslipClient.GetAllAsync(EmployeeId);
+        selectedId = created.Id;
+        isFormOpen = false;
+    }
+
+    private async Task Delete(Guid id)
+    {
+        message = null;
+
+        if (!await PayslipClient.DeleteAsync(EmployeeId, id))
+        {
+            message = "Kunde inte ta bort lönespecifikationen.";
+            return;
+        }
+
+        payslips.RemoveAll(p => p.Id == id);
+    }
+
+    private static string SumAmount(decimal amount)
+        => amount.ToString("N2", Swedish) + " kr";
+}

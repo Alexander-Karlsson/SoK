@@ -1,4 +1,5 @@
 ﻿using Employees.Application.Employees.DTOs.Employee;
+using Employees.Application.Employees.Exceptions;
 using Employees.Domain.Entities;
 using Employees.Infrastructure;
 
@@ -8,6 +9,8 @@ public class EmployeeService(IEmployeeRepository repository)
 {
     public async Task<EmployeeResponse> CreateEmployeeAsync(CreateEmployeeRequest request)
     {
+        await EnsureUniqueAsync(request.PersonalNumber.Trim(), request.Email.Trim());
+
         var employee = new Employee
         {
             FirstName = request.FirstName.Trim(),
@@ -15,16 +18,20 @@ public class EmployeeService(IEmployeeRepository repository)
             PersonalNumber = request.PersonalNumber.Trim(),
             Email = request.Email.Trim(),
             PhoneNumber = request.PhoneNumber.Trim(),
+            Address = request.Address.Trim(),
+            Zipcode = request.Zipcode.Trim(),
+            City = request.City.Trim(),
 
             EmergencyContactName = request.EmergencyContactName.Trim(),
             EmergencyContactNumber = request.EmergencyContactNumber.Trim(),
             Relationship = request.Relationship.Trim(),
 
-            Title = request.Title.Trim(),
+            Title = request.Title,
             Department = request.Department,
             EmployeeType = request.EmployeeType,
             EmploymentDate = request.EmploymentStartDate.ToDateTime(TimeOnly.MinValue),
-            VacationDaysPerYear = request.VacationDaysPerYear,
+            EmploymentEndDate = request.EmploymentEndDate?.ToDateTime(TimeOnly.MinValue),
+            EmployeeRate = request.EmployeeRate,
             IsActive = true
         };
 
@@ -32,9 +39,13 @@ public class EmployeeService(IEmployeeRepository repository)
         return ToResponse(created);
     }
 
-    public async Task<EmployeeResponse> GetEmployeeByIdAsync(Guid id)
+    public async Task<EmployeeResponse?> GetEmployeeByIdAsync(Guid id)
     {
         var employee = await repository.GetByIdAsync(id);
+        if (employee == null)
+        {
+            return null;
+        }
         return ToResponse(employee);
     }
 
@@ -44,24 +55,66 @@ public class EmployeeService(IEmployeeRepository repository)
         return employees.Select(ToResponse).ToList();
     }
 
-    public async Task<EmployeeResponse> UpdateEmployeeAsync(Guid id, UpdateEmployeeRequest request)
+    public async Task<EmployeeResponse?> UpdateEmployeeAsync(Guid id, UpdateEmployeeRequest request)
     {
+
         var employee = await repository.GetByIdAsync(id);
+        if (employee == null)
+        {
+            return null;
+        }
+        await EnsureUniqueAsync(request.PersonalNumber.Trim(), request.Email.Trim(), id);
 
         employee.FirstName = request.FirstName.Trim();
         employee.LastName = request.LastName.Trim();
+        employee.PersonalNumber = request.PersonalNumber.Trim();
         employee.Email = request.Email.Trim();
         employee.PhoneNumber = request.PhoneNumber.Trim();
+        employee.Address = request.Address.Trim();
+        employee.Zipcode = request.Zipcode.Trim();
+        employee.City = request.City.Trim();
 
         employee.EmergencyContactName = request.EmergencyContactName.Trim();
         employee.EmergencyContactNumber = request.EmergencyContactNumber.Trim();
         employee.Relationship = request.Relationship.Trim();
 
-        employee.Title = request.Title.Trim();
+        employee.Title = request.Title;
         employee.Department = request.Department;
         employee.EmployeeType = request.EmployeeType;
         employee.EmploymentDate = request.EmploymentStartDate.ToDateTime(TimeOnly.MinValue);
+        employee.EmploymentEndDate = request.EmploymentEndDate?.ToDateTime(TimeOnly.MinValue);
+        employee.EmployeeRate = request.EmployeeRate;
         employee.VacationDaysPerYear = request.VacationDaysPerYear;
+
+        var updated = await repository.UpdateAsync(employee);
+        return ToResponse(updated);
+    }
+
+    public async Task<EmployeeResponse?> DeactivateEmployeeAsync(Guid id, DeactivateEmployeeRequest request)
+    {
+        var employee = await repository.GetByIdAsync(id);
+        if (employee == null)
+        {
+            return null;
+        }
+        employee.IsActive = false;
+        employee.EmploymentEndDate = request.EmploymentEndDate.ToDateTime(TimeOnly.MinValue);
+
+        var update = await repository.UpdateAsync(employee);
+        return ToResponse(update);
+    }
+    public async Task<EmployeeResponse?> ReactivateEmployeeAsync(Guid id, ReactivateEmployeeRequest request)
+    {
+        var employee = await repository.GetByIdAsync(id);
+
+        if (employee == null)
+        {
+            return null;
+        }
+
+        employee.IsActive = true;
+        employee.EmploymentDate = request.EmploymentStartDate.ToDateTime(TimeOnly.MinValue);
+        employee.EmploymentEndDate = default;
 
         var updated = await repository.UpdateAsync(employee);
         return ToResponse(updated);
@@ -72,17 +125,41 @@ public class EmployeeService(IEmployeeRepository repository)
         return repository.DeleteAsync(id);
     }
 
+    private async Task EnsureUniqueAsync(string personalNumber, string email, Guid? exceptId = null)
+    {
+        if (await repository.PersonalNumberExistsAsync(personalNumber, exceptId))
+        {
+            throw new DuplicateEmployeeException($"Det finns redan en anställd med personnummer {personalNumber}.");
+        }
+
+        if (await repository.EmailExistsAsync(email, exceptId))
+        {
+            throw new DuplicateEmployeeException($"Det finns redan en anställd med e-post {email}.");
+        }
+    }
+
     private static EmployeeResponse ToResponse(Employee e) => new()
     {
         Id = e.Id,
         FirstName = e.FirstName,
         LastName = e.LastName,
+        PersonalNumber = e.PersonalNumber,
         Email = e.Email,
         PhoneNumber = e.PhoneNumber,
+        Address = e.Address,
+        Zipcode = e.Zipcode,
+        City = e.City,
+        EmergencyContactName = e.EmergencyContactName,
+        EmergencyContactNumber = e.EmergencyContactNumber,
+        Relationship = e.Relationship,
+        EmployeeNumber = e.EmployeeNumber,
         Title = e.Title,
         Department = e.Department,
         EmployeeType = e.EmployeeType,
+        EmployeeRate = e.EmployeeRate,
         EmploymentStartDate = DateOnly.FromDateTime(e.EmploymentDate),
-        VacationDaysPerYear = e.VacationDaysPerYear
+        EmploymentEndDate = e.EmploymentEndDate is { } end ? DateOnly.FromDateTime(end) : null,
+        VacationDaysPerYear = e.VacationDaysPerYear,
+        IsActive = e.IsActive
     };
 }

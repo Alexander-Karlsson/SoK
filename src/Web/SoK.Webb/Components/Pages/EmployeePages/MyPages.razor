@@ -1,0 +1,86 @@
+﻿@page "/mina-sidor"
+@rendermode InteractiveServer
+@attribute [Authorize]
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
+@using SoK.Webb.Clients
+@using SoK.Webb.Data
+@inject UserManager<ApplicationUser> UserManager
+@inject EmployeeApiClient EmployeeClient
+
+<PageTitle>Mina sidor</PageTitle>
+
+<div class="admin-page">
+    <div class="admin-page-header">
+        <h2>Mina sidor</h2>
+    </div>
+
+    <div class="my-pages-grid">
+        <AuthorizeView Roles="Employee">
+            <a class="admin-card my-pages-card" href="/mina-sidor/tidreg">
+                <h4>Registrera tid</h4>
+                <p>Registrera din tid</p>
+            </a>
+            <a class="admin-card my-pages-card" href="/mina-sidor/uppdrag">
+                <h4>Mina uppdrag</h4>
+                <p>Se dina tagna uppdrag</p>
+            </a>
+
+            <a class="admin-card my-pages-card" href="/mina-sidor/lediga-uppdrag">
+                <h4>Lediga uppdrag</h4>
+                <p>Se och ta lediga uppdrag</p>
+            </a>
+
+            <a class="admin-card my-pages-card" href="/mina-sidor/franvaro">
+                <h4>Min frånvaro</h4>
+                <p>Registrera och se din frånvaro</p>
+            </a>
+
+            <a class="admin-card my-pages-card" href="/mina-sidor/lonespecar">
+                <h4>Mina lönespecar</h4>
+                <p>Se dina lönespecifikationer</p>
+            </a>
+        </AuthorizeView>
+
+        <AuthorizeView Roles="Customer">
+            <a class="admin-card my-pages-card" href="/book">
+                <h4>Boka</h4>
+                <p>Gör en ny bokning</p>
+            </a>
+
+            <a class="admin-card my-pages-card" href="/mina-sidor/fakturor">
+                <h4>Mina fakturor</h4>
+                <p>Se dina fakturor</p>
+            </a>
+        </AuthorizeView>
+
+        <a class="admin-card my-pages-card" href="/Account/Manage/ChangePassword">
+            <h4>Byt lösenord</h4>
+            <p>Ändra ditt lösenord</p>
+        </a>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthState { get; set; } = default!;
+
+    private string? name;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthState;
+        var user = await UserManager.GetUserAsync(state.User);
+
+        if (user?.EmployeeId is not null)
+        {
+            var employee = await EmployeeClient.GetByIdAsync(user.EmployeeId.Value);
+            name = employee?.FirstName + "" + employee?.LastName;
+        }
+        // else (user?.CustomerId is not null)
+        // {
+        //     var customer = await CustomerClient.GetByIdAsuync(user.CustomerId.Value);
+        //     name = customer?.FistName + "" + customer?.LastName;
+        // }
+    }
+}

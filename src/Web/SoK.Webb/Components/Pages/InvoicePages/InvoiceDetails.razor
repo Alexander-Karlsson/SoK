@@ -1,0 +1,176 @@
+﻿@page "/invoices/{Id:guid}"
+@rendermode InteractiveServer
+@using Invoices.Application.Dtos
+@using SoK.Webb.Clients
+@using SoK.Webb.Components.InvoiceComponents
+@inject InvoiceApiClient InvoiceClient
+
+<PageTitle>Faktura</PageTitle>
+
+@if (invoice == null)
+{
+    <p class="text-center py-5">Fakturan hittades inte.</p>
+}
+else
+{
+    <div class="container py-4 invoice-page">
+
+        <div class="d-flex justify-content-between align-items-center d-print-none mb-3">
+            <a href="/invoices" class="btn btn-back">Tillbaka</a>
+
+            <div class="d-flex align-items-center gap-2">
+                <InvoiceStatusBadgeComponent Status="invoice.Status" Text="@invoice.StatusText" />
+
+                @if (invoice.CanMarkAsSent)
+                {
+                    <button class="btn btn-status" @onclick='() => ChangeStatus("Sent")'>Markera som skickad</button>
+                }
+                @if (invoice.CanMarkAsPaid)
+                {
+                    <button class="btn btn-status" @onclick='() => ChangeStatus("Paid")'>Markera som betald</button>
+                }
+
+                <button class="btn btn-print" onclick="window.print()">Skriv ut</button>
+            </div>
+        </div>
+
+        @if (errorMessage != null)
+        {
+            <div class="alert alert-danger d-print-none">@errorMessage</div>
+        }
+
+        <div class="invoice-paper">
+
+            <div class="invoice-header d-flex justify-content-between align-items-center p-4" style="background-color: @invoice.Template?.PrimaryColor;">
+                <img src="@invoice.Template?.Logo" alt="@invoice.Template?.CompanyName" class="invoice-logo" />
+                <h1>Faktura: @invoice.InvoiceNumber</h1>
+            </div>
+
+            <div class="p-4">
+
+                <div class="row mb-4">
+                    <div class="col-6">
+                        <div class="adress-box">
+                            <div class="label">Från</div>
+                            <div class="fw-bold fs-5">@invoice.Template?.CompanyName</div>
+                            @if (!string.IsNullOrWhiteSpace(invoice.Template?.OurReference))
+                            {
+                                <div>Vår referens: @invoice.Template.OurReference</div>
+                            }
+                            <div>@invoice.Template?.CompanyAddress</div>
+                            <div>@invoice.Template?.CompanyPostalCode @invoice.Template?.CompanyCity</div>
+                            <div class="mt-2 small">Org.nr: @invoice.Template?.CompanyNumber</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="adress-box">
+                            <div class="label">Till</div>
+                            <div class="fw-bold fs-5">@invoice.Customer?.CompanyName @invoice.Customer?.FirstName @invoice.Customer?.LastName</div>
+                            @if (!string.IsNullOrWhiteSpace(invoice.Customer?.ContactPerson))
+                            {
+                                <div>Referens: @invoice.Customer.ContactPerson</div>
+                            }
+                            <div>@invoice.Customer?.Address</div>
+                            <div>@invoice.Customer?.PostalCode @invoice.Customer?.City</div>
+                            @if (!string.IsNullOrWhiteSpace(invoice.Customer?.OrganisationNumber))
+                            {
+                                <div class="mt-2 small">Org.nr: @invoice.Customer?.OrganisationNumber</div>
+                            }
+
+                            <div class="small">Kundnr: @invoice.Customer?.CustomerNumber</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-row row p-3 mb-4">
+                    <div class="col-3">
+                        <strong>Fakturadatum</strong>
+                        <div>@invoice.InvoiceDate</div>
+                    </div>
+                    <div class="col-3">
+                        <strong>Förfallodatum</strong>
+                        <div>@invoice.DueDate</div>
+                    </div>
+                    <div class="col-3">
+                        <strong>Bankgiro</strong>
+                        <div>@invoice.Template?.CompanyBankgiro</div>
+                    </div>
+                    <div class="col-3">
+                        <strong>OCR</strong>
+                        <div>@invoice.OcrReference</div>
+                    </div>
+                </div>
+
+                <table class="table">
+                    <tr>
+                        <th>Beskrivning</th>
+                        <th>Antal</th>
+                        <th>Enhet</th>
+                        <th>Á pris</th>
+                        <th>Belopp</th>
+                    </tr>
+                    @foreach (var line in invoice.Lines)
+                    {
+                        <tr>
+                            <td>@line.Description</td>
+                            <td>@line.Quantity.ToString("0.##")</td>
+                            <td>@line.UnitText</td>
+                            <td>@line.UnitPrice.ToString("#,0.##") kr</td>
+                            <td>@line.Amount.ToString("#,0.##") kr</td>
+                        </tr>
+                    }
+                </table>
+
+                <div class="text-end">
+                    <div>Summa exkl. moms: @invoice.AmountExclVat.ToString("#,0.##") kr</div>
+                    <div>Moms: @invoice.VatAmount.ToString("#,0.##") kr</div>
+                    <div class="fs-4 fw-bold">Att betala: @invoice.TotalAmount.ToString("#,0.##") kr</div>
+                </div>
+
+                @if (invoice.VatAmount == 0)
+                {
+                    <p class="mt-3">Omvänd betalningsskyldighet för byggtjänster.</p>
+                }
+
+                <p class="mt-4">@invoice.Template?.StandardText</p>
+            </div>
+
+            <div class="invoice-footer p-3 small">
+                Org.nr: @invoice.Template?.CompanyNumber |
+                Momsreg.nr: @invoice.Template?.VatNumber |
+                @invoice.Template?.CompanyPhone |
+                @invoice.Template?.CompanyEmail |
+                Godkänd för F-skatt
+            </div>
+
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+
+    private InvoiceResponse? invoice;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        invoice = await InvoiceClient.GetByIdAsync(Id);
+    }
+
+    private async Task ChangeStatus(string newStatus)
+    {
+        errorMessage = null;
+
+        var success = await InvoiceClient.UpdateStatusAsync(Id, newStatus);
+
+        if (success)
+        {
+            invoice = await InvoiceClient.GetByIdAsync(Id);
+        }
+        else
+        {
+            errorMessage = "Det gick inte att ändra status.";
+        }
+    }
+}

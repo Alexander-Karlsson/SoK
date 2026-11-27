@@ -1,0 +1,156 @@
+@page "/employeedetails/{Id:guid}"
+@rendermode InteractiveServer
+@using Employees.Application.Employees.DTOs.Employee
+@using Employees.Domain.Enums
+@using Microsoft.AspNetCore.Authorization
+@using SoK.Webb.Clients
+@using SoK.Webb.Components.Pages.AdminPages.AdminEmployeeAbsencePages
+@using SoK.Webb.Components.Pages.AdminPages.AdminEmployeePages
+@using SoK.Webb.Components.Pages.AdminPages.AdminEmployeePayrollPages
+@using SoK.Webb.Components.Pages.AdminPages.AdminEmployeePayslipPages
+@* @attribute [Authorize(Roles = "Admin")] *@
+@inject EmployeeApiClient EmployeeClient
+@inject NavigationManager Navigation
+
+<PageTitle>Info om anställd</PageTitle>
+
+<div class="admin-page">
+    <div class="admin-page-header">
+        <h2>@(employee is null ? "Info om anställd" : $"{employee.FirstName} {employee.LastName}")</h2>
+        <button class="admin-btn admin-btn-secondary" @onclick="BackToList">← Tillbaka</button>
+    </div>
+
+    @if (employee is null)
+    {
+        <p>Sidan laddar...</p>
+    }
+    else
+    {
+        <div class="admin-details-grid">
+            <section class="admin-card">
+                <h4>Personuppgifter</h4>
+                <dl>
+                    <div><dt>Anställningsnummer</dt><dd>@employee.EmployeeNumber</dd></div>
+                    <div><dt>Namn</dt><dd>@employee.FirstName @employee.LastName</dd></div>
+                    <div><dt>Telefonnummer</dt><dd>@employee.PhoneNumber</dd></div>
+                    <div><dt>Mail</dt><dd>@employee.Email</dd></div>
+                    <div>
+                        <dt>Adress</dt>
+                        <dd>@employee.Address<br />@employee.Zipcode @employee.City</dd>
+                    </div>
+                </dl>
+            </section>
+
+            <section class="admin-card">
+                <h4>Nödkontakt</h4>
+                <dl>
+                    <div><dt>Namn</dt><dd>@employee.EmergencyContactName</dd></div>
+                    <div><dt>Telefonnummer</dt><dd>@employee.EmergencyContactNumber</dd></div>
+                    <div><dt>Relation</dt><dd>@employee.Relationship</dd></div>
+                </dl>
+            </section>
+
+            <section class="admin-card">
+                <h4>Anställning</h4>
+                <dl>
+                    <div><dt>Titel</dt><dd>@employee.Title.TranslateToSwedish()</dd></div>
+                    <div><dt>Avdelning</dt><dd>@employee.Department</dd></div>
+                    <div><dt>Sysselsättningsgrad</dt><dd>@employee.EmployeeRate %</dd></div>
+                    <div><dt>Anställningsform</dt><dd>@employee.EmployeeType</dd></div>
+                    <div><dt>Anställdes</dt><dd>@employee.EmploymentStartDate</dd></div>
+                    <div><dt>Avslutar anställning</dt><dd>@(employee.EmploymentEndDate?.ToString() ?? "–")</dd></div>
+                    <div><dt>Semesterdagar</dt><dd>@employee.VacationDaysPerYear</dd></div>
+                    <div>
+                        <dt>Status</dt>
+                        <dd>
+                            <span class="admin-badge @(employee.IsActive ? "admin-badge-active" : "admin-badge-inactive")">
+                                @(employee.IsActive ? "Aktiv" : "Inaktiv")
+                            </span>
+                        </dd>
+                    </div>
+                </dl>
+            </section>
+            <EmployeePayrollSection EmployeeId="Id" />
+        </div>
+
+        <div class="admin-actions-bar">
+            <button class="admin-btn admin-btn-primary" @onclick="EditEmployee">Redigera</button>
+        </div>
+
+        <section class="admin-card admin-status-card">
+            <h4>@(employee.IsActive ? "Avsluta anställning" : "Återanställ")</h4>
+
+            <div class="admin-status-form">
+                <label>
+                    @(employee.IsActive ? "Sista anställningsdag" : "Nytt startdatum")
+                    <input type="date" @bind="selectedDate" />
+                </label>
+                <button class="admin-btn @(employee.IsActive ? "admin-btn-danger" : "admin-btn-primary")"
+                        @onclick="ToggleEmployment">
+                    @(employee.IsActive ? "Avsluta anställning" : "Återanställ")
+                </button>
+            </div>
+
+            @if (message is not null)
+            {
+                <p class="admin-alert admin-alert-error">@message</p>
+            }
+        </section>
+        <EmployeeAccountSection EmployeeId="Id" />
+        <EmployeePayslipSection EmployeeId="Id" />
+        <EmployeeAbsenceSection EmployeeId="Id" />
+    }
+</div>
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+
+    private DateOnly selectedDate = DateOnly.FromDateTime(DateTime.Today);
+    private EmployeeResponse? employee;
+    private string? message;
+
+    protected override async Task OnInitializedAsync()
+    {
+        employee = await EmployeeClient.GetByIdAsync(Id);
+    }
+
+    private void EditEmployee()
+    {
+        Navigation.NavigateTo($"employeeedit/{Id}");
+    }
+
+    private async Task ToggleEmployment()
+    {
+        message = null;
+        EmployeeResponse? updated;
+
+        if (employee!.IsActive)
+        {
+            if (selectedDate < employee.EmploymentStartDate)
+            {
+                message = "Slutdatum kan inte vara före startdatum.";
+                return;
+            }
+
+            updated = await EmployeeClient.DeactivateAsync(Id, selectedDate);
+        }
+        else
+        {
+            updated = await EmployeeClient.ReactivateAsync(Id, selectedDate);
+        }
+
+        if (updated is null)
+        {
+            message = "Något gick fel, försök igen.";
+            return;
+        }
+
+        employee = updated;
+        selectedDate = DateOnly.FromDateTime(DateTime.Today);
+    }
+
+    private void BackToList()
+    {
+        Navigation.NavigateTo("/employeelist");
+    }
+}

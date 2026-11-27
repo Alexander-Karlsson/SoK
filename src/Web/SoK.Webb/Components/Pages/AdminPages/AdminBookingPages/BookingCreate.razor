@@ -1,0 +1,42 @@
+﻿@page "/createbooking"
+@rendermode InteractiveServer
+@using SoK.Webb.Components.BookingComponents
+@inject NavigationManager Navigation
+
+<PageTitle>Ny bokning</PageTitle>
+
+<div class="admin-page">
+    <div class="admin-page-header">
+        <h2>Ny bokning</h2>
+        <div class="create-header-actions">
+            <a class="admin-btn admin-btn-primary" href="/bookinglist">Tillbaka</a>
+            <button class="admin-btn admin-btn-primary" @onclick="SaveAsync" disabled="@(form?.IsBusy == true)">Skapa bokning</button>
+        </div>
+    </div>
+
+    @* Tillfälligt textfält, byts mot en dropdown när Customers-klienten finns *@
+    <section class="admin-card customer-card">
+        <h4>Kund</h4>
+        <label class="customer-field">
+            Kund-id
+            <input @bind="customerIdText" @bind:event="oninput" />
+        </label>
+    </section>
+
+    <BookingForm @ref="form" CustomerId="CustomerId" OnCreated="GoToDetails" />
+</div>
+
+@code {
+    private BookingForm? form;
+    private string customerIdText = "";
+
+    private async Task SaveAsync()
+    {
+        if (form is not null)
+            await form.SaveAsync();
+    }
+
+    private Guid? CustomerId => Guid.TryParse(customerIdText, out var id) ? id : null;
+
+    private void GoToDetails(Guid id) => Navigation.NavigateTo($"/bookingdetails/{id}");
+}

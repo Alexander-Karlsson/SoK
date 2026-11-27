@@ -1,0 +1,62 @@
+﻿@page "/templates/create"
+@rendermode InteractiveServer
+
+@using Invoices.Application.Dtos
+@using Invoices.Application.Helpers
+@using SoK.Webb.Clients
+@using SoK.Webb.Components.InvoiceComponents
+
+@inject InvoiceApiClient InvoiceClient
+@inject NavigationManager Navigation
+
+<PageTitle>Skapa mall</PageTitle>
+
+<div class="container py-5">
+    <h2 class="mb-4">Skapa mall</h2>
+
+    @if (errorMessage != null)
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+
+    @if (isLoading)
+    {
+        <p>Laddar</p>
+    }
+    else
+    {
+        <TemplateFormComponent Model="template" ButtonText="Skapa mall" OnValidSubmit="SaveTemplate" />
+    }
+</div>
+
+@code {
+    private CreateTemplateRequest template = new();
+    private bool isLoading = true;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var standard = await InvoiceClient.GetTemplateByIdAsync(TemplateDefaults.StandardTemplateId);
+
+        if (standard != null)
+        {
+            template = CreateTemplateRequest.FromResponse(standard);
+        }
+
+        isLoading = false;
+    }
+
+    private async Task SaveTemplate()
+    {
+        var success = await InvoiceClient.CreateTemplateAsync(template);
+
+        if (success)
+        {
+            Navigation.NavigateTo("/templates");
+        }
+        else
+        {
+            errorMessage = "Det gick inte att spara mallen.";
+        }
+    }
+}

@@ -1,0 +1,65 @@
+﻿@page "/servicelist"
+@rendermode InteractiveServer
+@using Bookings.Application.Bookings.DTOs.Response
+@using SoK.Webb.Clients
+@inject CatalogApiClient CatalogApiClient
+@inject NavigationManager Navigation
+
+<PageTitle>Tjänster</PageTitle>
+
+<div class="admin-page">
+    <div class="admin-page-header">
+        <h2>Tjänster</h2>
+        <a class="admin-btn admin-btn-primary" href="/createservice">+ Ny tjänst</a>
+    </div>
+
+    @if (services is null)
+    {
+        <p class="empty">Laddar...</p>
+    }
+    else if (services.Count == 0)
+    {
+        <p class="empty">Det finns inga tjänster.</p>
+    }
+    else
+    {
+        <div class="catalog-table-wrapper">
+            <table class="catalog-table">
+                <thead>
+                    <tr>
+                        <th>Namn</th>
+                        <th>Beskrivning</th>
+                        <th>Pris/tim</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var s in services)
+                    {
+                        <tr @onclick="() => OpenEdit(s.Id)">
+                            <td>@s.Name</td>
+                            <td class="catalog-description">@s.Description</td>
+                            <td>@s.PricePerHour.ToString("N2") kr</td>
+                            <td>
+                                <span class="admin-badge @(s.IsActive ? "admin-badge-active" : "admin-badge-inactive")">
+                                    @(s.IsActive ? "Aktiv" : "Inaktiv")
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    private List<BusinessServiceResponse>? services;
+
+    protected override async Task OnInitializedAsync()
+    {
+        services = await CatalogApiClient.GetServicesAsync();
+    }
+
+    private void OpenEdit(Guid id) => Navigation.NavigateTo($"/serviceedit/{id}");
+}

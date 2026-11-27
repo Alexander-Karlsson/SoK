@@ -1,0 +1,17 @@
+﻿.invoice-page {
+    background: var(--color-beige);
+    min-height: 100vh;
+}
+
+    .invoice-page h1 {
+        text-align: center;
+        font-family: var(--font-heading);
+        text-transform: uppercase;
+        font-size: 2.25rem;
+    }
+
+.invoice-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+}

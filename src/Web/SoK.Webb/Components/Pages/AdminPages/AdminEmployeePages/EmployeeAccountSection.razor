@@ -1,0 +1,76 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using SoK.Webb.Data
+@inject UserManager<ApplicationUser> UserManager
+
+<section class="admin-card">
+    <h4>Konto</h4>
+
+    @if (linkedEmail is not null)
+    {
+        <p>Kopplad till <strong>@linkedEmail</strong></p>
+    }
+    else
+    {
+        <p class="empty">Inget konto kopplat.</p>
+
+        <div class="admin-form-field">
+            <label>
+                E-post för kontot
+                <input @bind="email" />
+            </label>
+        </div>
+        <button class="admin-btn admin-btn-primary" @onclick="Link">Koppla</button>
+    }
+
+    @if (message is not null)
+    {
+        <p class="admin-alert admin-alert-error">@message</p>
+    }
+</section>
+
+@code {
+    [Parameter, EditorRequired]
+    public Guid EmployeeId { get; set; }
+
+    private string? email;
+    private string? linkedEmail;
+    private string? message;
+
+    protected override void OnInitialized()
+    {
+        var user = UserManager.Users.FirstOrDefault(u => u.EmployeeId == EmployeeId);
+        linkedEmail = user?.Email;
+    }
+
+    private async Task Link()
+    {
+        message = null;
+
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            message = "Ange en e-post.";
+            return;
+        }
+
+        var user = await UserManager.FindByEmailAsync(email.Trim());
+
+        if (user is null)
+        {
+            message = "Hittade inget konto med den e-posten.";
+            return;
+        }
+
+        if (user.EmployeeId is not null)
+        {
+            message = "Kontot är redan kopplat till en anställd.";
+            return;
+        }
+
+        user.EmployeeId = EmployeeId;
+        await UserManager.UpdateAsync(user);
+        await UserManager.AddToRoleAsync(user, "Employee");
+
+        linkedEmail = user.Email;
+        email = null;
+    }
+}

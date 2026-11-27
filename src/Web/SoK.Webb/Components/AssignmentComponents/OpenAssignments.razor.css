@@ -1,0 +1,50 @@
+/* CSS for OpenAssignments component */
+.assignment-table-wrapper {
+    overflow-x: auto;
+    background: #ffffff;
+    border: 1px solid #e2ddd5;
+    border-radius: 10px;
+}
+
+.assignment-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+    .assignment-table th {
+        background: var(--color-dark);
+        color: var(--color-text-menu);
+        text-align: left;
+        font-weight: 600;
+        padding: 0.85rem 1rem;
+        white-space: nowrap;
+    }
+
+    .assignment-table td {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #eee8df;
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+
+    .assignment-table tbody tr:nth-child(even) {
+        background: #faf8f5;
+    }
+
+    .assignment-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+.assignment-action {
+    text-align: right;
+}
+
+.assignment-success {
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    border-radius: 6px;
+    background: #e6f2e6;
+    color: #2f5d2f;
+    font-weight: 600;
+}

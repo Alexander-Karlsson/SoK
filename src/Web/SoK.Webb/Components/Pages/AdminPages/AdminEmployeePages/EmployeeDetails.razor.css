@@ -1,0 +1,65 @@
+﻿.admin-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+dl {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    margin: 0;
+}
+
+    dl > div {
+        display: grid;
+        grid-template-columns: 45% 1fr;
+        gap: 0.75rem;
+    }
+
+dt {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #6b665e;
+}
+
+dd {
+    margin: 0;
+    color: var(--color-text);
+}
+
+.admin-actions-bar {
+    margin-bottom: 1.5rem;
+}
+
+.admin-status-card {
+    max-width: 520px;
+}
+
+.admin-status-form {
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+    .admin-status-form label {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #6b665e;
+    }
+
+    .admin-status-form input[type="date"] {
+        padding: 0.55rem 0.75rem;
+        border: 1px solid #d6d0c8;
+        border-radius: 6px;
+        font-size: 1rem;
+    }
+
+.admin-status-card .admin-alert {
+    margin: 1rem 0 0;
+}

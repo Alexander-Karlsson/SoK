@@ -1,0 +1,115 @@
+﻿@page "/employeelist"
+@rendermode InteractiveServer
+@using Employees.Application.Employees.DTOs.Employee
+@using Employees.Domain.Enums
+@using Microsoft.AspNetCore.Authorization
+@using SoK.Webb.Clients
+@* @attribute [Authorize(Roles = "Admin")] *@
+@inject EmployeeApiClient EmployeeClient
+@inject NavigationManager Navigation
+
+<PageTitle>Anställda</PageTitle>
+
+<div class="admin-page">
+    <div class="admin-page-header">
+        <h2>Anställda</h2>
+        <a class="admin-btn admin-btn-primary" href="/createemployee">+ Ny anställd</a>
+    </div>
+
+    <input class="admin-search"
+           type="search"
+           placeholder="Sök på namn, nummer, titel, avdelning eller mobilnummer"
+           @bind="search"
+           @bind:event="oninput" />
+
+    <label class="admin-checkbox">
+        <input type="checkbox" @bind="showEnded" />
+        Visa anställda som slutat
+    </label>
+
+
+    @if (!FilteredEmployees.Any())
+    {
+        <p class="empty">Inga anställda matchar sökningen.</p>
+    }
+    else
+    {
+        <div class="admin-table-wrapper">
+            <table class="admin-employee-table">
+                <thead>
+                    <tr>
+                        <th>Anst.nr</th>
+                        <th>Förnamn</th>
+                        <th>Efternamn</th>
+                        <th>Telefonnummer</th>
+                        <th>Email</th>
+                        <th>Titel</th>
+                        <th>Avdelning</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var i in FilteredEmployees)
+                    {
+                        <tr @onclick="() => ViweDetails(i.Id)">
+                            <td>@i.EmployeeNumber</td>
+                            <td>@i.FirstName</td>
+                            <td>@i.LastName</td>
+                            <td>@i.PhoneNumber</td>
+                            <td>@i.Email</td>
+                            <td>@i.Title.TranslateToSwedish()</td>
+                            <td>@i.Department</td>
+                            <td>
+                                @if (HasEnded(i))
+                                {
+                                    <span class="admin-badge admin-badge-inactive">Slutat</span>
+                                }
+                                else
+                                {
+                                    <span class="admin-badge @(i.IsActive ? "admin-badge-active" : "admin-badge-inactive")">
+                                        @(i.IsActive ? "Aktiv" : "Inaktiv")
+                                    </span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    private List<EmployeeResponse> Employee { get; set; } = new();
+    private bool showEnded;
+    private string search = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        Employee = await EmployeeClient.GetAllAsync();
+    }
+
+    private void ViweDetails(Guid id)
+    {
+        Navigation.NavigateTo($"employeedetails/{id}");
+    }
+
+    private static bool HasEnded(EmployeeResponse e) =>
+    e.EmploymentEndDate is not null &&
+    e.EmploymentEndDate < DateOnly.FromDateTime(DateTime.Today);
+
+    private bool MatchesSearch(EmployeeResponse e) =>
+        string.IsNullOrWhiteSpace(search) ||
+        $"{e.FirstName} {e.LastName}".Contains(search, StringComparison.OrdinalIgnoreCase) ||
+        e.EmployeeNumber.ToString().Contains(search) ||
+        e.Title.TranslateToSwedish().Contains(search, StringComparison.OrdinalIgnoreCase) ||
+        e.Department.ToString().Contains(search, StringComparison.OrdinalIgnoreCase) ||
+        e.PhoneNumber.Contains(search);
+
+    private IEnumerable<EmployeeResponse> FilteredEmployees =>
+        Employee
+            .Where(e => showEnded || !HasEnded(e))
+            .Where(MatchesSearch)
+            .OrderByDescending(e => e.IsActive)
+            .ThenBy(e => e.EmployeeNumber);
+}

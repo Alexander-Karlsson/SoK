@@ -23,14 +23,30 @@ public class InvoicesController (InvoiceService service) : ControllerBase
         }
         catch (HttpRequestException)
         {
-            return StatusCode(503, "Kunde inte nå customer");
+            return StatusCode(503, "Kunde inte nå kundregister");
         }
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var invoices = await service.GetAllAsync();
+        try
+        {
+            var invoices = await service.GetAllAsync();
+
+            return Ok(invoices);
+        }
+        catch (HttpRequestException)
+        {
+            return StatusCode(503, "Kunde inte nå kundregister");
+        }
+    }
+
+    [HttpGet]
+    [Route("customer/{customerId:guid}")]
+    public async Task<IActionResult> GetByCustomer(Guid customerId)
+    {
+        var invoices = await service.GetByCustomerAsync(customerId);
 
         return Ok(invoices);
     }
@@ -39,14 +55,21 @@ public class InvoicesController (InvoiceService service) : ControllerBase
     [Route("{id:guid}")]
     public async Task<IActionResult> GetById(Guid id)
     {
-        var invoice = await service.GetByIdAsync(id);
-
-        if (invoice == null)
+        try
         {
-            return NotFound();
-        }
+            var invoice = await service.GetByIdAsync(id);
 
-        return Ok(invoice);
+            if (invoice == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(invoice);
+        }
+        catch (HttpRequestException)
+        {
+            return StatusCode(503, "Kunde inte nå kundregister");
+        }
     }
 
     [HttpPut]

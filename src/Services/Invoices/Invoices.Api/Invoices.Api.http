@@ -5,8 +5,9 @@
 @Customers.Api_HostAddress = http://localhost:5119
 
 # Testid
-@templateId = 484a2379-c380-43e7-94c5-46e8e30803ff
-@invoiceId = 456159ee-3693-444c-a313-88e020eb4a7b
+@templateId = 11111111-1111-1111-1111-111111111111
+@redTemplateId = b8a02753-7151-4c7c-8b10-c401789a7f24
+@invoiceId = 39f53716-f151-4397-a4f3-3c403e2c57ff
 
 # Testkunder (skapade i Customers.Api)
 @companyCustomerId = 49b5fd7f-5194-4a54-bb7a-5d9a5eeadb9a
@@ -75,16 +76,37 @@ Content-Type: application/json
   "companyPhone": "070-123 12 33",
   "companyEmail": "faktura@sok.se",
   "companyBankgiro": "123-4567",
-  "logo": "",
-  "primaryColor": "",
-  "standardText": "Tack för att du anlitar Skrot & Korn!"
+  "logo": "images/logo.png",
+  "primaryColor": "#8b2e2e",
+  "standardText": "Vi på SoK önskar er en god jul!",
+  "ourReference": "Ethel och Grethel"
 }
 
 ### Hämta alla mallar
 GET {{Invoices.Api_HostAddress}}/api/templates
 
-### Hämta en mall
+### Hämta den seedade mallen
 GET {{Invoices.Api_HostAddress}}/api/templates/{{templateId}}
+
+### Ändra den röda mallen
+PUT {{Invoices.Api_HostAddress}}/api/templates/{{redTemplateId}}
+Content-Type: application/json
+
+{
+  "companyName": "Skrot & Korn AB",
+  "companyNumber": "112233-4455",
+  "vatNumber": "SE112233445501",
+  "companyAddress": "Storgatan 1",
+  "companyPostalCode": "111 22",
+  "companyCity": "Örebro",
+  "companyPhone": "070-123 12 33",
+  "companyEmail": "faktura@sok.se",
+  "companyBankgiro": "123-4567",
+  "logo": "images/logo.png",
+  "primaryColor": "#8b2e2e",
+  "standardText": "Gott nytt år från Skrot & Korn!",
+  "ourReference": "Ethel och Grethel"
+}
 
 
 ############################################
@@ -99,8 +121,8 @@ Content-Type: application/json
   "customerId": "{{companyCustomerId}}",
   "templateId": "{{templateId}}",
   "lines": [
-    { "description": "Grävning", "quantity": 2, "unit": "Hours", "unitPrice": 500 },
-    { "description": "Rivning", "quantity": 4, "unit": "Hours", "unitPrice": 700 }
+    { "description": "Grävning", "quantity": 6, "unit": "Hours", "unitPrice": 500 },
+    { "description": "Rivning", "quantity": 8, "unit": "Hours", "unitPrice": 700 }
   ]
 }
 
@@ -112,8 +134,20 @@ Content-Type: application/json
   "customerId": "{{privateCustomerId}}",
   "templateId": "{{templateId}}",
   "lines": [
-    { "description": "Grävning", "quantity": 2, "unit": "Hours", "unitPrice": 500 },
+    { "description": "Grävning", "quantity": 8, "unit": "Hours", "unitPrice": 500 },
     { "description": "Rivning", "quantity": 4, "unit": "Hours", "unitPrice": 700 }
+  ]
+}
+
+### Skapa faktura med röd mall
+POST {{Invoices.Api_HostAddress}}/api/invoices
+Content-Type: application/json
+
+{
+  "customerId": "{{companyCustomerId}}",
+  "templateId": "{{redTemplateId}}",
+  "lines": [
+    { "description": "Grävning", "quantity": 2, "unit": "Hours", "unitPrice": 500 }
   ]
 }
 
@@ -163,3 +197,9 @@ Content-Type: application/json
 {
   "status": "Draft"
 }
+
+### Hämta fakturor för FÖRETAGSKUNDEN
+GET {{Invoices.Api_HostAddress}}/api/invoices/customer/{{companyCustomerId}}
+
+### Hämta fakturor för en kund som inte finns (ska ge tom lista [])
+GET {{Invoices.Api_HostAddress}}/api/invoices/customer/00000000-0000-0000-0000-000000000001

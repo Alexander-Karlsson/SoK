@@ -20,10 +20,12 @@ public static class DependencyInjection
         services.AddScoped<IAbsenceRepository, AbsenceRepository>();
         services.AddScoped<IScheduleRepository, ScheduleRepository>();
         services.AddScoped<IEmployeePayrollRepository, EmployeePayrollRepository>();
+        services.AddScoped<IPayslipRepository, PayslipRepository>();
         services.AddScoped<EmployeeService>();
         services.AddScoped<AbsenceService>();
         services.AddScoped<ScheduleService>();
         services.AddScoped<EmployeePayrollService>();
+        services.AddScoped<PayslipService>();
         return services;
     }
 }

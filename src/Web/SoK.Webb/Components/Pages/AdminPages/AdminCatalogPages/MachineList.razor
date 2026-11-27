@@ -1,0 +1,68 @@
+﻿@page "/machinelist"
+@using Bookings.Application.Bookings.DTOs.Response
+@using SoK.Webb.Clients
+@rendermode InteractiveServer
+
+@inject CatalogApiClient CatalogApiClient
+@inject NavigationManager Navigation
+
+<PageTitle>Maskiner</PageTitle>
+
+<div class="admin-page">
+    <div class="admin-page-header">
+        <h2>Maskiner</h2>
+        <a class="admin-btn admin-btn-primary" href="/createmachine">+ Ny maskin</a>
+    </div>
+    @if (machines is null)
+    {
+        <p class="empty">Laddar...</p>
+    }
+    else if (machines.Count == 0)
+    {
+        <p class="empty">Det finns inga maskiner.</p>
+    }
+    else
+    {
+        <div class="catalog-table-wrapper">
+            <table class="catalog-table">
+                <thead>
+                    <tr>
+                        <th>Namn</th>
+                        <th>Typ</th>
+                        <th>Regnr</th>
+                        <th>Pris/dag</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var m in machines)
+                    {
+                        <tr @onclick="() => OpenEdit(m.Id)">
+                            <td>@m.Name</td>
+                            <td>@m.Type</td>
+                            <td>@m.RegistrationNumber</td>
+                            <td>@m.PricePerDay.ToString("N2") kr</td>
+                            <td>
+                                <span class="admin-badge @(m.IsOutOfService ? "admin-badge-inactive" : "admin-badge-active")">
+                                    @(m.IsOutOfService ? "Ur drift" : "I drift")
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code 
+{
+    private List<MachineResponse>? machines;
+
+    protected override async Task OnInitializedAsync()
+    {
+        machines = await CatalogApiClient.GetMachinesAsync();
+    }
+
+    private void OpenEdit(Guid id) => Navigation.NavigateTo($"/machineedit/{id}");
+}

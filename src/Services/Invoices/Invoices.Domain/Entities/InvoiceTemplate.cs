@@ -15,4 +15,5 @@ public class InvoiceTemplate
     public string Logo {  get; set; } = string.Empty;
     public string PrimaryColor {  get; set; } = string.Empty;
     public string StandardText {  get; set; } = string.Empty;
+    public string OurReference {  get; set; } = string.Empty;
 }

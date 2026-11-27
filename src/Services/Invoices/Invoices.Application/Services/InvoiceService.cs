@@ -1,4 +1,5 @@
 ﻿using Invoices.Application.Dtos;
+using Invoices.Application.Helpers;
 using Invoices.Application.Interfaces;
 using Invoices.Domain.Entities;
 
@@ -8,7 +9,7 @@ public class InvoiceService(IInvoiceRepository repo, ITemplateRepository templat
 {
     private const decimal CompanyVatRate = 0m;
     private const decimal DefaultVatRate = 0.25m;
-    public async Task<InvoiceResponse> CreateInvoiceAsync(CreateInvoiceRequest request) 
+    public async Task<InvoiceResponse> CreateInvoiceAsync(CreateInvoiceRequest request)
     {
         if (request.CustomerId == Guid.Empty)
         {
@@ -30,7 +31,7 @@ public class InvoiceService(IInvoiceRepository repo, ITemplateRepository templat
         var customer = await customerClient.GetByIdAsync(request.CustomerId);
         if (customer == null)
         {
-            throw new ArgumentException("Kunden finns ej");
+            throw new ArgumentException("Kunden finns inte");
         }
 
         var isCompany = !string.IsNullOrWhiteSpace(customer.OrganisationNumber);
@@ -100,7 +101,7 @@ public class InvoiceService(IInvoiceRepository repo, ITemplateRepository templat
         if (!IsAllowedStatusChange(invoice.Status, request.Status))
         {
             throw new ArgumentException(
-                $"Går ej att ändra från {invoice.Status} till {request.Status}");
+                 $"Går inte att ändra från {InvoiceText.Status(invoice.Status)} till {InvoiceText.Status(request.Status)}");
         }
 
         invoice.Status = request.Status;
@@ -120,12 +121,43 @@ public class InvoiceService(IInvoiceRepository repo, ITemplateRepository templat
         }
 
         var lines = await repo.GetLinesAsync(id);
-        return ToResponse(invoice, lines);
+        var response = ToResponse(invoice, lines);
+
+        response.Customer = await customerClient.GetByIdAsync(invoice.CustomerId);
+
+        var template = await templateRepo.GetByIdAsync(invoice.TemplateId);
+
+        response.Template = template == null ? null : TemplateService.ToResponse(template);
+
+        return response;
     }
 
     public async Task<List<InvoiceResponse>> GetAllAsync()
     {
         var invoices = await repo.GetAllAsync();
+
+        var responses = invoices.Select(i => ToResponse(i, [])).ToList();
+
+        var customerIds = responses.Select(r => r.CustomerId).Distinct();
+
+        var customers = new Dictionary<Guid, CustomerInfo?>();
+
+        foreach (var customerId in customerIds)
+        {
+            customers[customerId] = await customerClient.GetByIdAsync(customerId);
+        }
+
+        foreach (var response in responses)
+        {
+            response.Customer = customers[response.CustomerId];
+        }
+
+        return responses;
+    }
+
+    public async Task<List<InvoiceResponse>> GetByCustomerAsync(Guid customerId)
+    {
+        var invoices = await repo.GetByCustomerAsync(customerId);
 
         return invoices.Select(i => ToResponse(i, [])).ToList();
     }
@@ -153,8 +185,22 @@ public class InvoiceService(IInvoiceRepository repo, ITemplateRepository templat
         return false;
     }
 
+    private static InvoiceStatus CurrentStatus(Invoice invoice)
+    {
+        var today = DateOnly.FromDateTime(DateTime.Now);
+
+        if (invoice.Status == InvoiceStatus.Sent && invoice.DueDate < today)
+        {
+            return InvoiceStatus.Overdue;
+        }
+
+        return invoice.Status;
+    }
+
     private static InvoiceResponse ToResponse(Invoice invoice, List<InvoiceLine> lines)
     {
+        var status = CurrentStatus(invoice);
+
         return new InvoiceResponse
         {
             Id = invoice.Id,
@@ -167,7 +213,11 @@ public class InvoiceService(IInvoiceRepository repo, ITemplateRepository templat
             AmountExclVat = invoice.AmountExclVat,
             VatAmount = invoice.VatAmount,
             TotalAmount = invoice.TotalAmount,
-            Status = invoice.Status,
+            Status = status,
+            StatusText = InvoiceText.Status(status),
+
+            CanMarkAsSent = IsAllowedStatusChange(invoice.Status, InvoiceStatus.Sent),
+            CanMarkAsPaid = IsAllowedStatusChange(invoice.Status, InvoiceStatus.Paid),
 
             Lines = lines.Select(l => new InvoiceLineResponse
             {
@@ -176,6 +226,7 @@ public class InvoiceService(IInvoiceRepository repo, ITemplateRepository templat
                 Description = l.Description,
                 Quantity = l.Quantity,
                 Unit = l.Unit,
+                UnitText = InvoiceText.Unit(l.Unit),
                 UnitPrice = l.UnitPrice,
                 VatRate = l.VatRate,
                 Amount = l.Amount

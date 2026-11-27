@@ -1,0 +1,226 @@
+﻿@using Employees.Application.Employees.DTOs.Absence
+@using Employees.Domain.Enums
+@using Microsoft.AspNetCore.Authorization
+@using SoK.Webb.Clients
+@* @attribute [Authorize(Roles = "Admin")] *@
+@inject AbsenceApiClient AbsenceClient
+
+<section class="admin-card">
+    <h4>Frånvaro</h4>
+
+    @if (isLoading)
+    {
+        <p>Laddar...</p>
+    }
+    else
+    {
+        @if (absences.Count == 0)
+        {
+            <p class="empty">Ingen frånvaro registrerad.</p>
+        }
+        else
+        {
+            <ul class="admin-absence-list">
+                @foreach (var a in absences)
+                {
+                    <li>
+                        <button type="button" class="admin-absence-row" @onclick="() => Toggle(a.Id)">
+                            <strong>@TypeName(a.Type)</strong>
+                            <span>@a.StartDate – @a.EndDate (@Days(a) dagar)</span>
+                        </button>
+
+                        @if (selectedId == a.Id)
+                        {
+                            <div class="admin-absence-details">
+                                <dl>
+                                    <div><dt>Typ</dt><dd>@TypeName(a.Type)</dd></div>
+                                    <div><dt>Period</dt><dd>@a.StartDate – @a.EndDate</dd></div>
+                                    <div><dt>Antal dagar</dt><dd>@Days(a)</dd></div>
+                                    <div><dt>Anledning</dt><dd>@(string.IsNullOrWhiteSpace(a.Reason) ? "–" : a.Reason)</dd></div>
+                                </dl>
+                                <div class="admin-absence-actions">
+                                    <button class="admin-btn admin-btn-secondary" @onclick="() => StartEdit(a)">Redigera</button>
+                                    <button class="admin-btn admin-btn-danger" @onclick="() => Delete(a.Id)">Ta bort</button>
+                                </div>
+                            </div>
+                        }
+                    </li>
+                }
+            </ul>
+        }
+
+        @if (isFormOpen)
+        {
+            <EditForm Model="form" OnValidSubmit="Save">
+                <h5 class="admin-absence-form-title">
+                    @(editingId is null ? "Ny frånvaro" : "Ändra frånvaro")
+                </h5>
+                <DataAnnotationsValidator />
+
+                <div class="admin-form-field">
+                    <label>
+                        Typ
+                        <InputSelect @bind-Value="form.Type">
+                            @foreach (var t in Enum.GetValues<AbsenceType>())
+                            {
+                                <option value="@t">@TypeName(t)</option>
+                            }
+                        </InputSelect>
+                    </label>
+                    <ValidationMessage For="() => form.Type" />
+                </div>
+
+                <div class="admin-form-field">
+                    <label>
+                        Från och med
+                        <InputDate @bind-Value="form.StartDate" />
+                    </label>
+                </div>
+
+                <div class="admin-form-field">
+                    <label>
+                        Till och med
+                        <InputDate @bind-Value="form.EndDate" />
+                    </label>
+                </div>
+
+                <div class="admin-form-field">
+                    <label>
+                        Anledning (valfritt)
+                        <InputText @bind-Value="form.Reason" />
+                    </label>
+                    <ValidationMessage For="() => form.Reason" />
+                </div>
+
+                <div class="admin-form-actions">
+                    <button type="button" class="admin-btn admin-btn-secondary" @onclick="Cancel">Avbryt</button>
+                    <button type="submit" class="admin-btn admin-btn-primary">Spara</button>
+                </div>
+            </EditForm>
+        }
+        else
+        {
+            <button class="admin-btn admin-btn-primary" @onclick="StartAdd">Registrera frånvaro</button>
+        }
+    }
+
+    @if (message is not null)
+    {
+        <p class="admin-alert admin-alert-error">@message</p>
+    }
+</section>
+
+@code {
+    [Parameter, EditorRequired]
+    public Guid EmployeeId { get; set; }
+
+    private List<AbsenceResponse> absences = new();
+    private CreateAbsenceRequest form = new();
+    private bool isLoading = true;
+    private bool isFormOpen;
+    private Guid? editingId; 
+    private Guid? selectedId;
+    private string? message;
+
+    protected override async Task OnInitializedAsync()
+    {
+        absences = await AbsenceClient.GetAllAsync(EmployeeId);
+        isLoading = false;
+    }
+
+    private void Toggle(Guid id)
+    {
+        selectedId = selectedId == id ? null : id;
+    }
+
+    private void StartAdd()
+    {
+        message = null;
+        editingId = null;
+        form = new CreateAbsenceRequest();
+        isFormOpen = true;
+    }
+
+    private void StartEdit(AbsenceResponse a)
+    {
+        message = null;
+        editingId = a.Id;
+
+        form = new CreateAbsenceRequest
+        {
+            Type = a.Type,
+            StartDate = a.StartDate,
+            EndDate = a.EndDate,
+            Reason = a.Reason
+        };
+
+        isFormOpen = true;
+    }
+
+    private void Cancel()
+    {
+        isFormOpen = false;
+        editingId = null;
+        message = null;
+    }
+
+    private async Task Save()
+    {
+        message = null;
+
+        if (form.EndDate < form.StartDate)
+        {
+            message = "Slutdatum kan inte vara före startdatum.";
+            return;
+        }
+
+        var (saved, error) = editingId is null
+            ? await AbsenceClient.CreateAsync(EmployeeId, form)
+            : await AbsenceClient.UpdateAsync(EmployeeId, editingId.Value, new UpdateAbsenceRequest
+            {
+                Type = form.Type,
+                StartDate = form.StartDate,
+                EndDate = form.EndDate,
+                Reason = form.Reason
+            });
+
+        if (saved is null)
+        {
+            message = error;
+            return;
+        }
+
+        absences = await AbsenceClient.GetAllAsync(EmployeeId);
+        selectedId = saved.Id;
+        isFormOpen = false;
+        editingId = null;
+    }
+
+    private async Task Delete(Guid id)
+    {
+        message = null;
+
+        if (!await AbsenceClient.DeleteAsync(EmployeeId, id))
+        {
+            message = "Kunde inte ta bort frånvaron.";
+            return;
+        }
+
+        absences.RemoveAll(a => a.Id == id);
+
+        if (editingId == id)
+            Cancel();
+    }
+
+    private static int Days(AbsenceResponse a)
+        => a.EndDate.DayNumber - a.StartDate.DayNumber + 1;
+
+    private static string TypeName(AbsenceType type) => type switch
+    {
+        AbsenceType.Sick => "Sjuk",
+        AbsenceType.Vacation => "Semester",
+        AbsenceType.UnpaidLeave => "Tjänstledig",
+        AbsenceType.Childcare => "VAB",
+        _ => "Övrigt"
+    };
+}

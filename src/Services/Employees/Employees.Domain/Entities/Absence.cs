@@ -10,7 +10,7 @@ public class Absence
     public Guid Id { get; set; } = Guid.NewGuid();
     public Guid EmployeeId { get; set; }
     public AbsenceType AbsenceType { get; set; } = AbsenceType.Sick;
-    public DateTime StartDate { get; set; }
-    public DateTime EndDate { get; set; }
+    public DateOnly StartDate { get; set; }
+    public DateOnly EndDate { get; set; }
     public string Reason { get; set; } = string.Empty;
 }

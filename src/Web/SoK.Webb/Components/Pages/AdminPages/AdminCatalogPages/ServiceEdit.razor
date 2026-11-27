@@ -1,0 +1,176 @@
+﻿@page "/createservice"
+@page "/serviceedit/{Id:guid}"
+@rendermode InteractiveServer
+@using Bookings.Application.Bookings.DTOs.Request
+@using Employees.Domain.Enums
+@using SoK.Webb.Clients
+@inject CatalogApiClient CatalogApiClient
+@inject NavigationManager Navigation
+
+<PageTitle>@(IsEdit ? "Redigera tjänst" : "Ny tjänst")</PageTitle>
+
+<div class="admin-page">
+    <div class="admin-page-header">
+        <h2>@(IsEdit ? "Redigera tjänst" : "Ny tjänst")</h2>
+        <a class="admin-btn admin-btn-primary" href="/servicelist">Tillbaka</a>
+    </div>
+
+    @if (loading)
+    {
+        <p class="empty">Laddar...</p>
+    }
+    else if (notFound)
+    {
+        <p class="empty">Tjänsten hittades inte.</p>
+    }
+    else
+    {
+        @if (error is not null)
+        {
+            <p class="admin-alert admin-alert-error">@error</p>
+        }
+
+        <section class="admin-card catalog-form">
+            <label class="catalog-field">
+                Namn
+                <input @bind="name" />
+            </label>
+
+            <label class="catalog-field">
+                Beskrivning (valfri)
+                <textarea rows="3" @bind="description"></textarea>
+            </label>
+
+            <label class="catalog-field">
+                Pris per timme (kr)
+                <input type="number" min="0" step="1" @bind="pricePerHour" />
+            </label>
+
+            <label class="catalog-field">
+                Krav på titel
+                <select @bind="requiredTitle">
+                    <option value="">Alla anställda</option>
+                    @foreach (var title in Titles)
+                    {
+                        <option value="@title.ToString()">@title.TranslateToSwedish()</option>
+                    }
+                </select>
+            </label>
+
+            @if (IsEdit)
+            {
+                <label class="catalog-check">
+                    <input type="checkbox" @bind="isActive" />
+                    Aktiv (kan bokas)
+                </label>
+            }
+        </section>
+
+        <div class="catalog-actions">
+            @if (IsEdit)
+            {
+                @if (confirmDelete)
+                {
+                    <span>Ta bort tjänsten?</span>
+                    <button class="admin-btn admin-btn-secondary" @onclick="() => confirmDelete = false" disabled="@busy">Nej</button>
+                    <button class="admin-btn admin-btn-danger" @onclick="DeleteAsync" disabled="@busy">Ja, ta bort</button>
+                }
+                else
+                {
+                    <button class="admin-btn admin-btn-danger" @onclick="() => confirmDelete = true" disabled="@busy">Ta bort</button>
+                }
+            }
+
+            @if (!confirmDelete)
+            {
+                <button class="admin-btn admin-btn-primary" @onclick="SaveAsync" disabled="@busy">
+                    @(IsEdit ? "Spara" : "Skapa")
+                </button>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public Guid? Id { get; set; }
+
+    private bool IsEdit => Id is not null;
+
+    private bool loading = true;
+    private bool notFound;
+    private bool busy;
+    private bool confirmDelete;
+    private string? error;
+
+    private string name = "";
+    private string? description;
+    private decimal pricePerHour;
+    private bool isActive = true;
+    private string? requiredTitle;
+
+    private static readonly JobTitle[] Titles = Enum.GetValues<JobTitle>()
+        .Where(t => t != JobTitle.Other)
+        .OrderBy(t => t.TranslateToSwedish())
+        .ToArray();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (IsEdit)
+        {
+            var service = await CatalogApiClient.GetServiceAsync(Id!.Value);
+
+            if (service is null)
+            {
+                notFound = true;
+            }
+            else
+            {
+                name = service.Name;
+                description = service.Description;
+                pricePerHour = service.PricePerHour;
+                isActive = service.IsActive;
+                requiredTitle = service.RequiredTitle;
+            }
+        }
+
+        loading = false;
+    }
+
+    private async Task SaveAsync()
+    {
+        busy = true;
+
+        error = IsEdit
+            ? await CatalogApiClient.UpdateServiceAsync(Id!.Value, new UpdateBusinessServiceRequest
+            {
+                Name = name,
+                Description = description,
+                PricePerHour = pricePerHour,
+                IsActive = isActive,
+                RequiredTitle = requiredTitle
+            })
+            : await CatalogApiClient.CreateServiceAsync(new CreateBusinessServiceRequest
+            {
+                Name = name,
+                Description = description,
+                PricePerHour = pricePerHour,
+                RequiredTitle = requiredTitle
+            });
+
+        busy = false;
+
+        if (error is null)
+            Navigation.NavigateTo("/servicelist");
+    }
+
+    private async Task DeleteAsync()
+    {
+        busy = true;
+        error = await CatalogApiClient.DeleteServiceAsync(Id!.Value);
+        busy = false;
+        confirmDelete = false;
+
+        if (error is null)
+            Navigation.NavigateTo("/servicelist");
+    }
+}

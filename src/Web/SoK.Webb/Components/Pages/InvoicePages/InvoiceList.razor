@@ -1,41 +1,42 @@
 ﻿@page "/invoices"
 @using Invoices.Application.Dtos
 @using SoK.Webb.Clients
+@using SoK.Webb.Components.InvoiceComponents
 @inject InvoiceApiClient InvoiceClient
 
 <PageTitle>Fakturor</PageTitle>
 
-<h1>Fakturor</h1>
+<div class="invoice-page py-5">
+    <div class="container">
+        <h1 class="mb-4">Fakturor</h1>
 
-<table>
-    <thead>
-        <tr>
-            <th>Fakturanummer</th>
-            <th>Fakturadatum</th>
-            <th>Förfallodatum</th>
-            <th>Att betala</th>
-            <th>Status</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var i in Invoice)
+        @if (errorMessage != null)
         {
-            <tr>
-                <td>@i.InvoiceNumber</td>
-                <td>@i.InvoiceDate</td>
-                <td>@i.DueDate</td>
-                <td>@i.TotalAmount SEK</td>
-                <td>@i.Status</td>
-            </tr>
+            <div class="alert alert-danger">@errorMessage</div>
         }
-    </tbody>
-</table>
+
+        <div class="invoice-grid">
+            @foreach (var i in Invoice)
+            {
+                <InvoiceCardComponent Invoice="i" />
+            }
+        </div>
+    </div>
+</div>
 
 @code {
     private List<InvoiceResponse> Invoice { get; set; } = new();
+    private string? errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
-        Invoice = await InvoiceClient.GetAllAsync();
+        try
+        {
+            Invoice = await InvoiceClient.GetAllAsync();
+        }
+        catch (HttpRequestException)
+        {
+            errorMessage = "Kunde inte hämta fakturor.";
+        }
     }
 }

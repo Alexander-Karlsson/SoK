@@ -1,0 +1,121 @@
+﻿@using SoK.Webb.Clients
+@using Employees.Domain.Enums
+
+@inject EmployeeApiClient EmployeeApiClient
+@inject BookingApiClient BookingApiClient
+@inject CatalogApiClient CatalogApiClient
+
+@if (loading)
+{
+    <p class="empty">Laddar...</p>
+}
+else
+{
+    @if (error is not null)
+    {
+        <p class="admin-alert admin-alert-error">@error</p>
+    }
+
+    <div class="booking-form-grid">
+        <section class="admin-card">
+            <h4>Period</h4>
+
+            <label class="booking-field">
+                Start
+                <input type="datetime-local" @bind="startsAt" min="@DateTime.Today.ToString("yyyy-MM-ddTHH:mm")" />
+            </label>
+
+            <label class="booking-field">
+                Slut (lämna tomt för 30 dagar)
+                <input type="datetime-local" @bind="endsAt" />
+            </label>
+        </section>
+
+        <section class="admin-card">
+            <h4>Maskiner</h4>
+
+            @if (machines.Count == 0)
+            {
+                <p class="empty">Inga maskiner att boka.</p>
+            }
+
+            @foreach (var m in machines)
+            {
+                <label class="booking-check">
+                    <input type="checkbox"
+                           checked="@selectedMachines.Contains(m.Id)"
+                           @onchange="e => ToggleMachine(m.Id, (bool)e.Value!)" />
+                    <span>@m.Name (@m.RegistrationNumber)</span>
+                    <span class="booking-price">@m.PricePerDay.ToString("N2") kr/dag</span>
+                </label>
+            }
+        </section>
+
+        <section class="admin-card">
+            <h4>Tjänster</h4>
+
+            @if (services.Count == 0)
+            {
+                <p class="empty">Inga tjänster att boka.</p>
+            }
+
+            @foreach (var s in services)
+            {
+                <label class="booking-field">
+                    @s.Name – @s.PricePerHour.ToString("N2") kr/tim
+                    <input type="number" min="0" step="0.5" placeholder="Timmar"
+                           @bind="serviceHours[s.Id]" />
+                </label>
+            }
+        </section>
+
+        @if (ShowEmployees)
+        {
+            <section class="admin-card">
+                <h4>Anställda</h4>
+
+                @if (employeeError is not null)
+                {
+                    <p class="empty">@employeeError</p>
+                }
+                else if (employees.Count == 0)
+                {
+                    <p class="empty">Inga anställda att boka.</p>
+                }
+                else
+                {
+                    <label class="booking-field">
+                        Sök
+                        <input placeholder="Namn eller titel..."
+                        @bind="employeeSearch" @bind:event="oninput" />
+                    </label>
+
+                    @if (selectedEmployees.Count > 0)
+                    {
+                        <p class="booking-selected-count">@selectedEmployees.Count valda</p>
+                    }
+
+                    <div class="booking-scroll">
+                        @foreach (var e in FilteredEmployees)
+                        {
+                            <label class="booking-check">
+                                <input type="checkbox"
+                                checked="@selectedEmployees.Contains(e.Id)"
+                                @onchange="ev => ToggleEmployee(e.Id, (bool)ev.Value!)" />
+                                <span>@e.FirstName @e.LastName</span>
+                                <span class="booking-price">@e.Title.TranslateToSwedish()</span>
+                            </label>
+                        }
+
+                        @if (FilteredEmployees.Count == 0)
+                        {
+                            <p class="empty">Ingen anställd matchar sökningen.</p>
+                        }
+                    </div>
+                }
+            </section>
+        }
+    </div>
+
+}
+

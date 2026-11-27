@@ -1,0 +1,47 @@
+﻿@page "/mina-sidor/lonespecar"
+@rendermode InteractiveServer
+@attribute [Authorize(Roles = "Employee")]
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
+@using SoK.Webb.Data
+@using SoK.Webb.Components.Pages.AdminPages.AdminEmployeePayslipPages
+@inject UserManager<ApplicationUser> UserManager
+
+<PageTitle>Mina lönespecar</PageTitle>
+
+<div class="admin-page">
+    <div class="admin-page-header">
+        <h2>Mina lönespecifikationer</h2>
+        <a class="admin-btn admin-btn-secondary" href="/mina-sidor">← Tillbaka</a>
+    </div>
+
+    @if (isLoading)
+    {
+        <p>Laddar...</p>
+    }
+    else if (employeeId is null)
+    {
+        <p>Ditt konto är inte kopplat till någon anställd. Kontakta administratören.</p>
+    }
+    else
+    {
+        <EmployeePayslipSection EmployeeId="employeeId.Value" ReadOnly="true" />
+    }
+</div>
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthState { get; set; } = default!;
+
+    private Guid? employeeId;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthState;
+        var user = await UserManager.GetUserAsync(state.User);
+
+        employeeId = user?.EmployeeId;
+        isLoading = false;
+    }
+}

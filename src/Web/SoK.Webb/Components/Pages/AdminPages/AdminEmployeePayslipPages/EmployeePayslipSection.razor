@@ -42,70 +42,69 @@
                                     <div><dt>Skatt (@p.TaxRate %)</dt><dd>− @SumAmount(p.TaxAmount)</dd></div>
                                     <div class="admin-payslip-net"><dt>Nettolön</dt><dd>@SumAmount(p.NetSalary)</dd></div>
                                 </dl>
-                                <div class="admin-payslip-actions">
-                                    <button class="admin-btn admin-btn-danger" @onclick="() => Delete(p.Id)">Ta bort</button>
-                                </div>
                             </div>
                         }
                     </li>
                 }
             </ul>
         }
-
-        @if (isFormOpen)
+        @if (!ReadOnly)
         {
-            <EditForm Model="form" OnValidSubmit="Save">
-                <h5 class="admin-payslip-form-title">Ny lönespecifikation</h5>
-                <DataAnnotationsValidator />
+            @if (isFormOpen)
+            {
+                <EditForm Model="form" OnValidSubmit="Save">
+                    <h5 class="admin-payslip-form-title">Ny lönespecifikation</h5>
+                    <DataAnnotationsValidator />
 
-                <div class="admin-form-field">
-                    <label>
-                        År
-                        <InputNumber @bind-Value="form.Year" ParsingErrorMessage="Ange ett giltigt år." />
-                    </label>
-                    <ValidationMessage For="() => form.Year" />
-                </div>
+                    <div class="admin-form-field">
+                        <label>
+                            År
+                            <InputNumber @bind-Value="form.Year" ParsingErrorMessage="Ange ett giltigt år." />
+                        </label>
+                        <ValidationMessage For="() => form.Year" />
+                    </div>
 
-                <div class="admin-form-field">
-                    <label>
-                        Månad
-                        <InputSelect @bind-Value="form.Month">
-                            @for (var m = 1; m <= 12; m++)
-                            {
-                                <option value="@m">@MonthNames[m - 1]</option>
-                            }
-                        </InputSelect>
-                    </label>
-                    <ValidationMessage For="() => form.Month" />
-                </div>
+                    <div class="admin-form-field">
+                        <label>
+                            Månad
+                            <InputSelect @bind-Value="form.Month">
+                                @for (var m = 1; m <= 12; m++)
+                                {
+                                    <option value="@m">@MonthNames[m - 1]</option>
+                                }
+                            </InputSelect>
+                        </label>
+                        <ValidationMessage For="() => form.Month" />
+                    </div>
 
-                <div class="admin-form-field">
-                    <label>
-                        Bonus (kr)
-                        <InputNumber @bind-Value="form.Bonus" ParsingErrorMessage="Bonus måste vara ett tal." />
-                    </label>
-                    <ValidationMessage For="() => form.Bonus" />
-                </div>
+                    <div class="admin-form-field">
+                        <label>
+                            Bonus (kr)
+                            <InputNumber @bind-Value="form.Bonus" ParsingErrorMessage="Bonus måste vara ett tal." />
+                        </label>
+                        <ValidationMessage For="() => form.Bonus" />
+                    </div>
 
-                <div class="admin-form-field">
-                    <label>
-                        Övriga avdrag (kr)
-                        <InputNumber @bind-Value="form.OtherDeductions" ParsingErrorMessage="Avdrag måste vara ett tal." />
-                    </label>
-                    <ValidationMessage For="() => form.OtherDeductions" />
-                </div>
+                    <div class="admin-form-field">
+                        <label>
+                            Övriga avdrag (kr)
+                            <InputNumber @bind-Value="form.OtherDeductions" ParsingErrorMessage="Avdrag måste vara ett tal." />
+                        </label>
+                        <ValidationMessage For="() => form.OtherDeductions" />
+                    </div>
 
-                <p class="admin-payslip-hint">Frånvaroavdrag och skatt räknas ut automatiskt.</p>
+                    <p class="admin-payslip-hint">Frånvaroavdrag och skatt räknas ut automatiskt.</p>
 
-                <div class="admin-form-actions">
-                    <button type="button" class="admin-btn admin-btn-secondary" @onclick="Cancel">Avbryt</button>
-                    <button type="submit" class="admin-btn admin-btn-primary">Skapa</button>
-                </div>
-            </EditForm>
-        }
-        else
-        {
-            <button class="admin-btn admin-btn-primary" @onclick="StartAdd">Skapa lönespecifikation</button>
+                    <div class="admin-form-actions">
+                        <button type="button" class="admin-btn admin-btn-secondary" @onclick="Cancel">Avbryt</button>
+                        <button type="submit" class="admin-btn admin-btn-primary">Skapa</button>
+                    </div>
+                </EditForm>
+            }
+            else
+            {
+                <button class="admin-btn admin-btn-primary" @onclick="StartAdd">Skapa lönespecifikation</button>
+            }
         }
     }
 
@@ -118,6 +117,8 @@
 @code {
     [Parameter, EditorRequired]
     public Guid EmployeeId { get; set; }
+    [Parameter]
+    public bool ReadOnly { get; set; }
 
     private static readonly string[] MonthNames =
     {

@@ -12,6 +12,7 @@ public class BookingDbContext(DbContextOptions<BookingDbContext> options) : DbCo
     public DbSet<BookingService> BookingServices => Set<BookingService>();
     public DbSet<Machine> Machines => Set<Machine>();
     public DbSet<BusinessService> BusinessServices => Set<BusinessService>();
+    public DbSet<TimeEntry> TimeEntries => Set<TimeEntry>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -118,6 +119,30 @@ public class BookingDbContext(DbContextOptions<BookingDbContext> options) : DbCo
             entity.Property(s => s.Description).HasMaxLength(1000);
             entity.Property(s => s.PricePerHour).HasPrecision(18, 2);
             entity.Property(s => s.RequiredTitle).HasMaxLength(50);
+        });
+
+        //TimeEntry
+        modelBuilder.Entity<TimeEntry>(entity =>
+        {
+            entity.HasOne<BookingService>()
+                .WithMany()
+                .HasForeignKey(t => t.BookingServiceId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(t => t.BookingServiceId);
+            entity.HasIndex(t => t.EmployeeId);
+
+            entity.Property(t => t.WorkDate)
+                .IsRequired();
+
+            entity.Property(t => t.Hours)
+                .HasPrecision(5, 2);
+
+            entity.Property(t => t.Note)
+                .HasMaxLength(500);
+
+            entity.Property(t => t.CreatedAt)
+                .IsRequired();
         });
     }
 

@@ -20,6 +20,12 @@
            @bind="search"
            @bind:event="oninput" />
 
+    <label class="admin-checkbox">
+        <input type="checkbox" @bind="showEnded" />
+        Visa anställda som slutat
+    </label>
+
+
     @if (!FilteredEmployees.Any())
     {
         <p class="empty">Inga anställda matchar sökningen.</p>
@@ -52,9 +58,16 @@
                             <td>@i.Title.TranslateToSwedish()</td>
                             <td>@i.Department</td>
                             <td>
-                                <span class="admin-badge @(i.IsActive ? "admin-badge-active" : "admin-badge-inactive")">
-                                    @(i.IsActive ? "Aktiv" : "Inaktiv")
-                                </span>
+                                @if (HasEnded(i))
+                                {
+                                    <span class="admin-badge admin-badge-inactive">Slutat</span>
+                                }
+                                else
+                                {
+                                    <span class="admin-badge @(i.IsActive ? "admin-badge-active" : "admin-badge-inactive")">
+                                        @(i.IsActive ? "Aktiv" : "Inaktiv")
+                                    </span>
+                                }
                             </td>
                         </tr>
                     }
@@ -66,6 +79,7 @@
 
 @code {
     private List<EmployeeResponse> Employee { get; set; } = new();
+    private bool showEnded;
     private string search = "";
 
     protected override async Task OnInitializedAsync()
@@ -78,14 +92,22 @@
         Navigation.NavigateTo($"employeedetails/{id}");
     }
 
-    private IEnumerable<EmployeeResponse> FilteredEmployees =>
-        string.IsNullOrWhiteSpace(search)
-            ? Employee
-            : Employee.Where(
-                e => $"{e.FirstName} {e.LastName}".Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                e.EmployeeNumber.ToString().Contains(search) ||
-                e.Title.TranslateToSwedish().Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                e.Department.ToString().Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                e.PhoneNumber.ToString().Contains(search));
+    private static bool HasEnded(EmployeeResponse e) =>
+    e.EmploymentEndDate is not null &&
+    e.EmploymentEndDate < DateOnly.FromDateTime(DateTime.Today);
 
+    private bool MatchesSearch(EmployeeResponse e) =>
+        string.IsNullOrWhiteSpace(search) ||
+        $"{e.FirstName} {e.LastName}".Contains(search, StringComparison.OrdinalIgnoreCase) ||
+        e.EmployeeNumber.ToString().Contains(search) ||
+        e.Title.TranslateToSwedish().Contains(search, StringComparison.OrdinalIgnoreCase) ||
+        e.Department.ToString().Contains(search, StringComparison.OrdinalIgnoreCase) ||
+        e.PhoneNumber.Contains(search);
+
+    private IEnumerable<EmployeeResponse> FilteredEmployees =>
+        Employee
+            .Where(e => showEnded || !HasEnded(e))
+            .Where(MatchesSearch)
+            .OrderByDescending(e => e.IsActive)
+            .ThenBy(e => e.EmployeeNumber);
 }

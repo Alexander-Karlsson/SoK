@@ -197,3 +197,9 @@ Content-Type: application/json
 {
   "status": "Draft"
 }
+
+### Hämta fakturor för FÖRETAGSKUNDEN
+GET {{Invoices.Api_HostAddress}}/api/invoices/customer/{{companyCustomerId}}
+
+### Hämta fakturor för en kund som inte finns (ska ge tom lista [])
+GET {{Invoices.Api_HostAddress}}/api/invoices/customer/00000000-0000-0000-0000-000000000001

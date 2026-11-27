@@ -1,0 +1,122 @@
+﻿@page "/openassignments"
+@rendermode InteractiveServer
+@using Bookings.Application.Bookings.DTOs.Response
+@using Employees.Application.Employees.DTOs.Employee
+@using Employees.Domain.Enums
+@using SoK.Webb.Clients
+@using SoK.Webb.Components.AssignmentComponents
+@inject AssignmentApiClient AssignmentApiClient
+
+<PageTitle>Lediga uppdrag</PageTitle>
+
+<div class="admin-page">
+    <div class="admin-page-header">
+        <h2>Lediga uppdrag</h2>
+    </div>
+
+    <EmployeePicker OnSelected="SelectEmployeeAsync" />
+
+    @if (message is not null)
+    {
+        <p class="assignment-success">@message</p>
+    }
+
+    @if (error is not null)
+    {
+        <p class="admin-alert admin-alert-error">@error</p>
+    }
+
+    @if (employee is null)
+    {
+        <p class="empty">Välj en anställd för att se lediga uppdrag.</p>
+    }
+    else if (assignments is null)
+    {
+        <p class="empty">Laddar...</p>
+    }
+    else if (assignments.Count == 0)
+    {
+        <p class="empty">Det finns inga lediga uppdrag för @employee.Title.TranslateToSwedish().</p>
+    }
+    else
+    {
+        <div class="assignment-table-wrapper">
+            <table class="assignment-table">
+                <thead>
+                    <tr>
+                        <th>Tjänst</th>
+                        <th>Start</th>
+                        <th>Slut</th>
+                        <th>Timmar</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var a in assignments)
+                    {
+                        <tr>
+                            <td>@a.ServiceName</td>
+                            <td>@a.StartsAt.ToString("yyyy-MM-dd HH:mm")</td>
+                            <td>@a.EndsAt.ToString("yyyy-MM-dd HH:mm")</td>
+                            <td>@a.EstimatedHours.ToString("0.##")</td>
+                            <td class="assignment-action">
+                                <button class="admin-btn admin-btn-primary"
+                                        @onclick="() => TakeAsync(a)"
+                                        disabled="@busy">
+                                    Ta uppdrag
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    private EmployeeResponse? employee;
+    private List<OpenAssignmentResponse>? assignments;
+    private bool busy;
+    private string? error;
+    private string? message;
+
+    private async Task SelectEmployeeAsync(EmployeeResponse? selected)
+    {
+        employee = selected;
+        message = null;
+        error = null;
+        assignments = null;
+
+        if (employee is not null)
+            await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        try
+        {
+            // Titeln skickas som enum-namnet, samma som RequiredTitle på tjänsten
+            assignments = await AssignmentApiClient.GetOpenAssignmentsAsync(employee!.Title.ToString());
+        }
+        catch (HttpRequestException)
+        {
+            assignments = [];
+            error = "Kunde inte hämta lediga uppdrag. Försök igen senare.";
+        }
+    }
+
+    private async Task TakeAsync(OpenAssignmentResponse assignment)
+    {
+        busy = true;
+        message = null;
+        error = await AssignmentApiClient.TakeServiceAsync(assignment.BookingId, assignment.ServiceId, employee!.Id);
+        busy = false;
+
+        if (error is null)
+            message = $"Du har tagit {assignment.ServiceName}, {assignment.StartsAt:yyyy-MM-dd}.";
+
+        // Ladda om i båda fallen: uppdraget kan ha tagits av någon annan
+        await LoadAsync();
+    }
+}

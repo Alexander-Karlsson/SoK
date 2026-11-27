@@ -1,0 +1,54 @@
+﻿@using Employees.Application.Employees.DTOs.Employee
+@using Employees.Domain.Enums
+@using SoK.Webb.Clients
+@inject EmployeeApiClient EmployeeApiClient
+
+@* Tillfällig: byts mot inloggad anställd när Identity ger ett employeeId *@
+@if (error is not null)
+{
+    <p class="admin-alert admin-alert-error">@error</p>
+}
+else
+{
+    <label class="picker-field">
+        Anställd
+        <select value="@selectedId" @onchange="OnChangedAsync">
+            <option value="">Välj anställd...</option>
+            @foreach (var e in employees)
+            {
+                <option value="@e.Id">@e.FirstName @e.LastName (@e.Title.TranslateToSwedish())</option>
+            }
+        </select>
+    </label>
+}
+
+@code {
+    [Parameter] public EventCallback<EmployeeResponse?> OnSelected { get; set; }
+
+    private List<EmployeeResponse> employees = [];
+    private string selectedId = "";
+    private string? error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            employees = (await EmployeeApiClient.GetAllAsync())
+                .Where(e => e.IsActive)
+                .OrderBy(e => e.FirstName)
+                .ThenBy(e => e.LastName)
+                .ToList();
+        }
+        catch (HttpRequestException)
+        {
+            error = "Kunde inte hämta anställda. Försök igen senare.";
+        }
+    }
+
+    private async Task OnChangedAsync(ChangeEventArgs e)
+    {
+        selectedId = e.Value?.ToString() ?? "";
+        var employee = employees.FirstOrDefault(x => x.Id.ToString() == selectedId);
+        await OnSelected.InvokeAsync(employee);
+    }
+}

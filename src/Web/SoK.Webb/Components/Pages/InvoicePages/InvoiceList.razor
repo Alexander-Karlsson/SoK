@@ -18,36 +18,7 @@
         <div class="invoice-grid">
             @foreach (var i in Invoice)
             {
-                <div class="invoice-card">
-
-                    <div class="invoice-card-header">
-                        <a class="invoice-link stretched-link" href="invoices/@i.Id">
-                            @i.InvoiceNumber
-                        </a>
-                        <InvoiceStatusBadgeComponent Status="i.Status" Text="@i.StatusText" />
-                    </div>
-
-                    <div class="invoice-card-body">
-                        <div class="invoice-row">
-                            <span class="invoice-label">Kund</span>
-                            <span>@CustomerName(i.Customer)</span>
-                        </div>
-                        <div class="invoice-row">
-                            <span class="invoice-label">Fakturadatum</span>
-                            <span>@i.InvoiceDate.ToString("yyyy-MM-dd")</span>
-                        </div>
-                        <div class="invoice-row">
-                            <span class="invoice-label">Förfallodatum</span>
-                            <span>@i.DueDate.ToString("yyyy-MM-dd")</span>
-                        </div>
-                    </div>
-
-                    <div class="invoice-card-footer">
-                        <span class="invoice-label">Att betala</span>
-                        <span class="invoice-amount">@i.TotalAmount.ToString("#,0.##") kr</span>
-                    </div>
-
-                </div>
+                <InvoiceCardComponent Invoice="i" />
             }
         </div>
     </div>
@@ -67,20 +38,5 @@
         {
             errorMessage = "Kunde inte hämta fakturor.";
         }
-    }
-
-    private static string CustomerName(CustomerInfo? customer)
-    {
-        if (customer == null)
-        {
-            return "Okänd kund";
-        }
-
-        if (!string.IsNullOrWhiteSpace(customer.CompanyName))
-        {
-            return customer.CompanyName;
-        }
-
-        return $"{customer.FirstName} {customer.LastName}";
     }
 }

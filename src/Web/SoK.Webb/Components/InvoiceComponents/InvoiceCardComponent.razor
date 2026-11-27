@@ -1,0 +1,58 @@
+﻿@using Invoices.Application.Dtos
+
+<div class="invoice-card">
+
+    <div class="invoice-card-header">
+        <a class="invoice-link stretched-link" href="invoices/@Invoice.Id">
+            @Invoice.InvoiceNumber
+        </a>
+        <InvoiceStatusBadgeComponent Status="Invoice.Status" Text="@Invoice.StatusText" />
+    </div>
+
+    <div class="invoice-card-body">
+        @if (ShowCustomer)
+        {
+            <div class="invoice-row">
+                <span class="invoice-label">Kund</span>
+                <span>@CustomerName(Invoice.Customer)</span>
+            </div>
+        }
+        <div class="invoice-row">
+            <span class="invoice-label">Fakturadatum</span>
+            <span>@Invoice.InvoiceDate.ToString("yyyy-MM-dd")</span>
+        </div>
+        <div class="invoice-row">
+            <span class="invoice-label">Förfallodatum</span>
+            <span>@Invoice.DueDate.ToString("yyyy-MM-dd")</span>
+        </div>
+    </div>
+
+    <div class="invoice-card-footer">
+        <span class="invoice-label">Att betala</span>
+        <span class="invoice-amount">@Invoice.TotalAmount.ToString("#,0.##") kr</span>
+    </div>
+
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public InvoiceResponse Invoice { get; set; } = default!;
+
+    [Parameter]
+    public bool ShowCustomer { get; set; } = true;
+
+    private static string CustomerName(CustomerInfo? customer)
+    {
+        if (customer == null)
+        {
+            return "Okänd kund";
+        }
+
+        if (!string.IsNullOrWhiteSpace(customer.CompanyName))
+        {
+            return customer.CompanyName;
+        }
+
+        return $"{customer.FirstName} {customer.LastName}";
+    }
+}

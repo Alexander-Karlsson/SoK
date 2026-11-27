@@ -1,7 +1,9 @@
 ﻿@using SoK.Webb.Clients
+@using Employees.Domain.Enums
 
 @inject EmployeeApiClient EmployeeApiClient
 @inject BookingApiClient BookingApiClient
+@inject CatalogApiClient CatalogApiClient
 
 @if (loading)
 {
@@ -67,49 +69,52 @@ else
             }
         </section>
 
-        <section class="admin-card">
-            <h4>Anställda</h4>
+        @if (ShowEmployees)
+        {
+            <section class="admin-card">
+                <h4>Anställda</h4>
 
-            @if (employeeError is not null)
-            {
-                <p class="empty">@employeeError</p>
-            }
-            else if (employees.Count == 0)
-            {
-                <p class="empty">Inga anställda att boka.</p>
-            }
-            else
-            {
-                <label class="booking-field">
-                    Sök
-                    <input placeholder="Namn eller titel..."
-                           @bind="employeeSearch" @bind:event="oninput" />
-                </label>
-
-                @if (selectedEmployees.Count > 0)
+                @if (employeeError is not null)
                 {
-                    <p class="booking-selected-count">@selectedEmployees.Count valda</p>
+                    <p class="empty">@employeeError</p>
                 }
+                else if (employees.Count == 0)
+                {
+                    <p class="empty">Inga anställda att boka.</p>
+                }
+                else
+                {
+                    <label class="booking-field">
+                        Sök
+                        <input placeholder="Namn eller titel..."
+                        @bind="employeeSearch" @bind:event="oninput" />
+                    </label>
 
-                <div class="booking-scroll">
-                    @foreach (var e in FilteredEmployees)
+                    @if (selectedEmployees.Count > 0)
                     {
-                        <label class="booking-check">
-                            <input type="checkbox"
-                                   checked="@selectedEmployees.Contains(e.Id)"
-                                   @onchange="ev => ToggleEmployee(e.Id, (bool)ev.Value!)" />
-                            <span>@e.FirstName @e.LastName</span>
-                            <span class="booking-price">@e.Title</span>
-                        </label>
+                        <p class="booking-selected-count">@selectedEmployees.Count valda</p>
                     }
 
-                    @if (FilteredEmployees.Count == 0)
-                    {
-                        <p class="empty">Ingen anställd matchar sökningen.</p>
-                    }
-                </div>
-            }
-        </section>
+                    <div class="booking-scroll">
+                        @foreach (var e in FilteredEmployees)
+                        {
+                            <label class="booking-check">
+                                <input type="checkbox"
+                                checked="@selectedEmployees.Contains(e.Id)"
+                                @onchange="ev => ToggleEmployee(e.Id, (bool)ev.Value!)" />
+                                <span>@e.FirstName @e.LastName</span>
+                                <span class="booking-price">@e.Title.TranslateToSwedish()</span>
+                            </label>
+                        }
+
+                        @if (FilteredEmployees.Count == 0)
+                        {
+                            <p class="empty">Ingen anställd matchar sökningen.</p>
+                        }
+                    </div>
+                }
+            </section>
+        }
     </div>
 
 }

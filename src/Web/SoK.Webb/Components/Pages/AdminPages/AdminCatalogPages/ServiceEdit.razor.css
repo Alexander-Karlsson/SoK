@@ -13,7 +13,7 @@
     color: #6b665e;
 }
 
-    .catalog-field input, .catalog-field textarea {
+    .catalog-field input, .catalog-field textarea, .catalog-field select {
         padding: 0.6rem 0.75rem;
         border: 1px solid #d6d0c8;
         border-radius: 6px;
@@ -24,7 +24,7 @@
         resize: vertical;
     }
 
-        .catalog-field input:focus, .catalog-field textarea:focus {
+        .catalog-field input:focus, .catalog-field textarea:focus, .catalog-field select:focus {
             outline: none;
             border-color: var(--color-yellow);
             box-shadow: 0 0 0 3px rgba(184, 137, 26, 0.25);

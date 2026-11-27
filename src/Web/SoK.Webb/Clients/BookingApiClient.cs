@@ -64,11 +64,6 @@ public class BookingApiClient(HttpClient httpClient)
             _ => "Något gick fel, försök igen."
         };
     }
-    public async Task<List<MachineResponse>> GetMachinesAsync()
-    => await httpClient.GetFromJsonAsync<List<MachineResponse>>("api/machines", jsonOptions) ?? [];
-
-    public async Task<List<BusinessServiceResponse>> GetServicesAsync()
-        => await httpClient.GetFromJsonAsync<List<BusinessServiceResponse>>("api/businessservices", jsonOptions) ?? [];
 
     public async Task<(Guid? Id, string? Error)> CreateAsync(CreateBookingRequest request)
     {

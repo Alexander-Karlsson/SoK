@@ -40,15 +40,22 @@ public class Program
             client.BaseAddress = new Uri(builder.Configuration["ApiUrls:Bookings"]!);
         });
 
+        //Assignment
+        builder.Services.AddHttpClient<AssignmentApiClient>(client =>
+        {
+            client.BaseAddress = new Uri(builder.Configuration["ApiUrls:Bookings"]!);
+        });
+        //Payroll
         builder.Services.AddHttpClient<EmployeePayrollApiClient>(client =>
         {
             client.BaseAddress = new Uri(builder.Configuration["ApiUrls:Employees"]!);
         });
-
+        //Absence
         builder.Services.AddHttpClient<AbsenceApiClient>(client =>
         {
             client.BaseAddress = new Uri(builder.Configuration["ApiUrls:Employees"]!);
         });
+        //Payslip
         builder.Services.AddHttpClient<PayslipApiClient>(client =>
         {
             client.BaseAddress = new Uri(builder.Configuration["ApiUrls:Employees"]!);

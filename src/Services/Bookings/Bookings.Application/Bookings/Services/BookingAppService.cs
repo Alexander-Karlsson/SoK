@@ -248,11 +248,9 @@ public class BookingAppService(IBookingRepository repo, IMachineRepository machi
         if (line.EmployeeId is not null)
             throw new InvalidOperationException("Uppdraget är redan taget.");
 
-        // Samma bokning räknas inte som krock, så man kan ta flera tjänster i samma uppdrag
         if (await repo.IsAnyEmployeeBookedAsync([request.EmployeeId], details.Booking.StartsAt, details.Booking.EndsAt, bookingId))
             throw new InvalidOperationException("Den anställda är redan bokad under perioden.");
 
-        // Om någon hann före mellan kontrollen ovan och nu
         if (!await repo.TryAssignServiceAsync(bookingId, serviceId, request.EmployeeId))
             throw new InvalidOperationException("Uppdraget är redan taget.");
 

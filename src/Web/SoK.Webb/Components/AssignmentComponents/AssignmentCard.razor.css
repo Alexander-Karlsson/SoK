@@ -80,3 +80,14 @@
     flex: 1;
     min-width: 12rem;
 }
+
+.assignment-release {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #eee8df;
+    color: #6b665e;
+}

@@ -66,6 +66,19 @@
         {
             <p class="empty">Uppdraget har inte börjat. Du kan rapportera tid från @FirstDay.ToString("yyyy-MM-dd").</p>
         }
+
+        <div class="assignment-release">
+            @if (confirmRelease)
+            {
+                <span>Lämna uppdraget? Rapporterad tid ligger kvar.</span>
+                <button class="admin-btn admin-btn-secondary" @onclick="() => confirmRelease = false" disabled="@busy">Nej</button>
+                <button class="admin-btn admin-btn-danger" @onclick="ReleaseAsync" disabled="@busy">Ja, lämna</button>
+            }
+            else
+            {
+                <button class="admin-btn admin-btn-secondary" @onclick="() => confirmRelease = true">Lämna uppdrag</button>
+            }
+        </div>
     }
 </section>
 
@@ -73,12 +86,13 @@
     [Parameter, EditorRequired] public MyAssignmentResponse Assignment { get; set; } = default!;
     [Parameter] public ServiceTimeResponse? Time { get; set; }
     [Parameter] public Guid EmployeeId { get; set; }
-    [Parameter] public EventCallback OnReported { get; set; }
+    [Parameter] public EventCallback OnChanged { get; set; }
 
     private DateOnly workDate;
     private decimal hours;
     private string? note;
     private bool busy;
+    private bool confirmRelease;
     private string? error;
 
     private static DateOnly Today => DateOnly.FromDateTime(DateTime.Today);
@@ -120,7 +134,18 @@
         {
             hours = 0;
             note = null;
-            await OnReported.InvokeAsync();
+            await OnChanged.InvokeAsync();
         }
+    }
+
+    private async Task ReleaseAsync()
+    {
+        busy = true;
+        error = await AssignmentApiClient.ReleaseServiceAsync(Assignment.BookingId, Assignment.ServiceId!.Value, EmployeeId);
+        busy = false;
+        confirmRelease = false;
+
+        if (error is null)
+            await OnChanged.InvokeAsync();
     }
 }

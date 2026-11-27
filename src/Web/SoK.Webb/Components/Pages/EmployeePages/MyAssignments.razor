@@ -15,6 +15,7 @@
 <div class="admin-page">
     <div class="admin-page-header">
         <h2>Mina uppdrag</h2>
+        <a class="admin-btn admin-btn-secondary" href="/mina-sidor">← Tillbaka</a>
     </div>
 
     @if (loading)
@@ -44,7 +45,7 @@
                                 Assignment="a"
                                 Time="TimeFor(a)"
                                 EmployeeId="employeeId.Value"
-                                OnReported="LoadAsync" />
+                                OnChanged="LoadAsync" />
             }
         }
     }

@@ -293,6 +293,30 @@ Content-Type: application/json
   "employeeId": "00000000-0000-0000-0000-000000000000"
 }
 
+### Lämna uppdrag som fel anställd: ska ge 409
+POST {{Bookings.Api_HostAddress}}/api/bookings/{{bookingId}}/services/{{serviceId}}/release
+Content-Type: application/json
+
+{
+  "employeeId": "11111111-1111-1111-1111-111111111111"
+}
+
+### Lämna uppdrag: ska ge 204, rapporterad tid ligger kvar i GET .../time
+POST {{Bookings.Api_HostAddress}}/api/bookings/{{bookingId}}/services/{{serviceId}}/release
+Content-Type: application/json
+
+{
+  "employeeId": "{{employeeId}}"
+}
+
+### Lämna uppdrag igen: ska ge 409, inte längre ditt
+POST {{Bookings.Api_HostAddress}}/api/bookings/{{bookingId}}/services/{{serviceId}}/release
+Content-Type: application/json
+
+{
+  "employeeId": "{{employeeId}}"
+}
+
 ### Tjänst kräver titel: sätt RequiredTitle
 PUT {{Bookings.Api_HostAddress}}/api/businessservices/{{serviceId}}
 Content-Type: application/json

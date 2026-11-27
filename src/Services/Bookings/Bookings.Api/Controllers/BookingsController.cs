@@ -130,6 +130,23 @@ public class BookingsController(BookingAppService service) : ControllerBase
         }
     }
 
+    [HttpPost("{id:guid}/services/{serviceId:guid}/release")]
+    public async Task<IActionResult> ReleaseService(Guid id, Guid serviceId, [FromBody] ReleaseServiceRequest request)
+    {
+        try
+        {
+            return await service.ReleaseServiceAsync(id, serviceId, request) ? NoContent() : NotFound();
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(ex.Message);
+        }
+    }
+
     [HttpGet("open")]
     public async Task<IActionResult> GetOpenAssignments([FromQuery] string? title)
     => Ok(await service.GetOpenAssignmentsAsync(title));

@@ -85,6 +85,11 @@ public class BookingRepository(BookingDbContext context) : IBookingRepository
         .Where(bs => bs.BookingId == bookingId && bs.ServiceId == serviceId && bs.EmployeeId == null)
         .ExecuteUpdateAsync(s => s.SetProperty(bs => bs.EmployeeId, (Guid?)employeeId)) == 1;
 
+    public async Task<bool> TryReleaseServiceAsync(Guid bookingId, Guid serviceId, Guid employeeId)
+    => await context.BookingServices
+        .Where(bs => bs.BookingId == bookingId && bs.ServiceId == serviceId && bs.EmployeeId == employeeId)
+        .ExecuteUpdateAsync(s => s.SetProperty(bs => bs.EmployeeId, (Guid?)null)) == 1;
+
     public async Task<IReadOnlyList<OpenAssignmentResponse>> GetOpenAssignmentsAsync(string? title, DateTime now)
     => await (from bs in context.BookingServices
               join b in context.Bookings on bs.BookingId equals b.Id

@@ -42,6 +42,25 @@ public class AssignmentApiClient(HttpClient httpClient)
         };
     }
 
+    public async Task<string?> ReleaseServiceAsync(Guid bookingId, Guid serviceId, Guid employeeId)
+    {
+        var response = await httpClient.PostAsJsonAsync(
+            $"api/bookings/{bookingId}/services/{serviceId}/release",
+            new ReleaseServiceRequest { EmployeeId = employeeId },
+            jsonOptions);
+
+        if (response.IsSuccessStatusCode)
+            return null;
+
+        return response.StatusCode switch
+        {
+            HttpStatusCode.NotFound => "Uppdraget finns inte längre.",
+            HttpStatusCode.BadRequest or HttpStatusCode.Conflict
+                => await response.Content.ReadAsStringAsync(),
+            _ => "Något gick fel, försök igen."
+        };
+    }
+
     public async Task<List<MyAssignmentResponse>> GetAssignmentsAsync(Guid employeeId)
         => await httpClient.GetFromJsonAsync<List<MyAssignmentResponse>>(
             $"api/bookings/assignments?employeeId={employeeId}", jsonOptions) ?? [];

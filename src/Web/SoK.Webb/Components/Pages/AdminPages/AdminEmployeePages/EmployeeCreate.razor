@@ -229,11 +229,13 @@
         if (await UserManager.FindByEmailAsync(employee.Email) is not null)
         {
             message = "Det finns redan ett konto kopplat till denna mail";
+            return;
         }
 
         if (string.IsNullOrWhiteSpace(startPassword))
         {
             message = "Du måste ange ett lösenord";
+            return;
         }
 
         var (created, error) = await EmployeeClient.CreateAsync(employee);
@@ -256,7 +258,7 @@
 
         if (!result.Succeeded)
         {
-            message = "Den anställda har skapades, men inte kontot: "
+            message = "Den anställda skapades, men inte kontot: "
                   + string.Join(" ", result.Errors.Select(e => e.Description));
             return;
         }
@@ -264,8 +266,6 @@
         await UserManager.AddToRoleAsync(user, "Employee");
 
         Navigation.NavigateTo($"/employeedetails/{created.Id}");
-        
-            Navigation.NavigateTo($"/employeedetails/{created.Id}");
     }
 
     private void WhenEmployeeTypeChanged()

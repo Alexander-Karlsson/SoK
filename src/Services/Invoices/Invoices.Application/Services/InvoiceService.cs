@@ -136,7 +136,23 @@ public class InvoiceService(IInvoiceRepository repo, ITemplateRepository templat
     {
         var invoices = await repo.GetAllAsync();
 
-        return invoices.Select(i => ToResponse(i, [])).ToList();
+        var responses = invoices.Select(i => ToResponse(i, [])).ToList();
+
+        var customerIds = responses.Select(r => r.CustomerId).Distinct();
+
+        var customers = new Dictionary<Guid, CustomerInfo?>();
+
+        foreach (var customerId in customerIds)
+        {
+            customers[customerId] = await customerClient.GetByIdAsync(customerId);
+        }
+
+        foreach (var response in responses)
+        {
+            response.Customer = customers[response.CustomerId];
+        }
+
+        return responses;
     }
 
     private static bool IsAllowedStatusChange(InvoiceStatus current, InvoiceStatus next)

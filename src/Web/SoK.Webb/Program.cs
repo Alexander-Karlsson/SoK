@@ -101,6 +101,28 @@ public class Program
                 if (!await roleManager.RoleExistsAsync(role))
                     await roleManager.CreateAsync(new IdentityRole(role));
             }
+            
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+
+            var adminEmail = config["Admin:Email"];
+            var adminPassword = config["Admin:Password"];
+
+            if (!string.IsNullOrWhiteSpace(adminEmail) && !string.IsNullOrWhiteSpace(adminPassword)
+                && await userManager.FindByEmailAsync(adminEmail) is null)
+            {
+                var admin = new ApplicationUser
+                {
+                    UserName = adminEmail,
+                    Email = adminEmail,
+                    EmailConfirmed = true
+                };
+
+                var result = await userManager.CreateAsync(admin, adminPassword);
+
+                if (result.Succeeded)
+                    await userManager.AddToRoleAsync(admin, "Admin");
+            }
         }
 
         // Configure the HTTP request pipeline.

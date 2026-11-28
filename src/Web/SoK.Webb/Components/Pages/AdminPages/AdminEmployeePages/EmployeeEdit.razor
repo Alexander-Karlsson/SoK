@@ -4,9 +4,12 @@
 @using Employees.Domain.Enums
 @using Microsoft.AspNetCore.Authorization
 @using SoK.Webb.Clients
+@using Microsoft.AspNetCore.Identity
+@using SoK.Webb.Data
 @* @attribute [Authorize(Roles = "Admin")] *@
 @inject EmployeeApiClient EmployeeClient
 @inject NavigationManager Navigation
+@inject UserManager<ApplicationUser> UserManager
 
 <PageTitle>Redigera anställd</PageTitle>
 
@@ -192,10 +195,19 @@
                     <div class="admin-form-field">
                         <label>
                             Sysselsättningsgrad (%)
-                            <InputNumber @bind-Value="employee.EmployeeRate" ParsingErrorMessage="Måste ange sysselsättningsgrad mellan 0 - 100"" />
+                            <InputNumber @bind-Value="employee.EmployeeRate" ParsingErrorMessage="Måste ange sysselsättningsgrad mellan 0 - 100" />
                         </label>
                         <ValidationMessage For="() => employee.EmployeeRate" />
                     </div>
+                    @if (account is not null)
+                    {
+                        <div class="admin-form-field">
+                            <label>
+                                <InputCheckbox @bind-Value="isAdmin" />
+                                Admin-behörighet
+                            </label>
+                        </div>
+                    }
                 </section>
             </div>
 
@@ -210,6 +222,8 @@
 @code {
     [Parameter]
     public Guid Id { get; set; }
+    private ApplicationUser? account;
+    private bool isAdmin;
 
     private UpdateEmployeeRequest? employee;
 
@@ -245,6 +259,13 @@
             EmployeeRate = existing.EmployeeRate,
             VacationDaysPerYear = existing.VacationDaysPerYear
         };
+
+        account = UserManager.Users.FirstOrDefault(u => u.EmployeeId == Id);
+
+        if (account is not null)
+        {
+            isAdmin = await UserManager.IsInRoleAsync(account, "Admin");
+        }
     }
 
     private async Task HandleSubmit()
@@ -260,14 +281,24 @@
 
         var (update, error) = await EmployeeClient.UpdateAsync(Id, employee);
 
-        if (update is not null)
-        {
-            Navigation.NavigateTo($"/employeedetails/{Id}");
-        }
-        else
+        if (update is null)
         {
             message = error;
+            return;
         }
+
+        if (account is not null)
+        {
+            var wasAdmin = await UserManager.IsInRoleAsync(account, "Admin");
+
+            if (isAdmin && !wasAdmin)
+                await UserManager.AddToRoleAsync(account, "Admin");
+
+            if (!isAdmin && wasAdmin)
+                await UserManager.RemoveFromRoleAsync(account, "Admin");
+        }
+        
+        Navigation.NavigateTo($"/employeedetails/{Id}");
     }
 
     private void WhenEmployeeTypeChanged()

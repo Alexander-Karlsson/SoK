@@ -199,6 +199,13 @@
                     </label>
                     <ValidationMessage For="() => employee.EmployeeRate" />
                 </div>
+
+                <div class="admin-form-field">
+                    <label>
+                        <InputCheckbox @bind-Value="isAdmin" />
+                        Ge admin-behörighet
+                    </label>
+                </div>
             </section>
         </div>
 
@@ -212,6 +219,7 @@
 @code {
     private CreateEmployeeRequest employee = new();
     private string? startPassword;
+    private bool isAdmin;
 
     private string? message;
 
@@ -264,6 +272,11 @@
         }
 
         await UserManager.AddToRoleAsync(user, "Employee");
+
+        if (isAdmin)
+        {
+            await UserManager.AddToRoleAsync(user, "Admin");
+        }
 
         Navigation.NavigateTo($"/employeedetails/{created.Id}");
     }
